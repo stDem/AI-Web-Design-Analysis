@@ -67,7 +67,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
               <Progress value={results.score} className="w-32 mt-2" />
             </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       <div className="grid lg:grid-cols-2 gap-6">
