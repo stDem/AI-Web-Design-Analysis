@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import CodeSuggestions from './CodeSuggestions';
 
 interface CodeSuggestion {
@@ -16,6 +17,14 @@ interface CodeSuggestion {
   after: string;
   explanation: string;
   type: 'performance' | 'accessibility' | 'maintainability' | 'security';
+}
+
+interface IssueWithSuggestion {
+  type: string;
+  severity: 'low' | 'medium' | 'high';
+  description: string;
+  suggestion: string;
+  codeSuggestion?: CodeSuggestion;
 }
 
 interface AnalysisResultsProps {
@@ -32,8 +41,10 @@ interface AnalysisResultsProps {
 }
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
-  const [showCodeSuggestions, setShowCodeSuggestions] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [expandedIssues, setExpandedIssues] = useState<Set<number>>(new Set());
+  const [editingCode, setEditingCode] = useState<{ issueIndex: number; code: string } | null>(null);
+  const [copiedCode, setCopiedCode] = useState<number | null>(null);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -63,11 +74,28 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     }
   };
 
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'performance': return 'bg-yellow-100 text-yellow-800';
+      case 'accessibility': return 'bg-purple-100 text-purple-800';
+      case 'maintainability': return 'bg-blue-100 text-blue-800';
+      case 'security': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-yellow-600';
     return 'text-red-600';
   };
+
+  // Combine issues with suggestions and code improvements
+  const issuesWithSuggestions: IssueWithSuggestion[] = results.issues.map((issue, index) => ({
+    ...issue,
+    suggestion: results.suggestions[index] || `Consider addressing this ${issue.type} issue to improve overall quality.`,
+    codeSuggestion: results.codeSuggestions?.[index]
+  }));
 
   // Chart data for the design score
   const chartData = [
@@ -89,8 +117,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.accessibility,
       icon: Accessibility,
       color: 'purple',
-      issues: results.issues.filter(issue => issue.type === 'accessibility'),
-      suggestions: results.suggestions.filter((_, index) => index % 4 === 0)
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'accessibility')
     },
     {
       id: 'performance',
@@ -98,8 +125,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.performance,
       icon: Zap,
       color: 'yellow',
-      issues: results.issues.filter(issue => issue.type === 'performance'),
-      suggestions: results.suggestions.filter((_, index) => index % 4 === 1)
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'performance')
     },
     {
       id: 'ux',
@@ -107,8 +133,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.ux,
       icon: TrendingUp,
       color: 'blue',
-      issues: results.issues.filter(issue => issue.type === 'ux'),
-      suggestions: results.suggestions.filter((_, index) => index % 4 === 2)
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'ux')
     },
     {
       id: 'code',
@@ -116,8 +141,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.code,
       icon: Code,
       color: 'green',
-      issues: results.issues.filter(issue => issue.type === 'code'),
-      suggestions: results.suggestions.filter((_, index) => index % 4 === 3)
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'code')
     }
   ];
 
@@ -132,12 +156,43 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   };
 
   const filteredIssues = selectedCategory 
-    ? results.issues.filter(issue => issue.type === selectedCategory)
-    : results.issues;
+    ? categoryData.find(cat => cat.id === selectedCategory)?.issues || []
+    : issuesWithSuggestions;
 
-  const filteredSuggestions = selectedCategory
-    ? categoryData.find(cat => cat.id === selectedCategory)?.suggestions || []
-    : results.suggestions;
+  const toggleIssueExpansion = (index: number) => {
+    const newExpanded = new Set(expandedIssues);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedIssues(newExpanded);
+  };
+
+  const handleCopyCode = async (code: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(index);
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
+  };
+
+  const handleEditCode = (issueIndex: number, code: string) => {
+    setEditingCode({ issueIndex, code });
+  };
+
+  const handleSaveEdit = () => {
+    if (editingCode) {
+      console.log(`Saved edited code for issue ${editingCode.issueIndex}:`, editingCode.code);
+      setEditingCode(null);
+    }
+  };
+
+  const handleApplyCode = (issueIndex: number) => {
+    console.log(`Applied code suggestion for issue ${issueIndex}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -199,7 +254,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                 <h4 className="font-semibold text-sm">{category.label}</h4>
                 <p className="text-2xl font-bold mt-1">{category.score}%</p>
                 <div className="text-xs mt-2 opacity-75">
-                  {category.issues.length} issues • {category.suggestions.length} suggestions
+                  {category.issues.length} issues found
                 </div>
               </CardContent>
             </Card>
@@ -218,94 +273,174 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         </div>
       )}
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Issues Found */}
-        <Card className="bg-white/70 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
-              <span>Issues Found</span>
-              <Badge variant="outline" className="ml-auto">
-                {filteredIssues.length}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 max-h-96 overflow-y-auto">
-            {filteredIssues.map((issue, index) => (
-              <div key={index} className="flex items-start space-x-3 p-3 rounded-lg border bg-white/50">
-                <div className="flex items-center space-x-2 mt-0.5">
-                  {getTypeIcon(issue.type)}
-                  {getSeverityIcon(issue.severity)}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <Badge variant="outline" className={getSeverityColor(issue.severity)}>
-                      {issue.severity.toUpperCase()}
-                    </Badge>
-                    <Badge variant="outline" className="capitalize">
-                      {issue.type}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-gray-700">{issue.description}</p>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Improvement Suggestions */}
-        <Card className="bg-white/70 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <TrendingUp className="h-5 w-5 text-green-500" />
-              <span>Improvement Suggestions</span>
-              <Badge variant="outline" className="ml-auto">
-                {filteredSuggestions.length}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 max-h-96 overflow-y-auto">
-            {filteredSuggestions.map((suggestion, index) => (
-              <div key={index} className="flex items-start space-x-3 p-3 rounded-lg border bg-white/50">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-gray-700">{suggestion}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Code Improvement Suggestions - Collapsible */}
+      {/* Issues with Paired Suggestions */}
       <Card className="bg-white/70 backdrop-blur-sm">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2">
-              <Code className="h-5 w-5 text-blue-500" />
-              <span>Code Improvement Suggestions</span>
-              <Badge variant="outline">
-                {results.codeSuggestions?.length || 0}
-              </Badge>
-            </CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowCodeSuggestions(!showCodeSuggestions)}
-              className="flex items-center space-x-2"
-            >
-              <span>{showCodeSuggestions ? 'Hide' : 'Show'}</span>
-              {showCodeSuggestions ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
+          <CardTitle className="flex items-center space-x-2">
+            <AlertTriangle className="h-5 w-5 text-orange-500" />
+            <span>Issues & Improvement Suggestions</span>
+            <Badge variant="outline" className="ml-auto">
+              {filteredIssues.length}
+            </Badge>
+          </CardTitle>
         </CardHeader>
-        {showCodeSuggestions && results.codeSuggestions && (
-          <CardContent>
-            <CodeSuggestions suggestions={results.codeSuggestions} />
-          </CardContent>
-        )}
+        <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
+          {filteredIssues.map((issue, index) => (
+            <div key={index} className="border rounded-lg bg-white/50">
+              {/* Issue Header */}
+              <div className="p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="flex items-center space-x-2 mt-0.5">
+                    {getTypeIcon(issue.type)}
+                    {getSeverityIcon(issue.severity)}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Badge variant="outline" className={getSeverityColor(issue.severity)}>
+                        {issue.severity.toUpperCase()}
+                      </Badge>
+                      <Badge variant="outline" className="capitalize">
+                        {issue.type}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-700 font-medium mb-2">{issue.description}</p>
+                    
+                    {/* Improvement Suggestion */}
+                    <div className="bg-green-50 border border-green-200 rounded p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span className="text-sm font-medium text-green-800">Improvement Suggestion</span>
+                        </div>
+                        {issue.codeSuggestion && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleIssueExpansion(index)}
+                            className="text-green-700 hover:text-green-900"
+                          >
+                            <Code className="h-4 w-4 mr-1" />
+                            {expandedIssues.has(index) ? (
+                              <>Hide Code <ChevronUp className="h-4 w-4 ml-1" /></>
+                            ) : (
+                              <>Show Code <ChevronDown className="h-4 w-4 ml-1" /></>
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-sm text-green-700 mt-2">{issue.suggestion}</p>
+                    </div>
+
+                    {/* Code Improvement (Collapsible) */}
+                    {issue.codeSuggestion && (
+                      <Collapsible open={expandedIssues.has(index)} onOpenChange={() => toggleIssueExpansion(index)}>
+                        <CollapsibleContent>
+                          <div className="mt-4 border-t pt-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center space-x-2">
+                                <Badge variant="outline" className={getTypeColor(issue.codeSuggestion.type)}>
+                                  {issue.codeSuggestion.type}
+                                </Badge>
+                                <span className="font-medium text-sm">{issue.codeSuggestion.file}</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditCode(index, issue.codeSuggestion!.after)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleApplyCode(index)}
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  Apply
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-4 mb-3">
+                              {/* Before Code */}
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <label className="text-sm font-medium text-red-600">Before</label>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleCopyCode(issue.codeSuggestion!.before, index * 2)}
+                                  >
+                                    {copiedCode === index * 2 ? (
+                                      <Check className="h-4 w-4 text-green-500" />
+                                    ) : (
+                                      <Copy className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                                <pre className="bg-red-50 border border-red-200 rounded p-3 text-sm overflow-x-auto">
+                                  <code>{issue.codeSuggestion.before}</code>
+                                </pre>
+                              </div>
+
+                              {/* After Code */}
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <label className="text-sm font-medium text-green-600">After</label>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleCopyCode(
+                                      editingCode?.issueIndex === index ? editingCode.code : issue.codeSuggestion!.after, 
+                                      index * 2 + 1
+                                    )}
+                                  >
+                                    {copiedCode === index * 2 + 1 ? (
+                                      <Check className="h-4 w-4 text-green-500" />
+                                    ) : (
+                                      <Copy className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                                {editingCode?.issueIndex === index ? (
+                                  <div className="space-y-2">
+                                    <Textarea
+                                      value={editingCode.code}
+                                      onChange={(e) => setEditingCode({ ...editingCode, code: e.target.value })}
+                                      className="font-mono text-sm min-h-[100px]"
+                                    />
+                                    <div className="flex space-x-2">
+                                      <Button size="sm" onClick={handleSaveEdit}>
+                                        Save Changes
+                                      </Button>
+                                      <Button size="sm" variant="outline" onClick={() => setEditingCode(null)}>
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <pre className="bg-green-50 border border-green-200 rounded p-3 text-sm overflow-x-auto">
+                                    <code>{issue.codeSuggestion.after}</code>
+                                  </pre>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                              <p className="text-sm text-blue-800">
+                                <strong>Explanation:</strong> {issue.codeSuggestion.explanation}
+                              </p>
+                            </div>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </CardContent>
       </Card>
     </div>
   );
