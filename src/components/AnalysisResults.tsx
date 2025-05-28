@@ -1,9 +1,17 @@
-
 import React from 'react';
 import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+
+interface CodeSuggestion {
+  file: string;
+  issue: string;
+  before: string;
+  after: string;
+  explanation: string;
+  type: 'performance' | 'accessibility' | 'maintainability' | 'security';
+}
 
 interface AnalysisResultsProps {
   results: {
@@ -14,6 +22,7 @@ interface AnalysisResultsProps {
       description: string;
     }>;
     suggestions: string[];
+    codeSuggestions?: CodeSuggestion[];
   };
 }
 

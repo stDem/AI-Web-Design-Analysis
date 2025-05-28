@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, Link as LinkIcon, Figma, FileImage, FileText, Code, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FileUpload from '@/components/FileUpload';
 import AnalysisResults from '@/components/AnalysisResults';
 import AnnotationCanvas from '@/components/AnnotationCanvas';
+import CodeSuggestions from '@/components/CodeSuggestions';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('url');
@@ -78,6 +78,164 @@ const Index = () => {
           'Add focus indicators for keyboard navigation users',
           'Consider implementing a design system with consistent spacing tokens',
           'Add loading states for form submissions to improve perceived performance'
+        ],
+        codeSuggestions: [
+          {
+            file: 'src/components/Header.tsx',
+            issue: 'Missing semantic HTML structure and accessibility attributes',
+            type: 'accessibility',
+            before: `<div className="header">
+  <div className="logo">Logo</div>
+  <div className="nav">
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+  </div>
+</div>`,
+            after: `<header className="header" role="banner">
+  <div className="logo">
+    <img src="/logo.svg" alt="Company Logo" />
+  </div>
+  <nav className="nav" role="navigation" aria-label="Main navigation">
+    <a href="#home" aria-current="page">Home</a>
+    <a href="#about">About</a>
+  </nav>
+</header>`,
+            explanation: 'Added semantic HTML elements (header, nav), ARIA labels, and proper alt text for better screen reader support and SEO.'
+          },
+          {
+            file: 'src/styles/components.css',
+            issue: 'Inefficient CSS with repeated styles and no CSS custom properties',
+            type: 'maintainability',
+            before: `.button-primary {
+  background-color: #3b82f6;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+}
+
+.button-secondary {
+  background-color: #6b7280;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+}`,
+            after: `:root {
+  --color-primary: #3b82f6;
+  --color-secondary: #6b7280;
+  --button-padding: 12px 24px;
+  --button-radius: 8px;
+}
+
+.button-base {
+  color: white;
+  padding: var(--button-padding);
+  border-radius: var(--button-radius);
+}
+
+.button-primary {
+  @extend .button-base;
+  background-color: var(--color-primary);
+}
+
+.button-secondary {
+  @extend .button-base;
+  background-color: var(--color-secondary);
+}`,
+            explanation: 'Introduced CSS custom properties and base classes to reduce code duplication and improve maintainability.'
+          },
+          {
+            file: 'src/utils/imageOptimizer.js',
+            issue: 'Large images loaded without optimization causing performance issues',
+            type: 'performance',
+            before: `function loadImage(src) {
+  const img = new Image();
+  img.src = src;
+  return img;
+}`,
+            after: `function loadImage(src, options = {}) {
+  const { 
+    lazy = true, 
+    width, 
+    height, 
+    format = 'webp' 
+  } = options;
+  
+  const img = new Image();
+  
+  if (lazy) {
+    img.loading = 'lazy';
+  }
+  
+  if (width) img.width = width;
+  if (height) img.height = height;
+  
+  // Use WebP format if supported
+  const supportsWebP = document.createElement('canvas')
+    .toDataURL('image/webp').indexOf('data:image/webp') === 0;
+  
+  img.src = supportsWebP && format === 'webp' 
+    ? src.replace(/\.(jpg|jpeg|png)$/i, '.webp')
+    : src;
+    
+  return img;
+}`,
+            explanation: 'Added lazy loading, responsive sizing options, and WebP format detection to improve page load performance.'
+          },
+          {
+            file: 'src/components/ContactForm.tsx',
+            issue: 'Form inputs lack proper validation and security measures',
+            type: 'security',
+            before: `const handleSubmit = (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  fetch('/api/contact', {
+    method: 'POST',
+    body: formData
+  });
+};`,
+            after: `const handleSubmit = async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  
+  // Input validation
+  const email = formData.get('email');
+  const message = formData.get('message');
+  
+  if (!email || !isValidEmail(email)) {
+    setError('Please enter a valid email address');
+    return;
+  }
+  
+  if (!message || message.length < 10) {
+    setError('Message must be at least 10 characters long');
+    return;
+  }
+  
+  // Sanitize inputs
+  const sanitizedData = {
+    email: sanitizeInput(email),
+    message: sanitizeInput(message)
+  };
+  
+  try {
+    const response = await fetch('/api/contact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': getCsrfToken()
+      },
+      body: JSON.stringify(sanitizedData)
+    });
+    
+    if (!response.ok) throw new Error('Submission failed');
+    
+    setSuccess('Message sent successfully!');
+  } catch (error) {
+    setError('Failed to send message. Please try again.');
+  }
+};`,
+            explanation: 'Added input validation, sanitization, CSRF protection, and proper error handling to prevent security vulnerabilities.'
+          }
         ]
       });
       setIsAnalyzing(false);
@@ -218,6 +376,7 @@ const Index = () => {
         {analysisResults && (
           <div className="space-y-6">
             <AnalysisResults results={analysisResults} />
+            <CodeSuggestions suggestions={analysisResults.codeSuggestions || []} />
             <AnnotationCanvas imageUrl="/placeholder.svg" />
           </div>
         )}
