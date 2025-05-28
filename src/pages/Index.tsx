@@ -19,19 +19,65 @@ const Index = () => {
   const handleAnalysis = async () => {
     setIsAnalyzing(true);
     
-    // Simulate analysis process
+    // Simulate analysis process with comprehensive sample data
     setTimeout(() => {
       setAnalysisResults({
-        score: 78,
+        score: 73,
         issues: [
-          { type: 'accessibility', severity: 'high', description: 'Low color contrast in navigation' },
-          { type: 'performance', severity: 'medium', description: 'Large image files affecting load time' },
-          { type: 'ux', severity: 'low', description: 'Button spacing could be improved' }
+          { 
+            type: 'accessibility', 
+            severity: 'high', 
+            description: 'Color contrast ratio of 3.2:1 in navigation links falls below WCAG AA standard (4.5:1 required)' 
+          },
+          { 
+            type: 'accessibility', 
+            severity: 'medium', 
+            description: 'Missing alt attributes on 3 decorative images in the hero section' 
+          },
+          { 
+            type: 'performance', 
+            severity: 'high', 
+            description: 'Large hero image (2.4MB) causing 3.2s delay in First Contentful Paint' 
+          },
+          { 
+            type: 'performance', 
+            severity: 'medium', 
+            description: 'Unused CSS rules detected - 45% of stylesheet not utilized' 
+          },
+          { 
+            type: 'ux', 
+            severity: 'medium', 
+            description: 'Call-to-action buttons lack sufficient spacing (current: 8px, recommended: 16px minimum)' 
+          },
+          { 
+            type: 'ux', 
+            severity: 'low', 
+            description: 'Mobile navigation menu opens without animation, creating jarring user experience' 
+          },
+          { 
+            type: 'code', 
+            severity: 'medium', 
+            description: 'Inline styles detected in 12 components - consider moving to CSS classes for maintainability' 
+          },
+          { 
+            type: 'code', 
+            severity: 'low', 
+            description: 'Console warnings about deprecated React lifecycle methods in ContactForm component' 
+          }
         ],
         suggestions: [
-          'Increase color contrast ratio to meet WCAG AA standards',
-          'Optimize images using WebP format',
-          'Add more whitespace between interactive elements'
+          'Update navigation link colors to #2563eb (blue-600) to achieve 4.7:1 contrast ratio',
+          'Add descriptive alt text to hero images or mark as decorative with alt=""',
+          'Implement WebP format and lazy loading for images to reduce load time by 60%',
+          'Remove unused CSS classes and consider CSS purging in build process',
+          'Increase button margins to 16px and add hover states for better accessibility',
+          'Add smooth slide-down animation to mobile menu using CSS transitions',
+          'Create a centralized theme system using CSS custom properties',
+          'Update ContactForm to use React hooks instead of class components',
+          'Implement semantic HTML5 landmarks (header, nav, main, footer) for screen readers',
+          'Add focus indicators for keyboard navigation users',
+          'Consider implementing a design system with consistent spacing tokens',
+          'Add loading states for form submissions to improve perceived performance'
         ]
       });
       setIsAnalyzing(false);
@@ -112,12 +158,17 @@ const Index = () => {
                   />
                   <Button 
                     onClick={handleAnalysis}
-                    disabled={!websiteUrl || isAnalyzing}
+                    disabled={isAnalyzing}
                     className="bg-gradient-to-r from-purple-600 to-blue-600 text-white"
                   >
                     {isAnalyzing ? 'Analyzing...' : 'Analyze Website'}
                   </Button>
                 </div>
+                {websiteUrl && (
+                  <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                    <p><strong>Sample Analysis:</strong> Click "Analyze Website" to see comprehensive design feedback including accessibility, performance, UX, and code quality insights.</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="upload">
@@ -133,8 +184,11 @@ const Index = () => {
                   <Figma className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Connect Figma Account</h3>
                   <p className="text-gray-600 mb-4">Authorize access to analyze your Figma designs</p>
-                  <Button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                    Connect Figma
+                  <Button 
+                    onClick={handleAnalysis}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+                  >
+                    {isAnalyzing ? 'Analyzing...' : 'Connect Figma & Analyze'}
                   </Button>
                 </div>
               </TabsContent>
@@ -146,17 +200,14 @@ const Index = () => {
                   <p className="text-gray-600 mb-4">
                     Upload a ZIP file containing your project for code analysis
                   </p>
-                  <input
-                    type="file"
-                    accept=".zip,.rar"
-                    className="hidden"
-                    id="project-upload"
-                  />
-                  <label htmlFor="project-upload">
-                    <Button variant="outline" className="cursor-pointer">
-                      Select ZIP File
-                    </Button>
-                  </label>
+                  <Button 
+                    onClick={handleAnalysis}
+                    variant="outline" 
+                    className="cursor-pointer"
+                    disabled={isAnalyzing}
+                  >
+                    {isAnalyzing ? 'Analyzing...' : 'Select ZIP File & Analyze'}
+                  </Button>
                 </div>
               </TabsContent>
             </Tabs>
@@ -179,6 +230,12 @@ const Index = () => {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
                 <h3 className="text-lg font-semibold mb-2">Analyzing Design...</h3>
                 <p className="text-gray-600">Our AI is evaluating your design and generating feedback</p>
+                <div className="mt-4 space-y-2 text-sm text-gray-500">
+                  <p>🔍 Scanning design elements...</p>
+                  <p>🎨 Checking accessibility standards...</p>
+                  <p>⚡ Analyzing performance metrics...</p>
+                  <p>📱 Evaluating user experience...</p>
+                </div>
               </div>
             </CardContent>
           </Card>
