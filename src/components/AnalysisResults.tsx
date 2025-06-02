@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -50,6 +50,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   const [expandedIssues, setExpandedIssues] = useState<Set<number>>(new Set());
   const [editingCode, setEditingCode] = useState<{ issueIndex: number; code: string } | null>(null);
   const [copiedCode, setCopiedCode] = useState<number | null>(null);
+  const [selectedCompetitor, setSelectedCompetitor] = useState<{[key: string]: string}>({});
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -120,9 +121,15 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       id: 'ux',
       label: 'User Experience',
       score: categoryScores.ux,
-      icon: TrendingUp,
+      icon: Users,
       color: 'blue',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'ux')
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'ux'),
+      competitors: [
+        { name: 'Airbnb', score: 85, reason: 'Excellent user onboarding and intuitive interface design' },
+        { name: 'Stripe', score: 82, reason: 'Clean, minimal design with clear user flows' },
+        { name: 'Shopify', score: 79, reason: 'Well-structured e-commerce user experience' },
+        { name: 'Figma', score: 88, reason: 'Outstanding collaborative user interface' }
+      ]
     },
     {
       id: 'accessibility',
@@ -130,7 +137,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.accessibility,
       icon: Accessibility,
       color: 'purple',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'accessibility')
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'accessibility'),
+      competitors: [
+        { name: 'Microsoft', score: 92, reason: 'Industry leader in accessibility standards' },
+        { name: 'BBC', score: 89, reason: 'Comprehensive WCAG compliance and screen reader support' },
+        { name: 'Gov.uk', score: 91, reason: 'Government-grade accessibility implementation' },
+        { name: 'Apple', score: 87, reason: 'Strong focus on assistive technology integration' }
+      ]
     },
     {
       id: 'performance',
@@ -138,7 +151,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.performance,
       icon: Zap,
       color: 'yellow',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'performance')
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'performance'),
+      competitors: [
+        { name: 'Google', score: 95, reason: 'Optimized for speed with advanced caching' },
+        { name: 'Cloudflare', score: 93, reason: 'Global CDN and performance optimization' },
+        { name: 'Amazon', score: 88, reason: 'Efficient content delivery and load balancing' },
+        { name: 'Netflix', score: 90, reason: 'Excellent video streaming performance' }
+      ]
     },
     {
       id: 'code',
@@ -146,7 +165,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.code,
       icon: Code,
       color: 'green',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'code')
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'code'),
+      competitors: [
+        { name: 'GitHub', score: 89, reason: 'Clean, maintainable codebase with best practices' },
+        { name: 'Linear', score: 86, reason: 'Modern React architecture and TypeScript usage' },
+        { name: 'Vercel', score: 88, reason: 'Optimized build processes and code splitting' },
+        { name: 'Notion', score: 84, reason: 'Well-structured component architecture' }
+      ]
     }
   ];
 
@@ -210,6 +235,21 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       navigator.clipboard.writeText(window.location.href);
       alert('Link copied to clipboard!');
     }
+  };
+
+  const handleCompetitorSelect = (categoryId: string, competitorName: string) => {
+    setSelectedCompetitor(prev => ({
+      ...prev,
+      [categoryId]: competitorName
+    }));
+  };
+
+  const getCompetitorData = (categoryId: string) => {
+    const category = categoryData.find(cat => cat.id === categoryId);
+    const competitorName = selectedCompetitor[categoryId];
+    if (!category || !competitorName) return null;
+    
+    return category.competitors.find(comp => comp.name === competitorName);
   };
 
   return (
@@ -285,10 +325,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         </CardContent>
       </Card>
 
-      {/* Interactive Category Score Boxes */}
+      {/* Interactive Category Score Boxes with Competitor Comparison */}
       <div className="grid md:grid-cols-4 gap-4">
         {categoryData.map((category) => {
           const IconComponent = category.icon;
+          const selectedCompetitorData = getCompetitorData(category.id);
+          
           return (
             <Card 
               key={category.id}
@@ -297,12 +339,63 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
               } ${getColorClasses(category.color, category.score)}`}
               onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
             >
-              <CardContent className="p-4 text-center">
-                <IconComponent className="h-8 w-8 mx-auto mb-2" />
-                <h4 className="font-semibold text-sm">{category.label}</h4>
-                <p className="text-2xl font-bold mt-1">{category.score}%</p>
-                <div className="text-xs mt-2 opacity-75">
-                  {category.issues.length} issues found
+              <CardContent className="p-4">
+                <div className="text-center mb-3">
+                  <IconComponent className="h-8 w-8 mx-auto mb-2" />
+                  <h4 className="font-semibold text-sm">{category.label}</h4>
+                  <p className="text-2xl font-bold mt-1">{category.score}%</p>
+                  <div className="text-xs mt-2 opacity-75">
+                    {category.issues.length} issues found
+                  </div>
+                </div>
+
+                {/* Competitor Comparison */}
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-1 text-xs">
+                    <Target className="h-3 w-3" />
+                    <span className="font-medium">Compare with:</span>
+                  </div>
+                  <Select
+                    value={selectedCompetitor[category.id] || ''}
+                    onValueChange={(value) => handleCompetitorSelect(category.id, value)}
+                  >
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue placeholder="Select competitor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {category.competitors.map((competitor) => (
+                        <SelectItem key={competitor.name} value={competitor.name} className="text-xs">
+                          {competitor.name} ({competitor.score}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {selectedCompetitorData && (
+                    <div className="bg-black/10 rounded p-2 text-xs">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium">{selectedCompetitorData.name}</span>
+                        <span className={`font-bold ${
+                          category.score > selectedCompetitorData.score ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {category.score > selectedCompetitorData.score ? '+' : ''}
+                          {category.score - selectedCompetitorData.score}%
+                        </span>
+                      </div>
+                      <p className="opacity-75 text-[10px] leading-tight">
+                        {selectedCompetitorData.reason}
+                      </p>
+                      {category.score > selectedCompetitorData.score ? (
+                        <p className="text-green-600 font-medium text-[10px] mt-1">
+                          🎉 You're performing better!
+                        </p>
+                      ) : (
+                        <p className="text-red-600 font-medium text-[10px] mt-1">
+                          📈 Room for improvement
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
