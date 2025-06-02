@@ -118,22 +118,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   };
 
   const competitorData = {
-    'Airbnb': { ux: 85, accessibility: 87, performance: 88, code: 89 },
-    'Stripe': { ux: 82, accessibility: 89, performance: 93, code: 88 },
+    'Amazon AWS': { ux: 68, accessibility: 72, performance: 85, code: 78 },
+    'Google Cloud': { ux: 71, accessibility: 76, performance: 88, code: 82 },
+    'Microsoft Azure': { ux: 69, accessibility: 74, performance: 86, code: 80 },
     'Shopify': { ux: 79, accessibility: 84, performance: 86, code: 84 },
-    'Figma': { ux: 88, accessibility: 85, performance: 90, code: 86 },
-    'Microsoft': { ux: 80, accessibility: 92, performance: 85, code: 87 },
-    'BBC': { ux: 76, accessibility: 89, performance: 82, code: 85 },
-    'Gov.uk': { ux: 75, accessibility: 91, performance: 84, code: 86 },
-    'Apple': { ux: 84, accessibility: 87, performance: 89, code: 88 },
-    'Google': { ux: 81, accessibility: 86, performance: 95, code: 90 },
-    'Cloudflare': { ux: 78, accessibility: 85, performance: 93, code: 89 },
-    'Amazon': { ux: 79, accessibility: 84, performance: 88, code: 87 },
-    'Netflix': { ux: 83, accessibility: 83, performance: 90, code: 86 },
-    'GitHub': { ux: 82, accessibility: 88, performance: 87, code: 89 },
-    'Linear': { ux: 85, accessibility: 86, performance: 88, code: 86 },
-    'Vercel': { ux: 80, accessibility: 87, performance: 89, code: 88 },
-    'Notion': { ux: 86, accessibility: 82, performance: 84, code: 84 }
+    'Stripe': { ux: 82, accessibility: 89, performance: 93, code: 88 },
+    'Figma': { ux: 88, accessibility: 85, performance: 90, code: 86 }
   };
 
   const categoryData = [
@@ -270,24 +260,42 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                     Your website scores better than <strong>{results.comparison.betterThan}%</strong> of analyzed websites
                   </p>
                   
-                  {/* Centralized Competitor Selection */}
+                  {/* Competitor Score Cards */}
                   <div className="mb-4">
-                    <div className="flex items-center space-x-2 mb-2">
+                    <div className="flex items-center space-x-2 mb-3">
                       <Target className="h-4 w-4" />
-                      <span className="text-sm font-medium">Compare with competitor:</span>
+                      <span className="text-sm font-medium">Compare with competitors:</span>
                     </div>
-                    <Select value={selectedCompetitor} onValueChange={setSelectedCompetitor}>
-                      <SelectTrigger className="w-48 bg-white/20 border-white/30 text-white">
-                        <SelectValue placeholder="Select competitor" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.keys(competitorData).map((competitor) => (
-                          <SelectItem key={competitor} value={competitor}>
-                            {competitor}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(competitorData).map(([competitor, scores]) => {
+                        const overallScore = Math.round((scores.ux + scores.accessibility + scores.performance + scores.code) / 4);
+                        const isSelected = selectedCompetitor === competitor;
+                        
+                        return (
+                          <button
+                            key={competitor}
+                            onClick={() => setSelectedCompetitor(isSelected ? '' : competitor)}
+                            className={`p-3 rounded-lg text-left transition-all duration-200 ${
+                              isSelected 
+                                ? 'bg-white/30 border-2 border-white/50 shadow-lg' 
+                                : 'bg-white/10 border border-white/20 hover:bg-white/20'
+                            }`}
+                          >
+                            <div className="font-medium text-sm">{competitor}</div>
+                            <div className="text-lg font-bold">{overallScore}/100</div>
+                            {results.score > overallScore ? (
+                              <div className="text-xs text-green-300">
+                                +{results.score - overallScore} ahead
+                              </div>
+                            ) : (
+                              <div className="text-xs text-red-300">
+                                {overallScore - results.score} behind
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-3 text-xs">
