@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Upload, Link as LinkIcon, Figma, FileImage, FileText, Code, BarChart3, Share2 } from 'lucide-react';
+import { Upload, Link as LinkIcon, Figma, FileImage, FileText, Code, BarChart3, Share2, Eye, Zap, Shield, Users, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -300,12 +299,117 @@ const Index = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-gray-900 mb-6">
             Analyze & Improve Your Design with AI
           </h2>
-          <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-            Powered by advanced machine learning models including GPT-4 Vision and Claude 3.5, UX Ray provides comprehensive design analysis covering accessibility (WCAG compliance), performance optimization, user experience patterns, and code quality. Get actionable insights with before/after code examples, competitive comparisons, and shareable reports.
-          </p>
+          
+          {/* Enhanced Visual Description */}
+          <div className="max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <Card className="bg-white/70 backdrop-blur-sm border border-purple-200 hover:shadow-lg transition-all duration-200">
+                <CardContent className="p-6 text-center">
+                  <div className="bg-purple-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <Shield className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">WCAG Compliance</h3>
+                  <p className="text-sm text-gray-600">
+                    Accessibility audits with automated contrast, keyboard navigation, and screen reader testing
+                  </p>
+                  <div className="mt-3 flex items-center justify-center space-x-1">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-xs text-gray-500">AA/AAA Standards</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/70 backdrop-blur-sm border border-yellow-200 hover:shadow-lg transition-all duration-200">
+                <CardContent className="p-6 text-center">
+                  <div className="bg-yellow-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <Zap className="h-8 w-8 text-yellow-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Performance Boost</h3>
+                  <p className="text-sm text-gray-600">
+                    Core Web Vitals optimization with image compression and code splitting recommendations
+                  </p>
+                  <div className="mt-3 flex items-center justify-center space-x-1">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-xs text-gray-500">60% faster loading</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/70 backdrop-blur-sm border border-blue-200 hover:shadow-lg transition-all duration-200">
+                <CardContent className="p-6 text-center">
+                  <div className="bg-blue-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <Users className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">UX Patterns</h3>
+                  <p className="text-sm text-gray-600">
+                    User journey analysis with conversion optimization and behavioral insights
+                  </p>
+                  <div className="mt-3 flex items-center justify-center space-x-1">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-xs text-gray-500">+25% conversion</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/70 backdrop-blur-sm border border-green-200 hover:shadow-lg transition-all duration-200">
+                <CardContent className="p-6 text-center">
+                  <div className="bg-green-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <Code className="h-8 w-8 text-green-600" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Code Quality</h3>
+                  <p className="text-sm text-gray-600">
+                    Before/after code examples with security audits and maintainability improvements
+                  </p>
+                  <div className="mt-3 flex items-center justify-center space-x-1">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-xs text-gray-500">Enterprise ready</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* AI Models Showcase */}
+            <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 text-white mb-6">
+              <div className="flex items-center justify-center space-x-3 mb-4">
+                <Eye className="h-8 w-8" />
+                <h3 className="text-xl font-semibold">Powered by Advanced AI</h3>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4 text-center">
+                <div className="bg-white/10 rounded-lg p-4">
+                  <h4 className="font-semibold mb-2">GPT-4 Vision</h4>
+                  <p className="text-sm text-purple-100">Visual design analysis and pattern recognition</p>
+                </div>
+                <div className="bg-white/10 rounded-lg p-4">
+                  <h4 className="font-semibold mb-2">Claude 3.5</h4>
+                  <p className="text-sm text-purple-100">Code quality assessment and security auditing</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Call to Action */}
+            <div className="text-center">
+              <p className="text-lg text-gray-700 mb-4">
+                <strong>Get actionable insights</strong> with competitive comparisons and shareable reports
+              </p>
+              <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Instant analysis</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Export reports</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Team collaboration</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Input Methods */}
