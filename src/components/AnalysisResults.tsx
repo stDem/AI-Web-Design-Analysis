@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -50,7 +50,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   const [expandedIssues, setExpandedIssues] = useState<Set<number>>(new Set());
   const [editingCode, setEditingCode] = useState<{ issueIndex: number; code: string } | null>(null);
   const [copiedCode, setCopiedCode] = useState<number | null>(null);
-  const [selectedCompetitor, setSelectedCompetitor] = useState<{[key: string]: string}>({});
+  const [selectedCompetitor, setSelectedCompetitor] = useState<string>('');
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -116,6 +116,25 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     code: 81
   };
 
+  const competitorData = {
+    'Airbnb': { ux: 85, accessibility: 87, performance: 88, code: 89 },
+    'Stripe': { ux: 82, accessibility: 89, performance: 93, code: 88 },
+    'Shopify': { ux: 79, accessibility: 84, performance: 86, code: 84 },
+    'Figma': { ux: 88, accessibility: 85, performance: 90, code: 86 },
+    'Microsoft': { ux: 80, accessibility: 92, performance: 85, code: 87 },
+    'BBC': { ux: 76, accessibility: 89, performance: 82, code: 85 },
+    'Gov.uk': { ux: 75, accessibility: 91, performance: 84, code: 86 },
+    'Apple': { ux: 84, accessibility: 87, performance: 89, code: 88 },
+    'Google': { ux: 81, accessibility: 86, performance: 95, code: 90 },
+    'Cloudflare': { ux: 78, accessibility: 85, performance: 93, code: 89 },
+    'Amazon': { ux: 79, accessibility: 84, performance: 88, code: 87 },
+    'Netflix': { ux: 83, accessibility: 83, performance: 90, code: 86 },
+    'GitHub': { ux: 82, accessibility: 88, performance: 87, code: 89 },
+    'Linear': { ux: 85, accessibility: 86, performance: 88, code: 86 },
+    'Vercel': { ux: 80, accessibility: 87, performance: 89, code: 88 },
+    'Notion': { ux: 86, accessibility: 82, performance: 84, code: 84 }
+  };
+
   const categoryData = [
     {
       id: 'ux',
@@ -123,13 +142,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.ux,
       icon: Users,
       color: 'blue',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'ux'),
-      competitors: [
-        { name: 'Airbnb', score: 85, reason: 'Excellent user onboarding and intuitive interface design' },
-        { name: 'Stripe', score: 82, reason: 'Clean, minimal design with clear user flows' },
-        { name: 'Shopify', score: 79, reason: 'Well-structured e-commerce user experience' },
-        { name: 'Figma', score: 88, reason: 'Outstanding collaborative user interface' }
-      ]
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'ux')
     },
     {
       id: 'accessibility',
@@ -137,13 +150,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.accessibility,
       icon: Accessibility,
       color: 'purple',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'accessibility'),
-      competitors: [
-        { name: 'Microsoft', score: 92, reason: 'Industry leader in accessibility standards' },
-        { name: 'BBC', score: 89, reason: 'Comprehensive WCAG compliance and screen reader support' },
-        { name: 'Gov.uk', score: 91, reason: 'Government-grade accessibility implementation' },
-        { name: 'Apple', score: 87, reason: 'Strong focus on assistive technology integration' }
-      ]
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'accessibility')
     },
     {
       id: 'performance',
@@ -151,13 +158,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.performance,
       icon: Zap,
       color: 'yellow',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'performance'),
-      competitors: [
-        { name: 'Google', score: 95, reason: 'Optimized for speed with advanced caching' },
-        { name: 'Cloudflare', score: 93, reason: 'Global CDN and performance optimization' },
-        { name: 'Amazon', score: 88, reason: 'Efficient content delivery and load balancing' },
-        { name: 'Netflix', score: 90, reason: 'Excellent video streaming performance' }
-      ]
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'performance')
     },
     {
       id: 'code',
@@ -165,13 +166,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       score: categoryScores.code,
       icon: Code,
       color: 'green',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'code'),
-      competitors: [
-        { name: 'GitHub', score: 89, reason: 'Clean, maintainable codebase with best practices' },
-        { name: 'Linear', score: 86, reason: 'Modern React architecture and TypeScript usage' },
-        { name: 'Vercel', score: 88, reason: 'Optimized build processes and code splitting' },
-        { name: 'Notion', score: 84, reason: 'Well-structured component architecture' }
-      ]
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'code')
     }
   ];
 
@@ -183,6 +178,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       green: score >= 80 ? 'bg-green-600 text-white' : score >= 60 ? 'bg-green-100 text-green-800' : 'bg-green-50 text-green-600'
     };
     return baseColors[color as keyof typeof baseColors];
+  };
+
+  const getCompetitorScore = (categoryId: string) => {
+    if (!selectedCompetitor || !competitorData[selectedCompetitor as keyof typeof competitorData]) return null;
+    return competitorData[selectedCompetitor as keyof typeof competitorData][categoryId as keyof typeof competitorData[keyof typeof competitorData]];
   };
 
   const filteredIssues = selectedCategory 
@@ -280,9 +280,30 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                     <Trophy className="h-5 w-5 text-yellow-300" />
                     <span className="font-semibold">Competitive Analysis</span>
                   </div>
-                  <p className="text-sm mb-2">
+                  <p className="text-sm mb-4">
                     Your website scores better than <strong>{results.comparison.betterThan}%</strong> of analyzed websites
                   </p>
+                  
+                  {/* Centralized Competitor Selection */}
+                  <div className="mb-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Target className="h-4 w-4" />
+                      <span className="text-sm font-medium">Compare with competitor:</span>
+                    </div>
+                    <Select value={selectedCompetitor} onValueChange={setSelectedCompetitor}>
+                      <SelectTrigger className="w-48 bg-white/20 border-white/30 text-white">
+                        <SelectValue placeholder="Select competitor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.keys(competitorData).map((competitor) => (
+                          <SelectItem key={competitor} value={competitor}>
+                            {competitor}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <div className="grid grid-cols-3 gap-3 text-xs">
                     {results.comparison.competitors.map((competitor, index) => (
                       <div key={index} className="bg-white/10 rounded p-2">
@@ -325,11 +346,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         </CardContent>
       </Card>
 
-      {/* Interactive Category Score Boxes with Competitor Comparison */}
+      {/* Interactive Category Score Boxes with Automatic Competitor Comparison */}
       <div className="grid md:grid-cols-4 gap-4">
         {categoryData.map((category) => {
           const IconComponent = category.icon;
-          const selectedCompetitorData = getCompetitorData(category.id);
+          const competitorScore = getCompetitorScore(category.id);
           
           return (
             <Card 
@@ -349,54 +370,29 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                   </div>
                 </div>
 
-                {/* Competitor Comparison */}
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-1 text-xs">
-                    <Target className="h-3 w-3" />
-                    <span className="font-medium">Compare with:</span>
-                  </div>
-                  <Select
-                    value={selectedCompetitor[category.id] || ''}
-                    onValueChange={(value) => handleCompetitorSelect(category.id, value)}
-                  >
-                    <SelectTrigger className="h-7 text-xs">
-                      <SelectValue placeholder="Select competitor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {category.competitors.map((competitor) => (
-                        <SelectItem key={competitor.name} value={competitor.name} className="text-xs">
-                          {competitor.name} ({competitor.score}%)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {selectedCompetitorData && (
-                    <div className="bg-black/10 rounded p-2 text-xs">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium">{selectedCompetitorData.name}</span>
-                        <span className={`font-bold ${
-                          category.score > selectedCompetitorData.score ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {category.score > selectedCompetitorData.score ? '+' : ''}
-                          {category.score - selectedCompetitorData.score}%
-                        </span>
-                      </div>
-                      <p className="opacity-75 text-[10px] leading-tight">
-                        {selectedCompetitorData.reason}
-                      </p>
-                      {category.score > selectedCompetitorData.score ? (
-                        <p className="text-green-600 font-medium text-[10px] mt-1">
-                          🎉 You're performing better!
-                        </p>
-                      ) : (
-                        <p className="text-red-600 font-medium text-[10px] mt-1">
-                          📈 Room for improvement
-                        </p>
-                      )}
+                {/* Automatic Competitor Comparison */}
+                {selectedCompetitor && competitorScore && (
+                  <div className="bg-black/10 rounded p-2 text-xs">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium">vs {selectedCompetitor}</span>
+                      <span className={`font-bold ${
+                        category.score > competitorScore ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {category.score > competitorScore ? '+' : ''}
+                        {category.score - competitorScore}%
+                      </span>
                     </div>
-                  )}
-                </div>
+                    {category.score > competitorScore ? (
+                      <p className="text-green-600 font-medium text-[10px]">
+                        🎉 You're performing better!
+                      </p>
+                    ) : (
+                      <p className="text-red-600 font-medium text-[10px]">
+                        📈 Room for improvement
+                      </p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
