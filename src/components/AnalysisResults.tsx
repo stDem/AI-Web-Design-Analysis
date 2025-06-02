@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -237,21 +238,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     }
   };
 
-  const handleCompetitorSelect = (categoryId: string, competitorName: string) => {
-    setSelectedCompetitor(prev => ({
-      ...prev,
-      [categoryId]: competitorName
-    }));
-  };
-
-  const getCompetitorData = (categoryId: string) => {
-    const category = categoryData.find(cat => cat.id === categoryId);
-    const competitorName = selectedCompetitor[categoryId];
-    if (!category || !competitorName) return null;
-    
-    return category.competitors.find(comp => comp.name === competitorName);
-  };
-
   return (
     <div className="space-y-6">
       {/* Enhanced Design Score with Chart and Comparison */}
@@ -322,24 +308,22 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                 }}
                 className="h-full w-full"
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={30}
-                      outerRadius={60}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                  </PieChart>
-                </ResponsiveContainer>
+                <PieChart width={128} height={128}>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={30}
+                    outerRadius={60}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                </PieChart>
               </ChartContainer>
             </div>
           </div>
