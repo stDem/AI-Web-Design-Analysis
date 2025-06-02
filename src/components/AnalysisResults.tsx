@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Download } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -8,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import CodeSuggestions from './CodeSuggestions';
 
 interface CodeSuggestion {
   file: string;
@@ -30,6 +30,11 @@ interface IssueWithSuggestion {
 interface AnalysisResultsProps {
   results: {
     score: number;
+    comparison?: {
+      competitors: Array<{ name: string; score: number; category: string }>;
+      betterThan: number;
+      position: string;
+    };
     issues: Array<{
       type: string;
       severity: 'low' | 'medium' | 'high';
@@ -104,13 +109,21 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   ];
 
   const categoryScores = {
+    ux: 78,
     accessibility: 85,
     performance: 72,
-    ux: 78,
     code: 81
   };
 
   const categoryData = [
+    {
+      id: 'ux',
+      label: 'User Experience',
+      score: categoryScores.ux,
+      icon: TrendingUp,
+      color: 'blue',
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'ux')
+    },
     {
       id: 'accessibility',
       label: 'Accessibility',
@@ -126,14 +139,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       icon: Zap,
       color: 'yellow',
       issues: issuesWithSuggestions.filter(issue => issue.type === 'performance')
-    },
-    {
-      id: 'ux',
-      label: 'User Experience',
-      score: categoryScores.ux,
-      icon: TrendingUp,
-      color: 'blue',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'ux')
     },
     {
       id: 'code',
@@ -194,17 +199,60 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     console.log(`Applied code suggestion for issue ${issueIndex}`);
   };
 
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'UX Ray Analysis Results',
+        text: `My website scored ${results.score}/100 in UX analysis! Better than ${results.comparison?.betterThan}% of websites.`,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Enhanced Design Score with Chart */}
+      {/* Enhanced Design Score with Chart and Comparison */}
       <Card className="bg-gradient-to-r from-purple-500 to-blue-600 text-white">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <h3 className="text-3xl font-bold mb-2">Design Score</h3>
-              <p className="text-purple-100 mb-4">Overall design quality assessment</p>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-3xl font-bold">Design Score</h3>
+                <Button 
+                  variant="outline" 
+                  className="bg-white/20 border-white/30 text-white hover:bg-white/30"
+                  onClick={handleShare}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+              <p className="text-purple-100 mb-4">Overall design quality assessment with competitive analysis</p>
               <div className="text-5xl font-bold mb-2">{results.score}/100</div>
-              <Progress value={results.score} className="w-64 h-3" />
+              <Progress value={results.score} className="w-64 h-3 mb-4" />
+              
+              {results.comparison && (
+                <div className="bg-white/10 rounded-lg p-4 mt-4">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Trophy className="h-5 w-5 text-yellow-300" />
+                    <span className="font-semibold">Competitive Analysis</span>
+                  </div>
+                  <p className="text-sm mb-2">
+                    Your website scores better than <strong>{results.comparison.betterThan}%</strong> of analyzed websites
+                  </p>
+                  <div className="grid grid-cols-3 gap-3 text-xs">
+                    {results.comparison.competitors.map((competitor, index) => (
+                      <div key={index} className="bg-white/10 rounded p-2">
+                        <div className="font-medium">{competitor.name}</div>
+                        <div className="text-white/80">{competitor.score}/100</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="w-32 h-32">
               <ChartContainer

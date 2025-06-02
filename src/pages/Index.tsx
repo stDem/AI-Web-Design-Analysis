@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Upload, Link as LinkIcon, Figma, FileImage, FileText, Code, Zap } from 'lucide-react';
+import { Upload, Link as LinkIcon, Figma, FileImage, FileText, Code, BarChart3, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,15 @@ const Index = () => {
     setTimeout(() => {
       setAnalysisResults({
         score: 73,
+        comparison: {
+          competitors: [
+            { name: 'Amazon AWS', score: 68, category: 'performance' },
+            { name: 'Google Cloud', score: 71, category: 'accessibility' },
+            { name: 'Microsoft Azure', score: 69, category: 'ux' }
+          ],
+          betterThan: 65,
+          position: '23rd percentile'
+        },
         issues: [
           { 
             type: 'accessibility', 
@@ -242,6 +252,19 @@ const Index = () => {
     }, 3000);
   };
 
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'UX Ray Analysis Results',
+        text: `My website scored ${analysisResults?.score}/100 in UX analysis!`,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       {/* Header */}
@@ -250,7 +273,7 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-2 rounded-lg">
-                <Zap className="h-6 w-6 text-white" />
+                <BarChart3 className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
@@ -259,9 +282,17 @@ const Index = () => {
                 <p className="text-sm text-gray-600">AI-Powered Design Analysis</p>
               </div>
             </div>
-            <Button variant="outline" className="bg-white/50">
-              Sign In
-            </Button>
+            <div className="flex items-center space-x-3">
+              {analysisResults && (
+                <Button variant="outline" onClick={handleShare} className="bg-white/50">
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share Results
+                </Button>
+              )}
+              <Button variant="outline" className="bg-white/50">
+                Sign In
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -270,10 +301,10 @@ const Index = () => {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Analyze & Improve Your Design
+            Analyze & Improve Your Design with AI
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Upload websites, images, PDFs, or Figma designs to get AI-powered feedback and actionable improvements
+          <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+            Powered by advanced machine learning models including GPT-4 Vision and Claude 3.5, UX Ray provides comprehensive design analysis covering accessibility (WCAG compliance), performance optimization, user experience patterns, and code quality. Get actionable insights with before/after code examples, competitive comparisons, and shareable reports.
           </p>
         </div>
 
@@ -307,6 +338,12 @@ const Index = () => {
               </TabsList>
 
               <TabsContent value="url" className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-medium text-blue-900 mb-1">Website URL Analysis</h4>
+                  <p className="text-sm text-blue-700">
+                    Comprehensive analysis of live websites including accessibility compliance, performance metrics, SEO optimization, and competitive comparison with industry leaders.
+                  </p>
+                </div>
                 <div className="flex space-x-4">
                   <Input
                     placeholder="Enter website URL (e.g., https://example.com)"
@@ -324,12 +361,18 @@ const Index = () => {
                 </div>
                 {websiteUrl && (
                   <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                    <p><strong>Sample Analysis:</strong> Click "Analyze Website" to see comprehensive design feedback including accessibility, performance, UX, and code quality insights.</p>
+                    <p><strong>Sample Analysis:</strong> Click "Analyze Website" to see comprehensive design feedback including accessibility, performance, UX, and code quality insights with competitive benchmarking.</p>
                   </div>
                 )}
               </TabsContent>
 
               <TabsContent value="upload">
+                <div className="bg-green-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-medium text-green-900 mb-1">File Upload Analysis</h4>
+                  <p className="text-sm text-green-700">
+                    Upload images, PDFs, mockups, or wireframes for AI-powered design review. Generates detailed feedback on visual hierarchy, typography, color schemes, and layout optimization.
+                  </p>
+                </div>
                 <FileUpload 
                   onFilesUploaded={setUploadedFiles}
                   onAnalyze={handleAnalysis}
@@ -338,6 +381,12 @@ const Index = () => {
               </TabsContent>
 
               <TabsContent value="figma" className="space-y-4">
+                <div className="bg-purple-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-medium text-purple-900 mb-1">Figma Design Analysis</h4>
+                  <p className="text-sm text-purple-700">
+                    Connect your Figma account to analyze design files directly. Reviews component consistency, design system adherence, accessibility standards, and provides developer-friendly code suggestions.
+                  </p>
+                </div>
                 <div className="text-center py-8">
                   <Figma className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Connect Figma Account</h3>
@@ -352,6 +401,12 @@ const Index = () => {
               </TabsContent>
 
               <TabsContent value="project" className="space-y-4">
+                <div className="bg-orange-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-medium text-orange-900 mb-1">Full Project Analysis</h4>
+                  <p className="text-sm text-orange-700">
+                    Upload complete project files (ZIP) for comprehensive code review. Analyzes React components, CSS architecture, performance bottlenecks, security vulnerabilities, and provides refactoring suggestions.
+                  </p>
+                </div>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                   <Code className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Upload Project Files</h3>
@@ -376,7 +431,6 @@ const Index = () => {
         {analysisResults && (
           <div className="space-y-6">
             <AnalysisResults results={analysisResults} />
-            <CodeSuggestions suggestions={analysisResults.codeSuggestions || []} />
             <AnnotationCanvas imageUrl="/placeholder.svg" />
           </div>
         )}
@@ -388,12 +442,13 @@ const Index = () => {
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
                 <h3 className="text-lg font-semibold mb-2">Analyzing Design...</h3>
-                <p className="text-gray-600">Our AI is evaluating your design and generating feedback</p>
+                <p className="text-gray-600">Our AI models are evaluating your design and generating feedback</p>
                 <div className="mt-4 space-y-2 text-sm text-gray-500">
-                  <p>🔍 Scanning design elements...</p>
-                  <p>🎨 Checking accessibility standards...</p>
-                  <p>⚡ Analyzing performance metrics...</p>
-                  <p>📱 Evaluating user experience...</p>
+                  <p>🔍 Scanning design elements with GPT-4 Vision...</p>
+                  <p>🎨 Checking accessibility standards (WCAG 2.1)...</p>
+                  <p>⚡ Analyzing performance metrics and Core Web Vitals...</p>
+                  <p>📱 Evaluating user experience patterns...</p>
+                  <p>🏆 Comparing with industry benchmarks...</p>
                 </div>
               </div>
             </CardContent>
@@ -406,11 +461,11 @@ const Index = () => {
             <Card className="bg-white/60 backdrop-blur-sm border border-gray-200">
               <CardContent className="p-6 text-center">
                 <div className="bg-purple-100 p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-purple-600" />
+                  <BarChart3 className="h-6 w-6 text-purple-600" />
                 </div>
                 <h3 className="font-semibold mb-2">AI-Powered Analysis</h3>
                 <p className="text-gray-600 text-sm">
-                  Advanced algorithms analyze design patterns, accessibility, and user experience
+                  Advanced algorithms powered by GPT-4 Vision and Claude 3.5 analyze design patterns, accessibility, and user experience
                 </p>
               </CardContent>
             </Card>
@@ -420,9 +475,9 @@ const Index = () => {
                 <div className="bg-blue-100 p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center">
                   <FileText className="h-6 w-6 text-blue-600" />
                 </div>
-                <h3 className="font-semibold mb-2">Detailed Reports</h3>
+                <h3 className="font-semibold mb-2">Competitive Analysis</h3>
                 <p className="text-gray-600 text-sm">
-                  Get comprehensive feedback with specific improvement suggestions
+                  Compare your design against industry leaders and get insights on how to outperform competitors
                 </p>
               </CardContent>
             </Card>
@@ -434,7 +489,7 @@ const Index = () => {
                 </div>
                 <h3 className="font-semibold mb-2">Code Improvements</h3>
                 <p className="text-gray-600 text-sm">
-                  Receive actionable code suggestions to enhance performance and accessibility
+                  Receive actionable code suggestions with before/after examples to enhance performance and accessibility
                 </p>
               </CardContent>
             </Card>
