@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import CodeSuggestions from './CodeSuggestions';
 
 interface CodeSuggestion {
   file: string;
@@ -575,6 +576,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
           ))}
         </CardContent>
       </Card>
+
+      {/* Separate Code Suggestions Component */}
+      {results.codeSuggestions && results.codeSuggestions.length > 0 && (
+        <CodeSuggestions suggestions={results.codeSuggestions} />
+      )}
     </div>
   );
 };
