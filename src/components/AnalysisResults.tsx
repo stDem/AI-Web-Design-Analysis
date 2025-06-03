@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface CodeSuggestion {
@@ -103,12 +103,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     codeSuggestion: results.codeSuggestions?.[index]
   }));
 
-  // Chart data for the design score
-  const scoreChartData = [
-    { category: 'UX', score: 78, color: '#3b82f6' },
-    { category: 'Accessibility', score: 85, color: '#8b5cf6' },
-    { category: 'Performance', score: 72, color: '#f59e0b' },
-    { category: 'Code Quality', score: 81, color: '#10b981' }
+  // Chart data for the donut chart
+  const donutChartData = [
+    { category: 'UX', score: 78, color: '#3b82f6', fill: '#3b82f6' },
+    { category: 'Accessibility', score: 85, color: '#8b5cf6', fill: '#8b5cf6' },
+    { category: 'Performance', score: 72, color: '#f59e0b', fill: '#f59e0b' },
+    { category: 'Code Quality', score: 81, color: '#10b981', fill: '#10b981' }
   ];
 
   const categoryScores = {
@@ -231,7 +231,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
   return (
     <div className="space-y-6">
-      {/* Enhanced Design Score with Bar Chart */}
+      {/* Enhanced Design Score with Donut Chart */}
       <Card className="bg-gradient-to-r from-purple-500 to-blue-600 text-white">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-6">
@@ -252,7 +252,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
               <Progress value={results.score} className="w-64 h-3 mb-4" />
             </div>
             
-            {/* Score Breakdown Chart */}
+            {/* Donut Chart */}
             <div className="w-80 h-64 bg-white/10 rounded-lg p-4">
               <h4 className="text-lg font-semibold mb-3 text-center">Score Breakdown</h4>
               <ChartContainer
@@ -262,31 +262,50 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                 className="h-full w-full"
               >
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={scoreChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <XAxis 
-                      dataKey="category" 
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: 'white', fontSize: 12 }}
-                      angle={-45}
-                      textAnchor="end"
-                      height={60}
+                  <PieChart>
+                    <Pie
+                      data={donutChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="score"
+                    >
+                      {donutChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="bg-white p-3 rounded-lg shadow-lg border">
+                              <p className="font-medium text-gray-900">{data.category}</p>
+                              <p className="text-sm text-gray-600">{data.score}%</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
                     />
-                    <YAxis 
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: 'white', fontSize: 12 }}
-                      domain={[0, 100]}
-                    />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar 
-                      dataKey="score" 
-                      radius={[4, 4, 0, 0]}
-                      fill="rgba(255, 255, 255, 0.8)"
-                    />
-                  </BarChart>
+                  </PieChart>
                 </ResponsiveContainer>
               </ChartContainer>
+              
+              {/* Legend */}
+              <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                {donutChartData.map((item, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: item.color }}
+                    ></div>
+                    <span className="text-white/80">{item.category}: {item.score}%</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           

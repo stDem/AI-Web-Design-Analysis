@@ -535,7 +535,7 @@ const Index = () => {
         {analysisResults && (
           <div className="space-y-6">
             <AnalysisResults results={analysisResults} />
-            <AnnotationCanvas imageUrl="/placeholder.svg" />
+            <AnnotationCanvas websiteUrl={websiteUrl} />
           </div>
         )}
 
