@@ -107,54 +107,6 @@ export type Database = {
         }
         Relationships: []
       }
-      website_analysis_results: {
-        Row: {
-          analysis_data: Json
-          annotations: Json | null
-          code_suggestions: Json | null
-          competitive_data: Json | null
-          created_at: string | null
-          design_score: number
-          id: string
-          issues: Json
-          screenshot_url: string | null
-          suggestions: Json
-          title: string | null
-          updated_at: string | null
-          url: string
-        }
-        Insert: {
-          analysis_data: Json
-          annotations?: Json | null
-          code_suggestions?: Json | null
-          competitive_data?: Json | null
-          created_at?: string | null
-          design_score: number
-          id?: string
-          issues: Json
-          screenshot_url?: string | null
-          suggestions: Json
-          title?: string | null
-          updated_at?: string | null
-          url: string
-        }
-        Update: {
-          analysis_data?: Json
-          annotations?: Json | null
-          code_suggestions?: Json | null
-          competitive_data?: Json | null
-          created_at?: string | null
-          design_score?: number
-          id?: string
-          issues?: Json
-          screenshot_url?: string | null
-          suggestions?: Json
-          title?: string | null
-          updated_at?: string | null
-          url?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
