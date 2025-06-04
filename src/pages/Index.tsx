@@ -34,14 +34,24 @@ const Index = () => {
         },
         issues: [
           { 
-            type: 'accessibility', 
+            type: 'ux', 
             severity: 'high', 
-            description: 'Color contrast ratio of 3.2:1 in navigation links falls below WCAG AA standard (4.5:1 required)' 
+            description: 'Call-to-action buttons lack sufficient spacing (current: 8px, recommended: 16px minimum)' 
           },
           { 
-            type: 'accessibility', 
+            type: 'ux', 
             severity: 'medium', 
-            description: 'Missing alt attributes on 3 decorative images in the hero section' 
+            description: 'Mobile navigation menu opens without animation, creating jarring user experience' 
+          },
+          { 
+            type: 'code', 
+            severity: 'high', 
+            description: 'Inline styles detected in 12 components - consider moving to CSS classes for maintainability' 
+          },
+          { 
+            type: 'code', 
+            severity: 'medium', 
+            description: 'Console warnings about deprecated React lifecycle methods in ContactForm component' 
           },
           { 
             type: 'performance', 
@@ -54,35 +64,25 @@ const Index = () => {
             description: 'Unused CSS rules detected - 45% of stylesheet not utilized' 
           },
           { 
-            type: 'ux', 
+            type: 'accessibility', 
+            severity: 'high', 
+            description: 'Color contrast ratio of 3.2:1 in navigation links falls below WCAG AA standard (4.5:1 required)' 
+          },
+          { 
+            type: 'accessibility', 
             severity: 'medium', 
-            description: 'Call-to-action buttons lack sufficient spacing (current: 8px, recommended: 16px minimum)' 
-          },
-          { 
-            type: 'ux', 
-            severity: 'low', 
-            description: 'Mobile navigation menu opens without animation, creating jarring user experience' 
-          },
-          { 
-            type: 'code', 
-            severity: 'medium', 
-            description: 'Inline styles detected in 12 components - consider moving to CSS classes for maintainability' 
-          },
-          { 
-            type: 'code', 
-            severity: 'low', 
-            description: 'Console warnings about deprecated React lifecycle methods in ContactForm component' 
+            description: 'Missing alt attributes on 3 decorative images in the hero section' 
           }
         ],
         suggestions: [
-          'Update navigation link colors to #2563eb (blue-600) to achieve 4.7:1 contrast ratio',
-          'Add descriptive alt text to hero images or mark as decorative with alt=""',
-          'Implement WebP format and lazy loading for images to reduce load time by 60%',
-          'Remove unused CSS classes and consider CSS purging in build process',
           'Increase button margins to 16px and add hover states for better accessibility',
           'Add smooth slide-down animation to mobile menu using CSS transitions',
           'Create a centralized theme system using CSS custom properties',
           'Update ContactForm to use React hooks instead of class components',
+          'Implement WebP format and lazy loading for images to reduce load time by 60%',
+          'Remove unused CSS classes and consider CSS purging in build process',
+          'Update navigation link colors to #2563eb (blue-600) to achieve 4.7:1 contrast ratio',
+          'Add descriptive alt text to hero images or mark as decorative with alt=""',
           'Implement semantic HTML5 landmarks (header, nav, main, footer) for screen readers',
           'Add focus indicators for keyboard navigation users',
           'Consider implementing a design system with consistent spacing tokens',
@@ -130,40 +130,6 @@ const Index = () => {
     }
   };
 
-  // Fish skeleton SVG component
-  const FishSkeletonLogo = () => (
-    <svg 
-      width="32" 
-      height="32" 
-      viewBox="0 0 100 100" 
-      className="text-current"
-      style={{ 
-        filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.2))',
-        transform: 'rotate(-5deg)'
-      }}
-    >
-      <g stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round">
-        {/* Fish head/spine */}
-        <path d="M20 50 Q30 45 45 50 Q60 55 80 50" strokeWidth="3" />
-        
-        {/* Fish bones */}
-        <path d="M25 50 L22 45 M25 50 L22 55" />
-        <path d="M32 49 L29 44 M32 49 L29 54" />
-        <path d="M39 50 L36 45 M39 50 L36 55" />
-        <path d="M46 51 L43 46 M46 51 L43 56" />
-        <path d="M53 52 L50 47 M53 52 L50 57" />
-        <path d="M60 52 L57 47 M60 52 L57 57" />
-        <path d="M67 51 L64 46 M67 51 L64 56" />
-        
-        {/* Tail fin */}
-        <path d="M75 50 L85 40 M75 50 L85 60 M82 45 L88 52 L82 55" strokeWidth="2" />
-        
-        {/* Head detail */}
-        <circle cx="23" cy="47" r="1.5" fill="currentColor" />
-      </g>
-    </svg>
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100" 
          style={{ 
@@ -179,14 +145,21 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-slate-600 to-gray-700 p-3 rounded-lg transform -rotate-2 shadow-lg"
+              <div className="bg-gradient-to-r from-slate-600 to-gray-700 p-3 rounded-lg transform -rotate-2 shadow-lg border-2 border-dashed border-gray-400"
                    style={{ 
-                     border: '2px dashed #374151',
                      background: 'linear-gradient(45deg, #f8fafc 25%, transparent 25%), linear-gradient(-45deg, #f8fafc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f8fafc 75%), linear-gradient(-45deg, transparent 75%, #f8fafc 75%)',
                      backgroundSize: '4px 4px',
                      backgroundPosition: '0 0, 0 2px, 2px -2px, -2px 0px'
                    }}>
-                <FishSkeletonLogo />
+                <img 
+                  src="/lovable-uploads/1b0d8977-c0ce-4c81-95aa-922772f17352.png" 
+                  alt="Fish Skeleton Logo" 
+                  className="w-8 h-8 object-contain"
+                  style={{ 
+                    filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.2))',
+                    transform: 'rotate(-5deg)'
+                  }}
+                />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-800 transform -rotate-1"
