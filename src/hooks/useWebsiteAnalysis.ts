@@ -67,8 +67,11 @@ export const useWebsiteAnalysis = () => {
       });
 
       if (error) {
+        console.error('Supabase function error:', error);
         throw new Error(error.message);
       }
+
+      console.log('Analysis response:', data);
 
       if (data?.success) {
         setResults(data.data);
@@ -84,7 +87,7 @@ export const useWebsiteAnalysis = () => {
       console.error('Analysis error:', error);
       toast({
         title: "Analysis Failed",
-        description: error instanceof Error ? error.message : "Something went wrong during analysis",
+        description: error instanceof Error ? error.message : "Something went wrong during analysis. Please try again.",
         variant: "destructive"
       });
     } finally {
