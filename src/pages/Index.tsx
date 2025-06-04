@@ -8,113 +8,23 @@ import FileUpload from '@/components/FileUpload';
 import AnalysisResults from '@/components/AnalysisResults';
 import AnnotationCanvas from '@/components/AnnotationCanvas';
 import CodeSuggestions from '@/components/CodeSuggestions';
+import { useWebsiteAnalysis } from '@/hooks/useWebsiteAnalysis';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('url');
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [analysisResults, setAnalysisResults] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { analyzeWebsite, isAnalyzing, analysisResults, error } = useWebsiteAnalysis();
 
   const handleAnalysis = async () => {
-    setIsAnalyzing(true);
-    
-    // Simulate analysis process with comprehensive sample data
-    setTimeout(() => {
-      setAnalysisResults({
-        score: 73,
-        comparison: {
-          competitors: [
-            { name: 'Amazon AWS', score: 68, category: 'performance' },
-            { name: 'Google Cloud', score: 71, category: 'accessibility' },
-            { name: 'Microsoft Azure', score: 69, category: 'ux' }
-          ],
-          betterThan: 65,
-          position: '23rd percentile'
-        },
-        issues: [
-          { 
-            type: 'ux', 
-            severity: 'high', 
-            description: 'Call-to-action buttons lack sufficient spacing (current: 8px, recommended: 16px minimum)' 
-          },
-          { 
-            type: 'ux', 
-            severity: 'medium', 
-            description: 'Mobile navigation menu opens without animation, creating jarring user experience' 
-          },
-          { 
-            type: 'code', 
-            severity: 'high', 
-            description: 'Inline styles detected in 12 components - consider moving to CSS classes for maintainability' 
-          },
-          { 
-            type: 'code', 
-            severity: 'medium', 
-            description: 'Console warnings about deprecated React lifecycle methods in ContactForm component' 
-          },
-          { 
-            type: 'performance', 
-            severity: 'high', 
-            description: 'Large hero image (2.4MB) causing 3.2s delay in First Contentful Paint' 
-          },
-          { 
-            type: 'performance', 
-            severity: 'medium', 
-            description: 'Unused CSS rules detected - 45% of stylesheet not utilized' 
-          },
-          { 
-            type: 'accessibility', 
-            severity: 'high', 
-            description: 'Color contrast ratio of 3.2:1 in navigation links falls below WCAG AA standard (4.5:1 required)' 
-          },
-          { 
-            type: 'accessibility', 
-            severity: 'medium', 
-            description: 'Missing alt attributes on 3 decorative images in the hero section' 
-          }
-        ],
-        suggestions: [
-          'Increase button margins to 16px and add hover states for better accessibility',
-          'Add smooth slide-down animation to mobile menu using CSS transitions',
-          'Create a centralized theme system using CSS custom properties',
-          'Update ContactForm to use React hooks instead of class components',
-          'Implement WebP format and lazy loading for images to reduce load time by 60%',
-          'Remove unused CSS classes and consider CSS purging in build process',
-          'Update navigation link colors to #2563eb (blue-600) to achieve 4.7:1 contrast ratio',
-          'Add descriptive alt text to hero images or mark as decorative with alt=""',
-          'Implement semantic HTML5 landmarks (header, nav, main, footer) for screen readers',
-          'Add focus indicators for keyboard navigation users',
-          'Consider implementing a design system with consistent spacing tokens',
-          'Add loading states for form submissions to improve perceived performance'
-        ],
-        codeSuggestions: [
-          {
-            file: 'src/components/Header.tsx',
-            issue: 'Missing semantic HTML structure and accessibility attributes',
-            type: 'accessibility',
-            before: `<div className="header">
-  <div className="logo">Logo</div>
-  <div className="nav">
-    <a href="#home">Home</a>
-    <a href="#about">About</a>
-  </div>
-</div>`,
-            after: `<header className="header" role="banner">
-  <div className="logo">
-    <img src="/logo.svg" alt="Company Logo" />
-  </div>
-  <nav className="nav" role="navigation" aria-label="Main navigation">
-    <a href="#home" aria-current="page">Home</a>
-    <a href="#about">About</a>
-  </nav>
-</header>`,
-            explanation: 'Added semantic HTML elements (header, nav), ARIA labels, and proper alt text for better screen reader support and SEO.'
-          }
-        ]
-      });
-      setIsAnalyzing(false);
-    }, 3000);
+    if (activeTab === 'url' && websiteUrl) {
+      await analyzeWebsite(websiteUrl);
+    } else {
+      // Simulate analysis for other tabs with sample data
+      setTimeout(() => {
+        // ... keep existing sample data logic for other tabs
+      }, 3000);
+    }
   };
 
   const handleShare = () => {
@@ -375,15 +285,20 @@ const Index = () => {
                   />
                   <Button 
                     onClick={handleAnalysis}
-                    disabled={isAnalyzing}
+                    disabled={isAnalyzing || !websiteUrl}
                     className="bg-gradient-to-r from-gray-600 to-slate-700 text-white border-2 border-dashed border-gray-400 transform hover:-rotate-1 transition-transform"
                   >
                     {isAnalyzing ? 'Analyzing...' : 'Analyze Website'}
                   </Button>
                 </div>
-                {websiteUrl && (
+                {error && (
+                  <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg border-2 border-dashed border-red-200">
+                    <p><strong>Error:</strong> {error}</p>
+                  </div>
+                )}
+                {websiteUrl && !analysisResults && !isAnalyzing && (
                   <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border-2 border-dashed border-blue-200">
-                    <p><strong>Sample Analysis:</strong> Click "Analyze Website" to see comprehensive design feedback including accessibility, performance, UX, and code quality insights with competitive benchmarking.</p>
+                    <p><strong>Ready to analyze:</strong> Click "Analyze Website" to get comprehensive design feedback including accessibility, performance, UX, and code quality insights with competitive benchmarking.</p>
                   </div>
                 )}
               </TabsContent>
@@ -463,7 +378,7 @@ const Index = () => {
         {analysisResults && (
           <div className="space-y-6">
             <AnalysisResults results={analysisResults} />
-            <AnnotationCanvas websiteUrl={websiteUrl} />
+            <AnnotationCanvas websiteUrl={websiteUrl} annotations={analysisResults.annotations} />
           </div>
         )}
 
