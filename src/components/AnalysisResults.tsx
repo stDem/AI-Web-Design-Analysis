@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import CodeSuggestions from '@/components/CodeSuggestions';
 
 interface CodeSuggestion {
   file: string;
@@ -103,19 +104,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     codeSuggestion: results.codeSuggestions?.[index]
   }));
 
-  // Chart data for the donut chart
-  const donutChartData = [
-    { category: 'UX', score: 78, color: '#3b82f6', fill: '#3b82f6' },
-    { category: 'Accessibility', score: 85, color: '#8b5cf6', fill: '#8b5cf6' },
-    { category: 'Performance', score: 72, color: '#f59e0b', fill: '#f59e0b' },
-    { category: 'Code Quality', score: 81, color: '#10b981', fill: '#10b981' }
-  ];
-
+  // Chart data for the main donut chart - reordered as requested
   const categoryScores = {
     ux: 78,
-    accessibility: 85,
+    code: 81,
     performance: 72,
-    code: 81
+    accessibility: 85
   };
 
   const competitorData = {
@@ -127,6 +121,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     'Figma': { ux: 88, accessibility: 85, performance: 90, code: 86 }
   };
 
+  // Reordered category data: User Experience, Code Quality, Performance, Accessibility
   const categoryData = [
     {
       id: 'ux',
@@ -137,12 +132,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       issues: issuesWithSuggestions.filter(issue => issue.type === 'ux')
     },
     {
-      id: 'accessibility',
-      label: 'Accessibility',
-      score: categoryScores.accessibility,
-      icon: Accessibility,
-      color: 'purple',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'accessibility')
+      id: 'code',
+      label: 'Code Quality',
+      score: categoryScores.code,
+      icon: Code,
+      color: 'green',
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'code')
     },
     {
       id: 'performance',
@@ -153,12 +148,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       issues: issuesWithSuggestions.filter(issue => issue.type === 'performance')
     },
     {
-      id: 'code',
-      label: 'Code Quality',
-      score: categoryScores.code,
-      icon: Code,
-      color: 'green',
-      issues: issuesWithSuggestions.filter(issue => issue.type === 'code')
+      id: 'accessibility',
+      label: 'Accessibility',
+      score: categoryScores.accessibility,
+      icon: Accessibility,
+      color: 'purple',
+      issues: issuesWithSuggestions.filter(issue => issue.type === 'accessibility')
     }
   ];
 
@@ -231,30 +226,34 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
   return (
     <div className="space-y-6">
-      {/* Enhanced Design Score with Donut Chart */}
-      <Card className="bg-gradient-to-r from-purple-500 to-blue-600 text-white">
+      {/* Enhanced Design Score with Main Donut Chart */}
+      <Card className="bg-gradient-to-r from-gray-600 to-slate-700 text-white border-2 border-dashed border-gray-400 transform -rotate-1"
+            style={{ 
+              boxShadow: '6px 6px 12px rgba(0,0,0,0.15)',
+              fontFamily: '"Comic Sans MS", "Marker Felt", cursive'
+            }}>
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex-1">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-3xl font-bold">Design Score</h3>
+                <h3 className="text-3xl font-bold" style={{ fontFamily: '"Marker Felt", "Comic Sans MS", cursive' }}>
+                  Design Score
+                </h3>
                 <Button 
                   variant="outline" 
-                  className="bg-white/20 border-white/30 text-white hover:bg-white/30"
+                  className="bg-white/20 border-white/30 text-white hover:bg-white/30 border-2 border-dashed"
                   onClick={handleShare}
                 >
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
                 </Button>
               </div>
-              <p className="text-purple-100 mb-4">Overall design quality assessment with competitive analysis</p>
-              <div className="text-5xl font-bold mb-2">{results.score}/100</div>
-              <Progress value={results.score} className="w-64 h-3 mb-4" />
+              <div className="text-5xl font-bold mb-4">{results.score}/100</div>
             </div>
             
-            {/* Donut Chart */}
-            <div className="w-80 h-64 bg-white/10 rounded-lg p-4">
-              <h4 className="text-lg font-semibold mb-3 text-center">Score Breakdown</h4>
+            {/* Main Donut Chart */}
+            <div className="w-80 h-64 bg-white/10 rounded-lg p-4 border-2 border-dashed border-white/20">
+              <h4 className="text-lg font-semibold mb-3 text-center">Overall Score</h4>
               <ChartContainer
                 config={{
                   score: { label: "Score", color: "#ffffff" }
@@ -264,26 +263,26 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={donutChartData}
+                      data={[
+                        { name: 'Score', value: results.score, fill: '#10b981' },
+                        { name: 'Remaining', value: 100 - results.score, fill: '#374151' }
+                      ]}
                       cx="50%"
                       cy="50%"
-                      innerRadius={40}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="score"
+                      innerRadius={50}
+                      outerRadius={90}
+                      startAngle={90}
+                      endAngle={450}
+                      dataKey="value"
                     >
-                      {donutChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
                     </Pie>
                     <ChartTooltip 
                       content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
+                        if (active && payload && payload.length && payload[0].name === 'Score') {
                           return (
                             <div className="bg-white p-3 rounded-lg shadow-lg border">
-                              <p className="font-medium text-gray-900">{data.category}</p>
-                              <p className="text-sm text-gray-600">{data.score}%</p>
+                              <p className="font-medium text-gray-900">Your Score</p>
+                              <p className="text-sm text-gray-600">{payload[0].value}%</p>
                             </div>
                           );
                         }
@@ -294,23 +293,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                 </ResponsiveContainer>
               </ChartContainer>
               
-              {/* Legend */}
-              <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
-                {donutChartData.map((item, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: item.color }}
-                    ></div>
-                    <span className="text-white/80">{item.category}: {item.score}%</span>
-                  </div>
-                ))}
+              {/* Score text overlay */}
+              <div className="relative -mt-32 text-center pointer-events-none">
+                <div className="text-3xl font-bold text-white">{results.score}%</div>
+                <div className="text-sm text-white/70">Overall Score</div>
               </div>
             </div>
           </div>
           
           {results.comparison && (
-            <div className="bg-white/10 rounded-lg p-4">
+            <div className="bg-white/10 rounded-lg p-4 border-2 border-dashed border-white/20">
               <div className="flex items-center space-x-2 mb-3">
                 <Trophy className="h-5 w-5 text-yellow-300" />
                 <span className="font-semibold">Competitive Analysis</span>
@@ -334,10 +326,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                       <button
                         key={competitor}
                         onClick={() => setSelectedCompetitor(isSelected ? '' : competitor)}
-                        className={`p-3 rounded-lg text-left transition-all duration-200 ${
+                        className={`p-3 rounded-lg text-left transition-all duration-200 border-2 border-dashed ${
                           isSelected 
-                            ? 'bg-white/30 border-2 border-white/50 shadow-lg' 
-                            : 'bg-white/10 border border-white/20 hover:bg-white/20'
+                            ? 'bg-white/30 border-white/50 shadow-lg' 
+                            : 'bg-white/10 border-white/20 hover:bg-white/20'
                         }`}
                       >
                         <div className="font-medium text-sm">{competitor}</div>
@@ -361,7 +353,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         </CardContent>
       </Card>
 
-      {/* Interactive Category Score Boxes with Automatic Competitor Comparison */}
+      {/* Interactive Category Score Boxes with New Order */}
       <div className="grid md:grid-cols-4 gap-4">
         {categoryData.map((category) => {
           const IconComponent = category.icon;
@@ -370,10 +362,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
           return (
             <Card 
               key={category.id}
-              className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
-                selectedCategory === category.id ? 'ring-2 ring-blue-500' : ''
-              } ${getColorClasses(category.color, category.score)}`}
+              className={`cursor-pointer transition-all duration-200 hover:scale-105 border-2 border-dashed ${
+                selectedCategory === category.id ? 'ring-2 ring-blue-500' : 'border-gray-300'
+              } ${getColorClasses(category.color, category.score)} transform hover:-rotate-1`}
               onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
+              style={{ 
+                boxShadow: '4px 4px 8px rgba(0,0,0,0.1)',
+                fontFamily: '"Comic Sans MS", cursive'
+              }}
             >
               <CardContent className="p-4">
                 <div className="text-center mb-3">
@@ -387,7 +383,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
                 {/* Automatic Competitor Comparison */}
                 {selectedCompetitor && competitorScore && (
-                  <div className="bg-black/10 rounded p-2 text-xs">
+                  <div className="bg-black/10 rounded p-2 text-xs border border-dashed border-black/20">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium">vs {selectedCompetitor}</span>
                       <span className={`font-bold ${
@@ -415,8 +411,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       </div>
 
       {selectedCategory && (
-        <div className="text-center p-2 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-700">
+        <div className="text-center p-2 bg-blue-50 rounded-lg border-2 border-dashed border-blue-200">
+          <p className="text-sm text-blue-700" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
             Showing results for: <strong>{categoryData.find(cat => cat.id === selectedCategory)?.label}</strong>
             <Button variant="ghost" size="sm" onClick={() => setSelectedCategory(null)} className="ml-2">
               Show All
@@ -426,19 +422,23 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       )}
 
       {/* Issues with Paired Suggestions */}
-      <Card className="bg-white/70 backdrop-blur-sm">
+      <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-gray-300 transform rotate-1"
+            style={{ 
+              boxShadow: '4px 4px 8px rgba(0,0,0,0.1)',
+              fontFamily: '"Comic Sans MS", cursive'
+            }}>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <AlertTriangle className="h-5 w-5 text-orange-500" />
             <span>Issues & Improvement Suggestions</span>
-            <Badge variant="outline" className="ml-auto">
+            <Badge variant="outline" className="ml-auto border-2 border-dashed border-gray-400">
               {filteredIssues.length}
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
           {filteredIssues.map((issue, index) => (
-            <div key={index} className="border rounded-lg bg-white/50">
+            <div key={index} className="border-2 border-dashed border-gray-300 rounded-lg bg-white/70">
               {/* Issue Header */}
               <div className="p-4">
                 <div className="flex items-start space-x-3">
@@ -448,145 +448,25 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
-                      <Badge variant="outline" className={getSeverityColor(issue.severity)}>
+                      <Badge variant="outline" className={`${getSeverityColor(issue.severity)} border-2 border-dashed`}>
                         {issue.severity.toUpperCase()}
                       </Badge>
-                      <Badge variant="outline" className="capitalize">
+                      <Badge variant="outline" className="capitalize border-2 border-dashed border-gray-300">
                         {issue.type}
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-700 font-medium mb-2">{issue.description}</p>
                     
                     {/* Improvement Suggestion */}
-                    <div className="bg-green-50 border border-green-200 rounded p-3">
+                    <div className="bg-green-50 border-2 border-dashed border-green-200 rounded p-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <CheckCircle className="h-4 w-4 text-green-500" />
                           <span className="text-sm font-medium text-green-800">Improvement Suggestion</span>
                         </div>
-                        {issue.codeSuggestion && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleIssueExpansion(index)}
-                            className="text-green-700 hover:text-green-900"
-                          >
-                            <Code className="h-4 w-4 mr-1" />
-                            {expandedIssues.has(index) ? (
-                              <>Hide Code <ChevronUp className="h-4 w-4 ml-1" /></>
-                            ) : (
-                              <>Show Code <ChevronDown className="h-4 w-4 ml-1" /></>
-                            )}
-                          </Button>
-                        )}
                       </div>
                       <p className="text-sm text-green-700 mt-2">{issue.suggestion}</p>
                     </div>
-
-                    {/* Code Improvement (Collapsible) */}
-                    {issue.codeSuggestion && (
-                      <Collapsible open={expandedIssues.has(index)} onOpenChange={() => toggleIssueExpansion(index)}>
-                        <CollapsibleContent>
-                          <div className="mt-4 border-t pt-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center space-x-2">
-                                <Badge variant="outline" className={getTypeColor(issue.codeSuggestion.type)}>
-                                  {issue.codeSuggestion.type}
-                                </Badge>
-                                <span className="font-medium text-sm">{issue.codeSuggestion.file}</span>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleEditCode(index, issue.codeSuggestion!.after)}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleApplyCode(index)}
-                                  className="bg-green-600 hover:bg-green-700 text-white"
-                                >
-                                  Apply
-                                </Button>
-                              </div>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-4 mb-3">
-                              {/* Before Code */}
-                              <div>
-                                <div className="flex items-center justify-between mb-2">
-                                  <label className="text-sm font-medium text-red-600">Before</label>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleCopyCode(issue.codeSuggestion!.before, index * 2)}
-                                  >
-                                    {copiedCode === index * 2 ? (
-                                      <Check className="h-4 w-4 text-green-500" />
-                                    ) : (
-                                      <Copy className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                </div>
-                                <pre className="bg-red-50 border border-red-200 rounded p-3 text-sm overflow-x-auto">
-                                  <code>{issue.codeSuggestion.before}</code>
-                                </pre>
-                              </div>
-
-                              {/* After Code */}
-                              <div>
-                                <div className="flex items-center justify-between mb-2">
-                                  <label className="text-sm font-medium text-green-600">After</label>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleCopyCode(
-                                      editingCode?.issueIndex === index ? editingCode.code : issue.codeSuggestion!.after, 
-                                      index * 2 + 1
-                                    )}
-                                  >
-                                    {copiedCode === index * 2 + 1 ? (
-                                      <Check className="h-4 w-4 text-green-500" />
-                                    ) : (
-                                      <Copy className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                </div>
-                                {editingCode?.issueIndex === index ? (
-                                  <div className="space-y-2">
-                                    <Textarea
-                                      value={editingCode.code}
-                                      onChange={(e) => setEditingCode({ ...editingCode, code: e.target.value })}
-                                      className="font-mono text-sm min-h-[100px]"
-                                    />
-                                    <div className="flex space-x-2">
-                                      <Button size="sm" onClick={handleSaveEdit}>
-                                        Save Changes
-                                      </Button>
-                                      <Button size="sm" variant="outline" onClick={() => setEditingCode(null)}>
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <pre className="bg-green-50 border border-green-200 rounded p-3 text-sm overflow-x-auto">
-                                    <code>{issue.codeSuggestion.after}</code>
-                                  </pre>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="p-3 bg-blue-50 border border-blue-200 rounded">
-                              <p className="text-sm text-blue-800">
-                                <strong>Explanation:</strong> {issue.codeSuggestion.explanation}
-                              </p>
-                            </div>
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    )}
                   </div>
                 </div>
               </div>
@@ -594,6 +474,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
           ))}
         </CardContent>
       </Card>
+
+      {/* Code Suggestions Component */}
+      {results.codeSuggestions && results.codeSuggestions.length > 0 && (
+        <CodeSuggestions suggestions={results.codeSuggestions} />
+      )}
     </div>
   );
 };
