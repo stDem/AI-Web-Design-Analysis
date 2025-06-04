@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FileUpload from '@/components/FileUpload';
 import AnalysisResults from '@/components/AnalysisResults';
 import AnnotationCanvas from '@/components/AnnotationCanvas';
-import CodeSuggestions from '@/components/CodeSuggestions';
 import { useWebsiteAnalysis } from '@/hooks/useWebsiteAnalysis';
 
 const Index = () => {
@@ -46,16 +45,20 @@ const Index = () => {
            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.3'%3E%3Cpath d='m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
            fontFamily: '"Comic Sans MS", "Marker Felt", "Brush Script MT", cursive'
          }}>
-      {/* Header */}
+      {/* Header with bigger logo and picture background */}
       <div className="bg-white/90 backdrop-blur-sm border-b-2 border-gray-300 sticky top-0 z-40"
            style={{ 
              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-             borderStyle: 'dashed'
+             borderStyle: 'dashed',
+             backgroundImage: `url('/lovable-uploads/1b0d8977-c0ce-4c81-95aa-922772f17352.png')`,
+             backgroundSize: 'contain',
+             backgroundRepeat: 'no-repeat',
+             backgroundPosition: 'left center'
            }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-slate-600 to-gray-700 p-3 rounded-lg transform -rotate-2 shadow-lg border-2 border-dashed border-gray-400"
+            <div className="flex items-center space-x-4">
+              <div className="bg-gradient-to-r from-slate-600 to-gray-700 p-4 rounded-lg transform -rotate-2 shadow-lg border-2 border-dashed border-gray-400"
                    style={{ 
                      background: 'linear-gradient(45deg, #f8fafc 25%, transparent 25%), linear-gradient(-45deg, #f8fafc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f8fafc 75%), linear-gradient(-45deg, transparent 75%, #f8fafc 75%)',
                      backgroundSize: '4px 4px',
@@ -64,7 +67,7 @@ const Index = () => {
                 <img 
                   src="/lovable-uploads/1b0d8977-c0ce-4c81-95aa-922772f17352.png" 
                   alt="Fish Skeleton Logo" 
-                  className="w-8 h-8 object-contain"
+                  className="w-12 h-12 object-contain"
                   style={{ 
                     filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.2))',
                     transform: 'rotate(-5deg)'
@@ -72,14 +75,14 @@ const Index = () => {
                 />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800 transform -rotate-1"
+                <h1 className="text-3xl font-bold text-gray-800 transform -rotate-1"
                     style={{ 
                       textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
                       fontFamily: '"Marker Felt", "Comic Sans MS", cursive'
                     }}>
                   UX Ray
                 </h1>
-                <p className="text-sm text-gray-600 transform rotate-1" 
+                <p className="text-base text-gray-600 transform rotate-1" 
                    style={{ fontFamily: '"Comic Sans MS", cursive' }}>
                   AI-Powered Design Analysis
                 </p>
@@ -116,11 +119,11 @@ const Index = () => {
           {/* Enhanced Visual Description */}
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-purple-300 hover:shadow-lg transition-all duration-200 transform hover:-rotate-1"
+              <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-purple-200 hover:shadow-lg transition-all duration-200 transform hover:-rotate-1"
                     style={{ boxShadow: '4px 4px 8px rgba(0,0,0,0.1)' }}>
                 <CardContent className="p-6 text-center">
-                  <div className="bg-purple-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-purple-300">
-                    <Shield className="h-8 w-8 text-purple-600" />
+                  <div className="bg-purple-50 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-purple-200">
+                    <Shield className="h-8 w-8 text-purple-500" />
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-2" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
                     WCAG Compliance
@@ -135,11 +138,11 @@ const Index = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-yellow-300 hover:shadow-lg transition-all duration-200 transform hover:rotate-1"
+              <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-yellow-200 hover:shadow-lg transition-all duration-200 transform hover:rotate-1"
                     style={{ boxShadow: '4px 4px 8px rgba(0,0,0,0.1)' }}>
                 <CardContent className="p-6 text-center">
-                  <div className="bg-yellow-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-yellow-300">
-                    <Zap className="h-8 w-8 text-yellow-600" />
+                  <div className="bg-yellow-50 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-yellow-200">
+                    <Zap className="h-8 w-8 text-yellow-500" />
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-2" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
                     Performance Boost
@@ -154,11 +157,11 @@ const Index = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-blue-300 hover:shadow-lg transition-all duration-200 transform hover:-rotate-1"
+              <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-blue-200 hover:shadow-lg transition-all duration-200 transform hover:-rotate-1"
                     style={{ boxShadow: '4px 4px 8px rgba(0,0,0,0.1)' }}>
                 <CardContent className="p-6 text-center">
-                  <div className="bg-blue-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-blue-300">
-                    <Users className="h-8 w-8 text-blue-600" />
+                  <div className="bg-blue-50 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-blue-200">
+                    <Users className="h-8 w-8 text-blue-500" />
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-2" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
                     UX Patterns
@@ -173,11 +176,11 @@ const Index = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-green-300 hover:shadow-lg transition-all duration-200 transform hover:rotate-1"
+              <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-green-200 hover:shadow-lg transition-all duration-200 transform hover:rotate-1"
                     style={{ boxShadow: '4px 4px 8px rgba(0,0,0,0.1)' }}>
                 <CardContent className="p-6 text-center">
-                  <div className="bg-green-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-green-300">
-                    <Code className="h-8 w-8 text-green-600" />
+                  <div className="bg-green-50 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center border-2 border-dashed border-green-200">
+                    <Code className="h-8 w-8 text-green-500" />
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-2" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
                     Code Quality

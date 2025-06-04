@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import CodeSuggestions from '@/components/CodeSuggestions';
 
 interface CodeSuggestion {
   file: string;
@@ -121,7 +121,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     'Figma': { ux: 88, accessibility: 85, performance: 90, code: 86 }
   };
 
-  // Reordered category data: User Experience, Code Quality, Performance, Accessibility
+  // Reordered category data: User Experience, Code Quality, Performance, Accessibility with lighter colors
   const categoryData = [
     {
       id: 'ux',
@@ -159,10 +159,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
   const getColorClasses = (color: string, score: number) => {
     const baseColors = {
-      purple: score >= 80 ? 'bg-purple-600 text-white' : score >= 60 ? 'bg-purple-100 text-purple-800' : 'bg-purple-50 text-purple-600',
-      yellow: score >= 80 ? 'bg-yellow-600 text-white' : score >= 60 ? 'bg-yellow-100 text-yellow-800' : 'bg-yellow-50 text-yellow-600',
-      blue: score >= 80 ? 'bg-blue-600 text-white' : score >= 60 ? 'bg-blue-100 text-blue-800' : 'bg-blue-50 text-blue-600',
-      green: score >= 80 ? 'bg-green-600 text-white' : score >= 60 ? 'bg-green-100 text-green-800' : 'bg-green-50 text-green-600'
+      purple: score >= 80 ? 'bg-purple-200 text-purple-900' : score >= 60 ? 'bg-purple-100 text-purple-700' : 'bg-purple-50 text-purple-600',
+      yellow: score >= 80 ? 'bg-yellow-200 text-yellow-900' : score >= 60 ? 'bg-yellow-100 text-yellow-700' : 'bg-yellow-50 text-yellow-600',
+      blue: score >= 80 ? 'bg-blue-200 text-blue-900' : score >= 60 ? 'bg-blue-100 text-blue-700' : 'bg-blue-50 text-blue-600',
+      green: score >= 80 ? 'bg-green-200 text-green-900' : score >= 60 ? 'bg-green-100 text-green-700' : 'bg-green-50 text-green-600'
     };
     return baseColors[color as keyof typeof baseColors];
   };
@@ -226,7 +226,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
   return (
     <div className="space-y-6">
-      {/* Enhanced Design Score with Main Donut Chart */}
+      {/* Enhanced Design Score with Bigger Main Donut Chart */}
       <Card className="bg-gradient-to-r from-gray-600 to-slate-700 text-white border-2 border-dashed border-gray-400 transform -rotate-1"
             style={{ 
               boxShadow: '6px 6px 12px rgba(0,0,0,0.15)',
@@ -251,9 +251,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
               <div className="text-5xl font-bold mb-4">{results.score}/100</div>
             </div>
             
-            {/* Main Donut Chart */}
-            <div className="w-80 h-64 bg-white/10 rounded-lg p-4 border-2 border-dashed border-white/20">
-              <h4 className="text-lg font-semibold mb-3 text-center">Overall Score</h4>
+            {/* Main Donut Chart - Made Bigger */}
+            <div className="w-96 h-80 bg-white/10 rounded-lg p-6 border-2 border-dashed border-white/20">
+              <h4 className="text-xl font-semibold mb-4 text-center">Overall Score</h4>
               <ChartContainer
                 config={{
                   score: { label: "Score", color: "#ffffff" }
@@ -269,8 +269,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                       ]}
                       cx="50%"
                       cy="50%"
-                      innerRadius={50}
-                      outerRadius={90}
+                      innerRadius={70}
+                      outerRadius={120}
                       startAngle={90}
                       endAngle={450}
                       dataKey="value"
@@ -294,9 +294,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
               </ChartContainer>
               
               {/* Score text overlay */}
-              <div className="relative -mt-32 text-center pointer-events-none">
-                <div className="text-3xl font-bold text-white">{results.score}%</div>
-                <div className="text-sm text-white/70">Overall Score</div>
+              <div className="relative -mt-40 text-center pointer-events-none">
+                <div className="text-4xl font-bold text-white">{results.score}%</div>
+                <div className="text-base text-white/70">Overall Score</div>
               </div>
             </div>
           </div>
@@ -353,7 +353,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         </CardContent>
       </Card>
 
-      {/* Interactive Category Score Boxes with New Order */}
+      {/* Interactive Category Score Boxes with Lighter Colors */}
       <div className="grid md:grid-cols-4 gap-4">
         {categoryData.map((category) => {
           const IconComponent = category.icon;
@@ -421,7 +421,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         </div>
       )}
 
-      {/* Issues with Paired Suggestions */}
+      {/* Issues with Paired Suggestions and Code Suggestions */}
       <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-gray-300 transform rotate-1"
             style={{ 
               boxShadow: '4px 4px 8px rgba(0,0,0,0.1)',
@@ -458,7 +458,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                     <p className="text-sm text-gray-700 font-medium mb-2">{issue.description}</p>
                     
                     {/* Improvement Suggestion */}
-                    <div className="bg-green-50 border-2 border-dashed border-green-200 rounded p-3">
+                    <div className="bg-green-50 border-2 border-dashed border-green-200 rounded p-3 mb-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <CheckCircle className="h-4 w-4 text-green-500" />
@@ -467,6 +467,46 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                       </div>
                       <p className="text-sm text-green-700 mt-2">{issue.suggestion}</p>
                     </div>
+
+                    {/* Code Suggestion if available */}
+                    {issue.codeSuggestion && (
+                      <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <Code className="h-4 w-4 text-gray-500" />
+                            <span className="text-sm font-medium text-gray-800">Code Improvement</span>
+                            <Badge variant="outline" className={`${getTypeColor(issue.codeSuggestion.type)} border-2 border-dashed text-xs`}>
+                              {issue.codeSuggestion.type}
+                            </Badge>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCopyCode(issue.codeSuggestion!.after, index)}
+                          >
+                            {copiedCode === index ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                          </Button>
+                        </div>
+                        
+                        <p className="text-xs text-gray-600 mb-2">{issue.codeSuggestion.file}</p>
+                        <p className="text-sm text-gray-700 mb-3">{issue.codeSuggestion.explanation}</p>
+                        
+                        <div className="space-y-2">
+                          <div>
+                            <p className="text-xs font-medium text-red-600 mb-1">Before:</p>
+                            <code className="block bg-red-50 p-2 rounded text-xs border border-red-200">
+                              {issue.codeSuggestion.before}
+                            </code>
+                          </div>
+                          <div>
+                            <p className="text-xs font-medium text-green-600 mb-1">After:</p>
+                            <code className="block bg-green-50 p-2 rounded text-xs border border-green-200">
+                              {issue.codeSuggestion.after}
+                            </code>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -474,11 +514,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
           ))}
         </CardContent>
       </Card>
-
-      {/* Code Suggestions Component */}
-      {results.codeSuggestions && results.codeSuggestions.length > 0 && (
-        <CodeSuggestions suggestions={results.codeSuggestions} />
-      )}
     </div>
   );
 };

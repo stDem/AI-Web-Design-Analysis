@@ -4,7 +4,6 @@ import { MessageSquare, Plus, Edit3, Trash2, ExternalLink, RefreshCw } from 'luc
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
 
 interface Annotation {
   id?: string;
@@ -30,8 +29,6 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
   const [isAddingAnnotation, setIsAddingAnnotation] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState('');
-  const [currentUrl, setCurrentUrl] = useState(websiteUrl || '');
-  const [viewMode, setViewMode] = useState<'website' | 'placeholder'>('website');
   const [isLoading, setIsLoading] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -47,10 +44,13 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
     }
   }, [initialAnnotations]);
 
+  // Auto load website when websiteUrl is provided
   useEffect(() => {
     if (websiteUrl) {
-      setCurrentUrl(websiteUrl);
-      setViewMode('website');
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
     }
   }, [websiteUrl]);
 
@@ -98,16 +98,6 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
     }
   };
 
-  const loadWebsite = () => {
-    if (!currentUrl) return;
-    setIsLoading(true);
-    setViewMode('website');
-    
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-  };
-
   const refreshWebsite = () => {
     if (iframeRef.current) {
       iframeRef.current.src = iframeRef.current.src;
@@ -119,13 +109,17 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
   };
 
   const openInNewTab = () => {
-    if (currentUrl) {
-      window.open(currentUrl, '_blank');
+    if (websiteUrl) {
+      window.open(websiteUrl, '_blank');
     }
   };
 
   return (
-    <Card className="bg-white/70 backdrop-blur-sm">
+    <Card className="bg-white/70 backdrop-blur-sm border-2 border-dashed border-gray-300 transform -rotate-1"
+          style={{ 
+            boxShadow: '4px 4px 8px rgba(0,0,0,0.1)',
+            fontFamily: '"Comic Sans MS", cursive'
+          }}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -140,49 +134,38 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
               variant={isAddingAnnotation ? "default" : "outline"}
               size="sm"
               onClick={() => setIsAddingAnnotation(!isAddingAnnotation)}
-              className={isAddingAnnotation ? "bg-purple-600 text-white" : ""}
+              className={isAddingAnnotation ? "bg-purple-600 text-white border-2 border-dashed" : "border-2 border-dashed border-gray-400"}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Note
             </Button>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {/* Website URL Controls */}
-          <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
-            <Input
-              placeholder="Enter website URL to view and annotate"
-              value={currentUrl}
-              onChange={(e) => setCurrentUrl(e.target.value)}
-              className="flex-1"
-            />
-            <Button onClick={loadWebsite} disabled={!currentUrl || isLoading}>
-              {isLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Load'}
-            </Button>
-            {viewMode === 'website' && currentUrl && (
+            {websiteUrl && (
               <>
-                <Button variant="outline" onClick={refreshWebsite} disabled={isLoading}>
+                <Button variant="outline" onClick={refreshWebsite} disabled={isLoading} 
+                        className="border-2 border-dashed border-gray-400">
                   <RefreshCw className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" onClick={openInNewTab}>
+                <Button variant="outline" onClick={openInNewTab}
+                        className="border-2 border-dashed border-gray-400">
                   <ExternalLink className="h-4 w-4" />
                 </Button>
               </>
             )}
           </div>
-
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
           {/* Website View with Annotations */}
           <div
             ref={canvasRef}
-            className={`relative bg-gray-100 rounded-lg overflow-hidden ${
+            className={`relative bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 ${
               isAddingAnnotation ? 'cursor-crosshair' : 'cursor-default'
             }`}
             onClick={handleCanvasClick}
             style={{ minHeight: '600px', height: '600px' }}
           >
-            {viewMode === 'website' && currentUrl ? (
+            {websiteUrl ? (
               <>
                 {isLoading && (
                   <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
@@ -194,23 +177,20 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
                 )}
                 <iframe
                   ref={iframeRef}
-                  src={currentUrl}
+                  src={websiteUrl}
                   className="w-full h-full border-0"
                   title="Website Preview"
                   sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                   onLoad={() => setIsLoading(false)}
-                  onError={() => {
-                    setIsLoading(false);
-                    setViewMode('placeholder');
-                  }}
+                  onError={() => setIsLoading(false)}
                 />
               </>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
                 <div className="text-center">
                   <MessageSquare className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-600 mb-2">Load a website to view and annotate</p>
-                  <p className="text-sm text-gray-500">Enter a URL above and click "Load"</p>
+                  <p className="text-gray-600 mb-2">No website to display</p>
+                  <p className="text-sm text-gray-500">Analyze a website URL to view it here</p>
                   <p className="text-sm text-gray-500 mt-2">Click "Add Note" then click on areas to annotate</p>
                 </div>
               </div>
@@ -225,26 +205,28 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
                   style={{ left: annotation.x, top: annotation.y }}
                 >
                   {/* Annotation marker */}
-                  <div className={`w-6 h-6 rounded-full ${getAnnotationColor(annotation.type)} flex items-center justify-center text-white text-xs font-bold shadow-lg cursor-pointer transform hover:scale-110 transition-transform`}>
+                  <div className={`w-6 h-6 rounded-full ${getAnnotationColor(annotation.type)} flex items-center justify-center text-white text-xs font-bold shadow-lg cursor-pointer transform hover:scale-110 transition-transform border-2 border-white`}>
                     {index + 1}
                   </div>
                   
                   {/* Annotation popup */}
-                  <div className="absolute top-8 left-0 bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-64 z-10 max-w-sm">
+                  <div className="absolute top-8 left-0 bg-white rounded-lg shadow-xl border-2 border-dashed border-gray-300 p-3 min-w-64 z-10 max-w-sm">
                     {editingId === annotation.id ? (
                       <div className="space-y-2">
                         <Textarea
                           value={newNote}
                           onChange={(e) => setNewNote(e.target.value)}
                           placeholder="Enter your note..."
-                          className="text-sm"
+                          className="text-sm border-2 border-dashed border-gray-300"
                           rows={3}
                         />
                         <div className="flex space-x-2">
-                          <Button size="sm" onClick={saveAnnotation}>
+                          <Button size="sm" onClick={saveAnnotation}
+                                  className="border-2 border-dashed border-gray-400">
                             Save
                           </Button>
-                          <Button variant="outline" size="sm" onClick={() => setEditingId(null)}>
+                          <Button variant="outline" size="sm" onClick={() => setEditingId(null)}
+                                  className="border-2 border-dashed border-gray-400">
                             Cancel
                           </Button>
                         </div>
@@ -308,9 +290,9 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
               </div>
             </div>
             
-            {currentUrl && (
+            {websiteUrl && (
               <div className="text-xs text-gray-500 max-w-md truncate">
-                Currently viewing: {currentUrl}
+                Currently viewing: {websiteUrl}
               </div>
             )}
           </div>

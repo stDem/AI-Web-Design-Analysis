@@ -32,7 +32,7 @@ interface AnalysisResult {
   codeSuggestions?: Array<{
     file: string;
     issue: string;
-    type: string;
+    type: 'performance' | 'accessibility' | 'maintainability' | 'security';
     before: string;
     after: string;
     explanation: string;
