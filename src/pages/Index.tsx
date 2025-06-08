@@ -21,7 +21,16 @@ const Index = () => {
     } else {
       // Simulate analysis for other tabs with sample data
       setTimeout(() => {
-        // ... keep existing sample data logic for other tabs
+        const sampleResults = {
+          score: Math.floor(Math.random() * 100),
+          accessibility: { score: Math.floor(Math.random() * 100), issues: [] },
+          performance: { score: Math.floor(Math.random() * 100), issues: [] },
+          ux: { score: Math.floor(Math.random() * 100), issues: [] },
+          codeQuality: { score: Math.floor(Math.random() * 100), issues: [] },
+          annotations: []
+        };
+        // @ts-ignore
+        setAnalysisResults(sampleResults);
       }, 3000);
     }
   };
@@ -45,15 +54,11 @@ const Index = () => {
            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.3'%3E%3Cpath d='m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
            fontFamily: '"Comic Sans MS", "Marker Felt", "Brush Script MT", cursive'
          }}>
-      {/* Header with bigger logo and picture background */}
+      {/* Header without picture background */}
       <div className="bg-white/90 backdrop-blur-sm border-b-2 border-gray-300 sticky top-0 z-40"
            style={{ 
              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-             borderStyle: 'dashed',
-             backgroundImage: `url('/lovable-uploads/1b0d8977-c0ce-4c81-95aa-922772f17352.png')`,
-             backgroundSize: 'contain',
-             backgroundRepeat: 'no-repeat',
-             backgroundPosition: 'left center'
+             borderStyle: 'dashed'
            }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
