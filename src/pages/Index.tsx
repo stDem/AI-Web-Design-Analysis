@@ -45,7 +45,7 @@ const Index = () => {
            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f3f4f6' fill-opacity='0.3'%3E%3Cpath d='m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
            fontFamily: '"Comic Sans MS", "Marker Felt", "Brush Script MT", cursive'
          }}>
-      {/* Header with smaller logo and dashed border */}
+      {/* Header with bigger logo and picture background */}
       <div className="bg-white/90 backdrop-blur-sm border-b-2 border-gray-300 sticky top-0 z-40"
            style={{ 
              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
@@ -58,11 +58,16 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="bg-white p-2 rounded-lg transform -rotate-2 shadow-lg border-2 border-dashed border-gray-400">
+              <div className="bg-gradient-to-r from-slate-600 to-gray-700 p-4 rounded-lg transform -rotate-2 shadow-lg border-2 border-dashed border-gray-400"
+                   style={{ 
+                     background: 'linear-gradient(45deg, #f8fafc 25%, transparent 25%), linear-gradient(-45deg, #f8fafc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f8fafc 75%), linear-gradient(-45deg, transparent 75%, #f8fafc 75%)',
+                     backgroundSize: '4px 4px',
+                     backgroundPosition: '0 0, 0 2px, 2px -2px, -2px 0px'
+                   }}>
                 <img 
                   src="/lovable-uploads/1b0d8977-c0ce-4c81-95aa-922772f17352.png" 
                   alt="Fish Skeleton Logo" 
-                  className="w-8 h-8 object-contain"
+                  className="w-12 h-12 object-contain"
                   style={{ 
                     filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.2))',
                     transform: 'rotate(-5deg)'
