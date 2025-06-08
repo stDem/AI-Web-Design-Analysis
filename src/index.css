@@ -172,6 +172,12 @@
     border-radius: 10px;
     background: transparent;
     opacity: 0.5;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+  }
+
+  .sketch-button:hover::before {
+    transform: rotate(0.5deg);
   }
 
   .sketch-input {
@@ -195,6 +201,12 @@
     border-radius: 6px;
     background: transparent;
     z-index: -1;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+  }
+
+  .sketch-input:hover::after {
+    transform: rotate(0.3deg);
   }
 
   .sketch-header {
@@ -212,6 +224,11 @@
     right: 0;
     height: 2px;
     background: #333;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+  }
+
+  .sketch-header:hover::after {
     transform: rotate(0.1deg);
   }
 
@@ -277,6 +294,11 @@
     right: -10px;
     font-size: 16px;
     color: #666;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+  }
+
+  .doodle-decoration:hover::before {
     transform: rotate(15deg);
   }
 
@@ -287,6 +309,11 @@
     left: -10px;
     font-size: 12px;
     color: #888;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+  }
+
+  .doodle-decoration:hover::after {
     transform: rotate(-20deg);
   }
 
@@ -395,6 +422,12 @@
     border-radius: 18px;
     background: transparent;
     z-index: -1;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+  }
+
+  .sketch-progress-bar:hover::after {
+    transform: rotate(-0.3deg);
   }
 
   .sketch-annotation {
