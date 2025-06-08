@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -236,7 +237,7 @@
     border: 2px solid #333;
     border-radius: 10px;
     position: relative;
-    transform: rotate(0.5deg);
+    transform: rotate(0deg);
   }
 
   .sketch-tab {
@@ -245,15 +246,24 @@
     background: #fff;
     position: relative;
     margin-right: 2px;
-    transform: rotate(-0.5deg);
+    transform: rotate(0deg);
     font-family: 'Comic Sans MS', cursive;
     font-weight: bold;
+    transition: transform 0.3s ease;
+  }
+
+  .sketch-tab:hover {
+    transform: rotate(-1deg);
   }
 
   .sketch-tab.active {
     background: #f0f0f0;
     transform: rotate(0deg);
     border-bottom: 2px solid #f0f0f0;
+  }
+
+  .sketch-tab.active:hover {
+    transform: rotate(0deg);
   }
 
   .doodle-decoration {
