@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, Link as LinkIcon, Figma, FileImage, FileText, Code, BarChart3, Share2, Eye, Zap, Shield, Users, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -52,7 +51,7 @@ const Index = () => {
   return (
     <div className="min-h-screen paper-texture" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
       
-      {/* Header with hand-drawn style */}
+      {/* Header with hand-drawn style - Fixed position to prevent movement */}
       <div className="sketch-header sticky top-0 z-40 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
@@ -88,6 +87,7 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Main content container with fixed layout */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section with sketchy cards */}
         <div className="text-center mb-12">
@@ -206,165 +206,173 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Input Methods with hand-drawn style */}
-        <div className="sketch-card mb-8 p-6">
-          <div className="mb-6">
-            <h2 className="flex items-center space-x-2 text-xl font-bold">
-              <Upload className="h-5 w-5" />
-              <span>CHOOSE ANALYSIS METHOD</span>
-            </h2>
-          </div>
-          <div className="sketch-tabs p-4">
-            <div className="flex space-x-2 mb-6">
-              <button 
-                onClick={() => setActiveTab('url')}
-                className={`sketch-tab px-4 py-2 ${activeTab === 'url' ? 'active' : ''}`}
-              >
-                <LinkIcon className="h-4 w-4 mr-2 inline" />
-                WEBSITE URL
-              </button>
-              <button 
-                onClick={() => setActiveTab('upload')}
-                className={`sketch-tab px-4 py-2 ${activeTab === 'upload' ? 'active' : ''}`}
-              >
-                <FileImage className="h-4 w-4 mr-2 inline" />
-                UPLOAD FILES
-              </button>
-              <button 
-                onClick={() => setActiveTab('figma')}
-                className={`sketch-tab px-4 py-2 ${activeTab === 'figma' ? 'active' : ''}`}
-              >
-                <Figma className="h-4 w-4 mr-2 inline" />
-                FIGMA DESIGN
-              </button>
-              <button 
-                onClick={() => setActiveTab('project')}
-                className={`sketch-tab px-4 py-2 ${activeTab === 'project' ? 'active' : ''}`}
-              >
-                <Code className="h-4 w-4 mr-2 inline" />
-                FULL PROJECT
-              </button>
+        {/* Input Methods with hand-drawn style - Fixed container */}
+        <div className="mb-8">
+          <div className="sketch-card p-6">
+            <div className="mb-6">
+              <h2 className="flex items-center space-x-2 text-xl font-bold">
+                <Upload className="h-5 w-5" />
+                <span>CHOOSE ANALYSIS METHOD</span>
+              </h2>
             </div>
+            <div className="sketch-tabs p-4">
+              <div className="flex space-x-2 mb-6">
+                <button 
+                  onClick={() => setActiveTab('url')}
+                  className={`sketch-tab px-4 py-2 ${activeTab === 'url' ? 'active' : ''}`}
+                >
+                  <LinkIcon className="h-4 w-4 mr-2 inline" />
+                  WEBSITE URL
+                </button>
+                <button 
+                  onClick={() => setActiveTab('upload')}
+                  className={`sketch-tab px-4 py-2 ${activeTab === 'upload' ? 'active' : ''}`}
+                >
+                  <FileImage className="h-4 w-4 mr-2 inline" />
+                  UPLOAD FILES
+                </button>
+                <button 
+                  onClick={() => setActiveTab('figma')}
+                  className={`sketch-tab px-4 py-2 ${activeTab === 'figma' ? 'active' : ''}`}
+                >
+                  <Figma className="h-4 w-4 mr-2 inline" />
+                  FIGMA DESIGN
+                </button>
+                <button 
+                  onClick={() => setActiveTab('project')}
+                  className={`sketch-tab px-4 py-2 ${activeTab === 'project' ? 'active' : ''}`}
+                >
+                  <Code className="h-4 w-4 mr-2 inline" />
+                  FULL PROJECT
+                </button>
+              </div>
 
-            {activeTab === 'url' && (
-              <div className="space-y-4">
-                <div className="sketch-border bg-blue-50 p-4 mb-4">
-                  <h4 className="font-bold text-blue-900 mb-1">
-                    WEBSITE URL ANALYSIS
-                  </h4>
-                  <p className="text-sm text-blue-700">
-                    Comprehensive analysis of live websites including accessibility compliance, performance metrics, SEO optimization, and competitive comparison with industry leaders.
-                  </p>
+              {activeTab === 'url' && (
+                <div className="space-y-4">
+                  <div className="sketch-border bg-blue-50 p-4 mb-4">
+                    <h4 className="font-bold text-blue-900 mb-1">
+                      WEBSITE URL ANALYSIS
+                    </h4>
+                    <p className="text-sm text-blue-700">
+                      Comprehensive analysis of live websites including accessibility compliance, performance metrics, SEO optimization, and competitive comparison with industry leaders.
+                    </p>
+                  </div>
+                  <div className="flex space-x-4">
+                    <input
+                      placeholder="Enter website URL (e.g., https://example.com)"
+                      value={websiteUrl}
+                      onChange={(e) => setWebsiteUrl(e.target.value)}
+                      className="sketch-input flex-1"
+                    />
+                    <button 
+                      onClick={handleAnalysis}
+                      disabled={isAnalyzing || !websiteUrl}
+                      className="sketch-button bg-gray-800 text-white"
+                    >
+                      {isAnalyzing ? 'ANALYZING...' : 'ANALYZE WEBSITE'}
+                    </button>
+                  </div>
+                  {error && (
+                    <div className="sketch-border bg-red-50 p-3 border-red-400">
+                      <p className="text-red-600"><strong>ERROR:</strong> {error}</p>
+                    </div>
+                  )}
+                  {websiteUrl && !analysisResults && !isAnalyzing && (
+                    <div className="sketch-border bg-blue-50 p-3">
+                      <p className="text-blue-600"><strong>READY TO ANALYZE:</strong> Click "Analyze Website" to get comprehensive design feedback including accessibility, performance, UX, and code quality insights with competitive benchmarking.</p>
+                    </div>
+                  )}
                 </div>
-                <div className="flex space-x-4">
-                  <input
-                    placeholder="Enter website URL (e.g., https://example.com)"
-                    value={websiteUrl}
-                    onChange={(e) => setWebsiteUrl(e.target.value)}
-                    className="sketch-input flex-1"
+              )}
+
+              {activeTab === 'upload' && (
+                <div>
+                  <div className="sketch-border bg-green-50 p-4 mb-4">
+                    <h4 className="font-bold text-green-900 mb-1">
+                      FILE UPLOAD ANALYSIS
+                    </h4>
+                    <p className="text-sm text-green-700">
+                      Upload images, PDFs, mockups, or wireframes for AI-powered design review. Generates detailed feedback on visual hierarchy, typography, color schemes, and layout optimization.
+                    </p>
+                  </div>
+                  <FileUpload 
+                    onFilesUploaded={setUploadedFiles}
+                    onAnalyze={handleAnalysis}
+                    isAnalyzing={isAnalyzing}
                   />
-                  <button 
-                    onClick={handleAnalysis}
-                    disabled={isAnalyzing || !websiteUrl}
-                    className="sketch-button bg-gray-800 text-white"
-                  >
-                    {isAnalyzing ? 'ANALYZING...' : 'ANALYZE WEBSITE'}
-                  </button>
                 </div>
-                {error && (
-                  <div className="sketch-border bg-red-50 p-3 border-red-400">
-                    <p className="text-red-600"><strong>ERROR:</strong> {error}</p>
+              )}
+
+              {activeTab === 'figma' && (
+                <div className="space-y-4">
+                  <div className="sketch-border bg-purple-50 p-4 mb-4">
+                    <h4 className="font-bold text-purple-900 mb-1">
+                      FIGMA DESIGN ANALYSIS
+                    </h4>
+                    <p className="text-sm text-purple-700">
+                      Connect your Figma account to analyze design files directly. Reviews component consistency, design system adherence, accessibility standards, and provides developer-friendly code suggestions.
+                    </p>
                   </div>
-                )}
-                {websiteUrl && !analysisResults && !isAnalyzing && (
-                  <div className="sketch-border bg-blue-50 p-3">
-                    <p className="text-blue-600"><strong>READY TO ANALYZE:</strong> Click "Analyze Website" to get comprehensive design feedback including accessibility, performance, UX, and code quality insights with competitive benchmarking.</p>
+                  <div className="text-center py-8">
+                    <Figma className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-bold mb-2">
+                      CONNECT FIGMA ACCOUNT
+                    </h3>
+                    <p className="text-gray-600 mb-4">Authorize access to analyze your Figma designs</p>
+                    <button 
+                      onClick={handleAnalysis}
+                      className="sketch-button bg-gray-800 text-white"
+                    >
+                      {isAnalyzing ? 'ANALYZING...' : 'CONNECT FIGMA & ANALYZE'}
+                    </button>
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
 
-            {activeTab === 'upload' && (
-              <div>
-                <div className="sketch-border bg-green-50 p-4 mb-4">
-                  <h4 className="font-bold text-green-900 mb-1">
-                    FILE UPLOAD ANALYSIS
-                  </h4>
-                  <p className="text-sm text-green-700">
-                    Upload images, PDFs, mockups, or wireframes for AI-powered design review. Generates detailed feedback on visual hierarchy, typography, color schemes, and layout optimization.
-                  </p>
+              {activeTab === 'project' && (
+                <div className="space-y-4">
+                  <div className="sketch-border bg-orange-50 p-4 mb-4">
+                    <h4 className="font-bold text-orange-900 mb-1">
+                      FULL PROJECT ANALYSIS
+                    </h4>
+                    <p className="text-sm text-orange-700">
+                      Upload complete project files (ZIP) for comprehensive code review. Analyzes React components, CSS architecture, performance bottlenecks, security vulnerabilities, and provides refactoring suggestions.
+                    </p>
+                  </div>
+                  <div className="sketch-border p-8 text-center">
+                    <Code className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-bold mb-2">
+                      UPLOAD PROJECT FILES
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Upload a ZIP file containing your project for code analysis
+                    </p>
+                    <button 
+                      onClick={handleAnalysis}
+                      className="sketch-button"
+                      disabled={isAnalyzing}
+                    >
+                      {isAnalyzing ? 'ANALYZING...' : 'SELECT ZIP FILE & ANALYZE'}
+                    </button>
+                  </div>
                 </div>
-                <FileUpload 
-                  onFilesUploaded={setUploadedFiles}
-                  onAnalyze={handleAnalysis}
-                  isAnalyzing={isAnalyzing}
-                />
-              </div>
-            )}
-
-            {activeTab === 'figma' && (
-              <div className="space-y-4">
-                <div className="sketch-border bg-purple-50 p-4 mb-4">
-                  <h4 className="font-bold text-purple-900 mb-1">
-                    FIGMA DESIGN ANALYSIS
-                  </h4>
-                  <p className="text-sm text-purple-700">
-                    Connect your Figma account to analyze design files directly. Reviews component consistency, design system adherence, accessibility standards, and provides developer-friendly code suggestions.
-                  </p>
-                </div>
-                <div className="text-center py-8">
-                  <Figma className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-bold mb-2">
-                    CONNECT FIGMA ACCOUNT
-                  </h3>
-                  <p className="text-gray-600 mb-4">Authorize access to analyze your Figma designs</p>
-                  <button 
-                    onClick={handleAnalysis}
-                    className="sketch-button bg-gray-800 text-white"
-                  >
-                    {isAnalyzing ? 'ANALYZING...' : 'CONNECT FIGMA & ANALYZE'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'project' && (
-              <div className="space-y-4">
-                <div className="sketch-border bg-orange-50 p-4 mb-4">
-                  <h4 className="font-bold text-orange-900 mb-1">
-                    FULL PROJECT ANALYSIS
-                  </h4>
-                  <p className="text-sm text-orange-700">
-                    Upload complete project files (ZIP) for comprehensive code review. Analyzes React components, CSS architecture, performance bottlenecks, security vulnerabilities, and provides refactoring suggestions.
-                  </p>
-                </div>
-                <div className="sketch-border p-8 text-center">
-                  <Code className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-bold mb-2">
-                    UPLOAD PROJECT FILES
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Upload a ZIP file containing your project for code analysis
-                  </p>
-                  <button 
-                    onClick={handleAnalysis}
-                    className="sketch-button"
-                    disabled={isAnalyzing}
-                  >
-                    {isAnalyzing ? 'ANALYZING...' : 'SELECT ZIP FILE & ANALYZE'}
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Analysis Results */}
+        {/* Analysis Results - Fixed container */}
         {analysisResults && (
-          <div className="space-y-6">
+          <div className="space-y-6 mb-8">
             <div className="sketch-results-card p-6">
               <AnalysisResults results={analysisResults} />
             </div>
+          </div>
+        )}
+
+        {/* Design Annotations - Fixed container */}
+        {analysisResults && (
+          <div className="mb-8">
             <div className="sketch-results-card p-6">
               <AnnotationCanvas websiteUrl={websiteUrl} annotations={analysisResults.annotations} />
             </div>
@@ -373,7 +381,7 @@ const Index = () => {
 
         {/* Loading State */}
         {isAnalyzing && (
-          <div className="sketch-card p-12 text-center">
+          <div className="sketch-card p-12 text-center mb-8">
             <div className="sketchy-shadow rounded-full h-12 w-12 border-4 border-gray-800 border-t-transparent mx-auto mb-4 animate-spin"></div>
             <h3 className="text-lg font-bold mb-2">
               ANALYZING DESIGN...

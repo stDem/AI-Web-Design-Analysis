@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles, Play } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -49,9 +48,11 @@ interface AnalysisResultsProps {
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [expandedIssues, setExpandedIssues] = useState<Set<number>>(new Set());
+  const [expandedCodeSuggestions, setExpandedCodeSuggestions] = useState<Set<number>>(new Set());
   const [editingCode, setEditingCode] = useState<{ issueIndex: number; code: string } | null>(null);
   const [copiedCode, setCopiedCode] = useState<number | null>(null);
   const [selectedCompetitor, setSelectedCompetitor] = useState<string>('');
+  const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -159,10 +160,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
   const getColorClasses = (color: string, score: number) => {
     const baseColors = {
-      purple: score >= 80 ? 'bg-purple-200 text-purple-900' : score >= 60 ? 'bg-purple-100 text-purple-700' : 'bg-purple-50 text-purple-600',
-      yellow: score >= 80 ? 'bg-yellow-200 text-yellow-900' : score >= 60 ? 'bg-yellow-100 text-yellow-700' : 'bg-yellow-50 text-yellow-600',
-      blue: score >= 80 ? 'bg-blue-200 text-blue-900' : score >= 60 ? 'bg-blue-100 text-blue-700' : 'bg-blue-50 text-blue-600',
-      green: score >= 80 ? 'bg-green-200 text-green-900' : score >= 60 ? 'bg-green-100 text-green-700' : 'bg-green-50 text-green-600'
+      purple: score >= 80 ? 'bg-purple-100 text-purple-800' : score >= 60 ? 'bg-purple-50 text-purple-600' : 'bg-purple-25 text-purple-500',
+      yellow: score >= 80 ? 'bg-yellow-100 text-yellow-800' : score >= 60 ? 'bg-yellow-50 text-yellow-600' : 'bg-yellow-25 text-yellow-500',
+      blue: score >= 80 ? 'bg-blue-100 text-blue-800' : score >= 60 ? 'bg-blue-50 text-blue-600' : 'bg-blue-25 text-blue-500',
+      green: score >= 80 ? 'bg-green-100 text-green-800' : score >= 60 ? 'bg-green-50 text-green-600' : 'bg-green-25 text-green-500'
     };
     return baseColors[color as keyof typeof baseColors];
   };
@@ -184,6 +185,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       newExpanded.add(index);
     }
     setExpandedIssues(newExpanded);
+  };
+
+  const toggleCodeSuggestion = (index: number) => {
+    const newExpanded = new Set(expandedCodeSuggestions);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedCodeSuggestions(newExpanded);
   };
 
   const handleCopyCode = async (code: string, index: number) => {
@@ -209,6 +220,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
   const handleApplyCode = (issueIndex: number) => {
     console.log(`Applied code suggestion for issue ${issueIndex}`);
+  };
+
+  const handleApplyCodeSuggestion = (index: number) => {
+    setAppliedSuggestions(prev => new Set([...prev, index]));
+    console.log(`Applied code suggestion for issue ${index}`);
   };
 
   const handleShare = () => {
@@ -353,7 +369,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         </CardContent>
       </Card>
 
-      {/* Interactive Category Score Boxes with Lighter Colors */}
+      {/* Interactive Category Score Boxes with Much Lighter Colors */}
       <div className="grid md:grid-cols-4 gap-4">
         {categoryData.map((category) => {
           const IconComponent = category.icon;
@@ -421,7 +437,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         </div>
       )}
 
-      {/* Issues with Paired Suggestions and Code Suggestions */}
+      {/* Enhanced Issues with Collapsible Code Suggestions */}
       <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-gray-300 transform rotate-1"
             style={{ 
               boxShadow: '4px 4px 8px rgba(0,0,0,0.1)',
@@ -468,44 +484,104 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                       <p className="text-sm text-green-700 mt-2">{issue.suggestion}</p>
                     </div>
 
-                    {/* Code Suggestion if available */}
+                    {/* Collapsible Code Suggestion if available */}
                     {issue.codeSuggestion && (
-                      <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <Code className="h-4 w-4 text-gray-500" />
-                            <span className="text-sm font-medium text-gray-800">Code Improvement</span>
-                            <Badge variant="outline" className={`${getTypeColor(issue.codeSuggestion.type)} border-2 border-dashed text-xs`}>
-                              {issue.codeSuggestion.type}
-                            </Badge>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleCopyCode(issue.codeSuggestion!.after, index)}
-                          >
-                            {copiedCode === index ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                      <Collapsible 
+                        open={expandedCodeSuggestions.has(index)}
+                        onOpenChange={() => toggleCodeSuggestion(index)}
+                      >
+                        <CollapsibleTrigger asChild>
+                          <Button variant="outline" className="w-full justify-between border-2 border-dashed border-gray-300 mb-2">
+                            <div className="flex items-center space-x-2">
+                              <Code className="h-4 w-4 text-gray-500" />
+                              <span className="text-sm font-medium">Code Improvement</span>
+                              <Badge variant="outline" className={`${getTypeColor(issue.codeSuggestion.type)} border-2 border-dashed text-xs`}>
+                                {issue.codeSuggestion.type}
+                              </Badge>
+                            </div>
+                            {expandedCodeSuggestions.has(index) ? 
+                              <ChevronUp className="h-4 w-4" /> : 
+                              <ChevronDown className="h-4 w-4" />
+                            }
                           </Button>
-                        </div>
+                        </CollapsibleTrigger>
                         
-                        <p className="text-xs text-gray-600 mb-2">{issue.codeSuggestion.file}</p>
-                        <p className="text-sm text-gray-700 mb-3">{issue.codeSuggestion.explanation}</p>
-                        
-                        <div className="space-y-2">
-                          <div>
-                            <p className="text-xs font-medium text-red-600 mb-1">Before:</p>
-                            <code className="block bg-red-50 p-2 rounded text-xs border border-red-200">
-                              {issue.codeSuggestion.before}
-                            </code>
+                        <CollapsibleContent className="space-y-3">
+                          <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium text-gray-800">File: {issue.codeSuggestion.file}</span>
+                              </div>
+                              <div className="flex space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleCopyCode(issue.codeSuggestion!.after, index)}
+                                >
+                                  {copiedCode === index ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setEditingCode({ issueIndex: index, code: issue.codeSuggestion!.after })}
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleApplyCodeSuggestion(index)}
+                                  disabled={appliedSuggestions.has(index)}
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  {appliedSuggestions.has(index) ? (
+                                    <Check className="h-3 w-3" />
+                                  ) : (
+                                    <>
+                                      <Play className="h-3 w-3 mr-1" />
+                                      Apply
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            <p className="text-sm text-gray-700 mb-3">{issue.codeSuggestion.explanation}</p>
+                            
+                            <div className="space-y-2">
+                              <div>
+                                <p className="text-xs font-medium text-red-600 mb-1">Before:</p>
+                                <code className="block bg-red-50 p-2 rounded text-xs border border-red-200">
+                                  {issue.codeSuggestion.before}
+                                </code>
+                              </div>
+                              <div>
+                                <p className="text-xs font-medium text-green-600 mb-1">After:</p>
+                                {editingCode && editingCode.issueIndex === index ? (
+                                  <div className="space-y-2">
+                                    <Textarea
+                                      value={editingCode.code}
+                                      onChange={(e) => setEditingCode({ ...editingCode, code: e.target.value })}
+                                      className="font-mono text-xs min-h-[100px] bg-green-50 border border-green-200"
+                                    />
+                                    <div className="flex space-x-2">
+                                      <Button size="sm" onClick={handleSaveEdit} className="bg-green-600 hover:bg-green-700 text-white">
+                                        Save Changes
+                                      </Button>
+                                      <Button size="sm" variant="outline" onClick={() => setEditingCode(null)}>
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <code className="block bg-green-50 p-2 rounded text-xs border border-green-200">
+                                    {issue.codeSuggestion.after}
+                                  </code>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-xs font-medium text-green-600 mb-1">After:</p>
-                            <code className="block bg-green-50 p-2 rounded text-xs border border-green-200">
-                              {issue.codeSuggestion.after}
-                            </code>
-                          </div>
-                        </div>
-                      </div>
+                        </CollapsibleContent>
+                      </Collapsible>
                     )}
                   </div>
                 </div>
