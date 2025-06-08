@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Upload, Link as LinkIcon, Figma, FileImage, FileText, Code, BarChart3, Share2, Eye, Zap, Shield, Users, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -58,9 +59,9 @@ const Index = () => {
             <div className="flex items-center space-x-4">
               <div className="sketch-border bg-white p-2 doodle-decoration">
                 <img 
-                  src="/lovable-uploads/1b0d8977-c0ce-4c81-95aa-922772f17352.png" 
+                  src="/lovable-uploads/cafb20ce-2674-4c55-b0e4-530db7adb49c.png" 
                   alt="Fish Skeleton Logo" 
-                  className="w-6 h-6 object-contain sketchy-shadow"
+                  className="w-8 h-8 object-contain sketchy-shadow"
                 />
               </div>
               <div>
