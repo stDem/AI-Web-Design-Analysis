@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -181,7 +180,7 @@
     position: relative;
     padding: 10px;
     font-family: 'Comic Sans MS', cursive;
-    transform: rotate(0.3deg);
+    transform: rotate(0deg);
   }
 
   .sketch-input::after {
@@ -201,7 +200,7 @@
     background: transparent;
     border-bottom: 3px solid #000;
     position: relative;
-    transform: rotate(-0.2deg);
+    transform: rotate(0deg);
   }
 
   .sketch-header::after {
