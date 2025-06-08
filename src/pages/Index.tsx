@@ -114,7 +114,7 @@ const Index = () => {
                 </div>
               </div>
 
-              <div className="sketch-card p-6 text-center doodle-decoration" style={{ transform: 'rotate(0.8deg)' }}>
+              <div className="sketch-card p-6 text-center doodle-decoration">
                 <div className="sketch-border bg-yellow-100 p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                   <Zap className="h-8 w-8 text-yellow-600" />
                 </div>
@@ -130,7 +130,7 @@ const Index = () => {
                 </div>
               </div>
 
-              <div className="sketch-card p-6 text-center doodle-decoration" style={{ transform: 'rotate(-0.5deg)' }}>
+              <div className="sketch-card p-6 text-center doodle-decoration">
                 <div className="sketch-border bg-blue-100 p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                   <Users className="h-8 w-8 text-blue-600" />
                 </div>
@@ -146,7 +146,7 @@ const Index = () => {
                 </div>
               </div>
 
-              <div className="sketch-card p-6 text-center doodle-decoration" style={{ transform: 'rotate(1.2deg)' }}>
+              <div className="sketch-card p-6 text-center doodle-decoration">
                 <div className="sketch-border bg-green-100 p-3 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                   <Code className="h-8 w-8 text-green-600" />
                 </div>
@@ -362,8 +362,12 @@ const Index = () => {
         {/* Analysis Results */}
         {analysisResults && (
           <div className="space-y-6">
-            <AnalysisResults results={analysisResults} />
-            <AnnotationCanvas websiteUrl={websiteUrl} annotations={analysisResults.annotations} />
+            <div className="sketch-results-card p-6">
+              <AnalysisResults results={analysisResults} />
+            </div>
+            <div className="sketch-results-card p-6">
+              <AnnotationCanvas websiteUrl={websiteUrl} annotations={analysisResults.annotations} />
+            </div>
           </div>
         )}
 
@@ -400,7 +404,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="sketch-card p-6 text-center doodle-decoration" style={{ transform: 'rotate(-0.8deg)' }}>
+            <div className="sketch-card p-6 text-center doodle-decoration">
               <div className="sketch-border bg-blue-100 p-3 w-12 h-12 mx-auto mb-4 flex items-center justify-center">
                 <FileText className="h-6 w-6 text-blue-600" />
               </div>
@@ -412,7 +416,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="sketch-card p-6 text-center doodle-decoration" style={{ transform: 'rotate(0.7deg)' }}>
+            <div className="sketch-card p-6 text-center doodle-decoration">
               <div className="sketch-border bg-green-100 p-3 w-12 h-12 mx-auto mb-4 flex items-center justify-center">
                 <Code className="h-6 w-6 text-green-600" />
               </div>
