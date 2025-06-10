@@ -604,5 +604,3 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 };
 
 export default AnalysisResults;
-
-}
