@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import CompetitiveAnalysis from './CompetitiveAnalysis';
 
 interface CodeSuggestion {
   file: string;
@@ -426,6 +427,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         })}
       </div>
 
+      {/* Competitive Analysis Section - NEW */}
+      {results.comparison && (
+        <CompetitiveAnalysis 
+          comparison={results.comparison} 
+          currentScore={results.score}
+        />
+      )}
+
       {selectedCategory && (
         <div className="text-center p-2 bg-blue-50 rounded-lg border-2 border-dashed border-blue-200">
           <p className="text-sm text-blue-700" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
@@ -595,3 +604,5 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 };
 
 export default AnalysisResults;
+
+}

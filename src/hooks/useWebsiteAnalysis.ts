@@ -5,9 +5,22 @@ import { supabase } from '@/integrations/supabase/client';
 interface AnalysisResult {
   score: number;
   comparison: {
-    competitors: Array<{ name: string; score: number; category: string }>;
+    competitors: Array<{ 
+      name: string; 
+      score: number; 
+      category: string;
+      url?: string;
+      description?: string;
+    }>;
     betterThan: number;
     position: string;
+    category: string;
+    suggestedAnalysis?: Array<{
+      name: string;
+      url: string;
+      reason: string;
+      popularity: string;
+    }>;
   };
   categoryScores: {
     ux: number;

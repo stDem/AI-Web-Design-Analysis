@@ -40,8 +40,8 @@ serve(async (req) => {
     const descriptionMatch = htmlContent.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i);
     const description = descriptionMatch ? descriptionMatch[1] : '';
 
-    // Determine website category and competitors
-    const categoryAnalysis = await analyzeWebsiteCategory(htmlContent, title, description);
+    // Enhanced competitive analysis with AI
+    const competitiveAnalysis = await analyzeCompetitorsWithAI(htmlContent, title, description, url);
     
     // Analyze with GPT-4
     const analysisPrompt = `
@@ -49,7 +49,7 @@ serve(async (req) => {
     
     Website Title: ${title}
     URL: ${url}
-    Category: ${categoryAnalysis.category}
+    Category: ${competitiveAnalysis.category}
     
     HTML Content (first 8000 chars): ${htmlContent.substring(0, 8000)}
     
@@ -127,9 +127,11 @@ serve(async (req) => {
     const analysisResult = {
       score: gptAnalysis?.designScore || Math.floor(Math.random() * 30) + 60,
       comparison: {
-        competitors: categoryAnalysis.competitors,
+        competitors: competitiveAnalysis.competitors,
         betterThan: Math.floor(Math.random() * 40) + 30,
-        position: `${Math.floor(Math.random() * 50) + 20}th percentile`
+        position: `${Math.floor(Math.random() * 50) + 20}th percentile`,
+        category: competitiveAnalysis.category,
+        suggestedAnalysis: competitiveAnalysis.suggestedAnalysis
       },
       categoryScores: gptAnalysis?.categoryScores || {
         ux: Math.floor(Math.random() * 30) + 65,
@@ -232,62 +234,168 @@ serve(async (req) => {
   }
 });
 
-async function analyzeWebsiteCategory(htmlContent: string, title: string, description: string): Promise<{category: string, competitors: Array<{name: string, score: number, category: string}>}> {
-  const content = (title + ' ' + description + ' ' + htmlContent.substring(0, 2000)).toLowerCase();
+async function analyzeCompetitorsWithAI(htmlContent: string, title: string, description: string, url: string): Promise<{
+  category: string, 
+  competitors: Array<{name: string, score: number, category: string, url?: string, description?: string}>,
+  suggestedAnalysis: Array<{name: string, url: string, reason: string, popularity: string}>
+}> {
+  const content = (title + ' ' + description + ' ' + htmlContent.substring(0, 4000)).toLowerCase();
   
-  // Determine category based on content
-  let category = 'general';
-  let competitors: Array<{name: string, score: number, category: string}> = [];
+  // Use AI to analyze the website and find competitors
+  let aiAnalysis;
+  try {
+    const competitorPrompt = `
+    Analyze this website and identify its category and top competitors:
+    
+    Title: ${title}
+    URL: ${url}
+    Description: ${description}
+    Content: ${content.substring(0, 2000)}
+    
+    Please provide analysis in this JSON format:
+    {
+      "category": "specific industry category (e.g., E-commerce, SaaS, Content/Media, Finance, etc.)",
+      "competitors": [
+        {
+          "name": "Competitor Name",
+          "score": number (60-95),
+          "category": "subcategory",
+          "url": "https://website.com",
+          "description": "brief description of what they do"
+        }
+      ],
+      "suggestedAnalysis": [
+        {
+          "name": "Top Competitor Name",
+          "url": "https://competitor.com", 
+          "reason": "why this competitor is most relevant for analysis",
+          "popularity": "market position (e.g., Industry Leader, Top 3 in category, etc.)"
+        }
+      ]
+    }
+    
+    Focus on finding real, popular competitors that users would actually want to compare against.
+    `;
+
+    if (openAIApiKey) {
+      const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { 
+              role: 'system', 
+              content: 'You are a market research expert that identifies website categories and competitors. Provide accurate, real competitor data in JSON format.' 
+            },
+            { role: 'user', content: competitorPrompt }
+          ],
+          max_tokens: 1500,
+          temperature: 0.1
+        }),
+      });
+
+      if (aiResponse.ok) {
+        const aiData = await aiResponse.json();
+        const aiContent = aiData.choices[0].message.content;
+        
+        // Extract JSON from response
+        const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          aiAnalysis = JSON.parse(jsonMatch[0]);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('AI competitor analysis failed:', error);
+  }
+
+  // Fallback logic with enhanced competitor data
+  if (aiAnalysis && aiAnalysis.category && aiAnalysis.competitors) {
+    return aiAnalysis;
+  }
+
+  // Enhanced fallback analysis
+  let category = 'Business/Corporate';
+  let competitors: Array<{name: string, score: number, category: string, url?: string, description?: string}> = [];
+  let suggestedAnalysis: Array<{name: string, url: string, reason: string, popularity: string}> = [];
 
   if (content.includes('ecommerce') || content.includes('shop') || content.includes('buy') || content.includes('cart') || content.includes('product')) {
     category = 'E-commerce';
     competitors = [
-      { name: 'Amazon', score: 85, category: 'marketplace' },
-      { name: 'Shopify Stores', score: 78, category: 'platform' },
-      { name: 'eBay', score: 72, category: 'marketplace' },
-      { name: 'Etsy', score: 74, category: 'handmade' }
+      { name: 'Amazon', score: 95, category: 'marketplace', url: 'https://amazon.com', description: 'Global e-commerce marketplace leader' },
+      { name: 'Shopify', score: 88, category: 'platform', url: 'https://shopify.com', description: 'Leading e-commerce platform provider' },
+      { name: 'eBay', score: 82, category: 'marketplace', url: 'https://ebay.com', description: 'Online auction and marketplace platform' },
+      { name: 'Etsy', score: 78, category: 'handmade', url: 'https://etsy.com', description: 'Marketplace for creative and handmade items' }
+    ];
+    suggestedAnalysis = [
+      { name: 'Amazon', url: 'https://amazon.com', reason: 'Industry benchmark for e-commerce UX and conversion optimization', popularity: 'Global Market Leader' },
+      { name: 'Shopify', url: 'https://shopify.com', reason: 'Best practices in e-commerce platform design and merchant experience', popularity: 'Leading Platform Provider' }
+    ];
+  } else if (content.includes('youtube') || content.includes('video') || content.includes('streaming') || content.includes('watch')) {
+    category = 'Video/Streaming';
+    competitors = [
+      { name: 'Netflix', score: 92, category: 'streaming', url: 'https://netflix.com', description: 'Leading video streaming platform' },
+      { name: 'YouTube', score: 95, category: 'user-generated', url: 'https://youtube.com', description: 'World\'s largest video sharing platform' },
+      { name: 'Twitch', score: 85, category: 'live-streaming', url: 'https://twitch.tv', description: 'Live streaming platform for gamers' },
+      { name: 'Vimeo', score: 78, category: 'professional', url: 'https://vimeo.com', description: 'Professional video hosting platform' }
+    ];
+    suggestedAnalysis = [
+      { name: 'YouTube', url: 'https://youtube.com', reason: 'Gold standard for video platform UX, search, and content discovery', popularity: 'Global Video Platform Leader' },
+      { name: 'Netflix', url: 'https://netflix.com', reason: 'Exceptional user experience in content recommendation and streaming', popularity: 'Streaming Industry Leader' }
     ];
   } else if (content.includes('saas') || content.includes('software') || content.includes('api') || content.includes('platform') || content.includes('dashboard')) {
     category = 'SaaS/Software';
     competitors = [
-      { name: 'Slack', score: 88, category: 'productivity' },
-      { name: 'Notion', score: 86, category: 'productivity' },
-      { name: 'Figma', score: 90, category: 'design' },
-      { name: 'Linear', score: 85, category: 'project-management' }
+      { name: 'Slack', score: 90, category: 'productivity', url: 'https://slack.com', description: 'Team communication and collaboration platform' },
+      { name: 'Notion', score: 88, category: 'productivity', url: 'https://notion.so', description: 'All-in-one workspace for notes and collaboration' },
+      { name: 'Figma', score: 92, category: 'design', url: 'https://figma.com', description: 'Collaborative design and prototyping tool' },
+      { name: 'Linear', score: 86, category: 'project-management', url: 'https://linear.app', description: 'Modern project management for software teams' }
     ];
-  } else if (content.includes('blog') || content.includes('news') || content.includes('article') || content.includes('content')) {
+    suggestedAnalysis = [
+      { name: 'Figma', url: 'https://figma.com', reason: 'Exceptional design tool UX with seamless collaboration features', popularity: 'Design Industry Leader' },
+      { name: 'Notion', url: 'https://notion.so', reason: 'Outstanding user onboarding and intuitive interface design', popularity: 'Top Productivity Platform' }
+    ];
+  } else if (content.includes('blog') || content.includes('news') || content.includes('article') || content.includes('content') || content.includes('medium')) {
     category = 'Content/Media';
     competitors = [
-      { name: 'Medium', score: 82, category: 'publishing' },
-      { name: 'Substack', score: 79, category: 'newsletter' },
-      { name: 'Ghost', score: 76, category: 'blogging' },
-      { name: 'WordPress.com', score: 74, category: 'cms' }
+      { name: 'Medium', score: 85, category: 'publishing', url: 'https://medium.com', description: 'Online publishing platform for writers' },
+      { name: 'Substack', score: 82, category: 'newsletter', url: 'https://substack.com', description: 'Newsletter and subscription platform' },
+      { name: 'Ghost', score: 78, category: 'blogging', url: 'https://ghost.org', description: 'Modern publishing platform for creators' },
+      { name: 'WordPress.com', score: 75, category: 'cms', url: 'https://wordpress.com', description: 'Popular content management system' }
+    ];
+    suggestedAnalysis = [
+      { name: 'Medium', url: 'https://medium.com', reason: 'Excellent reading experience and content discovery algorithms', popularity: 'Leading Publishing Platform' },
+      { name: 'Substack', url: 'https://substack.com', reason: 'Simple, focused design optimized for newsletter creation and monetization', popularity: 'Top Newsletter Platform' }
     ];
   } else if (content.includes('finance') || content.includes('bank') || content.includes('payment') || content.includes('crypto')) {
     category = 'Finance/Fintech';
     competitors = [
-      { name: 'Stripe', score: 92, category: 'payments' },
-      { name: 'PayPal', score: 80, category: 'payments' },
-      { name: 'Coinbase', score: 75, category: 'crypto' },
-      { name: 'Robinhood', score: 77, category: 'trading' }
+      { name: 'Stripe', score: 94, category: 'payments', url: 'https://stripe.com', description: 'Leading online payment processing platform' },
+      { name: 'PayPal', score: 88, category: 'payments', url: 'https://paypal.com', description: 'Global digital payment platform' },
+      { name: 'Coinbase', score: 82, category: 'crypto', url: 'https://coinbase.com', description: 'Cryptocurrency exchange and wallet' },
+      { name: 'Robinhood', score: 79, category: 'trading', url: 'https://robinhood.com', description: 'Commission-free stock trading app' }
     ];
-  } else if (content.includes('portfolio') || content.includes('design') || content.includes('creative') || content.includes('agency')) {
-    category = 'Creative/Portfolio';
-    competitors = [
-      { name: 'Behance', score: 84, category: 'portfolio' },
-      { name: 'Dribbble', score: 86, category: 'design-community' },
-      { name: 'Adobe Portfolio', score: 78, category: 'portfolio' },
-      { name: 'Awwwards Sites', score: 92, category: 'showcase' }
+    suggestedAnalysis = [
+      { name: 'Stripe', url: 'https://stripe.com', reason: 'Best-in-class developer experience and payment flow design', popularity: 'Payment Processing Leader' },
+      { name: 'PayPal', url: 'https://paypal.com', reason: 'Trusted user experience in digital payments and security', popularity: 'Global Payment Leader' }
     ];
   } else {
     // Default business competitors
     competitors = [
-      { name: 'Industry Leader A', score: 84, category: 'established' },
-      { name: 'Growing Competitor B', score: 76, category: 'emerging' },
-      { name: 'Enterprise Solution C', score: 88, category: 'enterprise' },
-      { name: 'Startup Alternative D', score: 72, category: 'innovative' }
+      { name: 'Apple', score: 96, category: 'technology', url: 'https://apple.com', description: 'Technology and design excellence leader' },
+      { name: 'Google', score: 94, category: 'technology', url: 'https://google.com', description: 'Search and web services leader' },
+      { name: 'Microsoft', score: 90, category: 'enterprise', url: 'https://microsoft.com', description: 'Enterprise software and cloud services' },
+      { name: 'Airbnb', score: 87, category: 'marketplace', url: 'https://airbnb.com', description: 'Marketplace design and user experience leader' }
+    ];
+    suggestedAnalysis = [
+      { name: 'Apple', url: 'https://apple.com', reason: 'Gold standard for clean, intuitive design and user experience', popularity: 'Design Industry Benchmark' },
+      { name: 'Airbnb', url: 'https://airbnb.com', reason: 'Excellent marketplace UX with strong focus on trust and usability', popularity: 'Marketplace Design Leader' }
     ];
   }
 
-  return { category, competitors };
+  return { category, competitors, suggestedAnalysis };
 }
