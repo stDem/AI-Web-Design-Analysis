@@ -61,7 +61,7 @@ const Index = () => {
                 <img 
                   src="/lovable-uploads/0a0e0bd1-96e1-4c3d-89a5-6f2379d8ddff.png" 
                   alt="Fish Skeleton Logo" 
-                  className="w-8 h-8 object-contain sketchy-shadow"
+                  className="w-12 h-12 object-contain sketchy-shadow"
                 />
               </div>
               <div>
