@@ -20,6 +20,9 @@ export async function analyzeCompetitors(
     popularity: string;
   }>;
 }> {
+  // Extract domain from the current URL to avoid suggesting the same website
+  const currentDomain = new URL(url).hostname.toLowerCase().replace('www.', '');
+  
   // Determine category based on content analysis
   const content = htmlContent.toLowerCase();
   const titleLower = title.toLowerCase();
@@ -29,6 +32,15 @@ export async function analyzeCompetitors(
   let category = 'general';
   let competitors = [];
   let suggestedAnalysis = [];
+  
+  // Helper function to filter out current website from competitors
+  const filterCurrentWebsite = (competitorList: any[]) => {
+    return competitorList.filter(comp => {
+      if (!comp.url) return true;
+      const competitorDomain = new URL(comp.url).hostname.toLowerCase().replace('www.', '');
+      return competitorDomain !== currentDomain;
+    });
+  };
   
   // More comprehensive category detection
   if (content.includes('whatsapp') || content.includes('telegram') || content.includes('messenger') || 
@@ -56,6 +68,13 @@ export async function analyzeCompetitors(
         category,
         url: "https://signal.org",
         description: "Privacy-focused messaging with clean design"
+      },
+      {
+        name: "Slack",
+        score: Math.floor(Math.random() * 10) + 82,
+        category,
+        url: "https://slack.com",
+        description: "Business communication platform with excellent UX"
       }
     ];
     suggestedAnalysis = [
@@ -96,6 +115,13 @@ export async function analyzeCompetitors(
         category,
         url: "https://twitch.tv",
         description: "Live streaming platform with engaging interface"
+      },
+      {
+        name: "Dailymotion",
+        score: Math.floor(Math.random() * 10) + 78,
+        category,
+        url: "https://dailymotion.com",
+        description: "Video sharing platform with modern interface"
       }
     ];
     suggestedAnalysis = [
@@ -137,6 +163,13 @@ export async function analyzeCompetitors(
         category,
         url: "https://etsy.com",
         description: "Creative marketplace with strong user experience"
+      },
+      {
+        name: "Alibaba",
+        score: Math.floor(Math.random() * 10) + 83,
+        category,
+        url: "https://alibaba.com",
+        description: "Global B2B marketplace with comprehensive features"
       }
     ];
     suggestedAnalysis = [
@@ -177,6 +210,13 @@ export async function analyzeCompetitors(
         category,
         url: "https://substack.com",
         description: "Modern newsletter and publishing platform"
+      },
+      {
+        name: "Ghost",
+        score: Math.floor(Math.random() * 10) + 84,
+        category,
+        url: "https://ghost.org",
+        description: "Professional publishing platform with clean design"
       }
     ];
     suggestedAnalysis = [
@@ -217,6 +257,13 @@ export async function analyzeCompetitors(
         category,
         url: "https://portfolio.adobe.com",
         description: "Professional portfolio builder with modern templates"
+      },
+      {
+        name: "DeviantArt",
+        score: Math.floor(Math.random() * 10) + 76,
+        category,
+        url: "https://deviantart.com",
+        description: "Creative community with portfolio features"
       }
     ];
     suggestedAnalysis = [
@@ -257,6 +304,13 @@ export async function analyzeCompetitors(
         category,
         url: "https://figma.com",
         description: "Modern design tool with intuitive interface"
+      },
+      {
+        name: "Airtable",
+        score: Math.floor(Math.random() * 10) + 82,
+        category,
+        url: "https://airtable.com",
+        description: "Database platform with excellent user experience"
       }
     ];
     suggestedAnalysis = [
@@ -297,6 +351,13 @@ export async function analyzeCompetitors(
         category,
         url: "https://doordash.com",
         description: "Food delivery platform with modern UX"
+      },
+      {
+        name: "Uber Eats",
+        score: Math.floor(Math.random() * 10) + 77,
+        category,
+        url: "https://ubereats.com",
+        description: "Food delivery service with clean interface"
       }
     ];
     suggestedAnalysis = [
@@ -338,6 +399,13 @@ export async function analyzeCompetitors(
           category,
           url: "https://yahoo.com",
           description: "Classic web portal with comprehensive features"
+        },
+        {
+          name: "Yandex",
+          score: Math.floor(Math.random() * 10) + 72,
+          category,
+          url: "https://yandex.com",
+          description: "Russian search engine with modern design"
         }
       ];
       suggestedAnalysis = [
@@ -377,6 +445,13 @@ export async function analyzeCompetitors(
           category: "General",
           url: "https://airbnb.com",
           description: "Great user experience and visual design"
+        },
+        {
+          name: "Stripe",
+          score: Math.floor(Math.random() * 10) + 87,
+          category: "General",
+          url: "https://stripe.com",
+          description: "Excellent developer-focused design and documentation"
         }
       ];
       suggestedAnalysis = [
@@ -395,6 +470,14 @@ export async function analyzeCompetitors(
       ];
     }
   }
+
+  // Filter out the current website from competitors and suggested analysis
+  competitors = filterCurrentWebsite(competitors);
+  suggestedAnalysis = suggestedAnalysis.filter(suggestion => {
+    if (!suggestion.url) return true;
+    const suggestionDomain = new URL(suggestion.url).hostname.toLowerCase().replace('www.', '');
+    return suggestionDomain !== currentDomain;
+  });
 
   return {
     competitors,
