@@ -14,7 +14,7 @@ export async function analyzeCompetitorsWithAI(
   let aiAnalysis;
   try {
     const competitorPrompt = `
-    Analyze this website content and identify its category and top competitors based on the actual content, business model, and target audience:
+    Analyze this website content and identify its category and top competitors based on the ACTUAL content, business model, and target audience:
     
     Title: ${title}
     URL: ${url}
