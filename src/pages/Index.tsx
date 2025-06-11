@@ -104,7 +104,7 @@ const Index = () => {
                 </button>
               )}
               <button className="sketch-button">
-                SIGN IN
+                GET STARTED
               </button>
             </div>
           </div>
