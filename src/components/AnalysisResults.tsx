@@ -27,6 +27,13 @@ interface IssueWithSuggestion {
   codeSuggestion?: CodeSuggestion;
 }
 
+interface CategoryScores {
+  ux: number;
+  code: number;
+  performance: number;
+  accessibility: number;
+}
+
 interface AnalysisResultsProps {
   results: {
     score: number;
@@ -66,7 +73,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   const [copiedCode, setCopiedCode] = useState<number | null>(null);
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
   const [analyzingCompetitor, setAnalyzingCompetitor] = useState<string | null>(null);
-  const [competitorAnalysis, setCompetitorAnalysis] = useState<{[key: string]: any}>({});
+  const [competitorAnalysis, setCompetitorAnalysis] = useState<{[key: string]: CategoryScores}>({});
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -120,7 +127,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   }));
 
   // Chart data for the main donut chart - reordered as requested
-  const categoryScores = {
+  const categoryScores: CategoryScores = {
     ux: 78,
     code: 81,
     performance: 72,
@@ -130,7 +137,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   // Reordered category data: User Experience, Code Quality, Performance, Accessibility with lighter colors
   const categoryData = [
     {
-      id: 'ux',
+      id: 'ux' as keyof CategoryScores,
       label: 'User Experience',
       score: categoryScores.ux,
       icon: Users,
@@ -138,7 +145,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       issues: issuesWithSuggestions.filter(issue => issue.type === 'ux')
     },
     {
-      id: 'code',
+      id: 'code' as keyof CategoryScores,
       label: 'Code Quality',
       score: categoryScores.code,
       icon: Code,
@@ -146,7 +153,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       issues: issuesWithSuggestions.filter(issue => issue.type === 'code')
     },
     {
-      id: 'performance',
+      id: 'performance' as keyof CategoryScores,
       label: 'Performance',
       score: categoryScores.performance,
       icon: Zap,
@@ -154,7 +161,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       issues: issuesWithSuggestions.filter(issue => issue.type === 'performance')
     },
     {
-      id: 'accessibility',
+      id: 'accessibility' as keyof CategoryScores,
       label: 'Accessibility',
       score: categoryScores.accessibility,
       icon: Accessibility,
@@ -183,7 +190,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     // Simulate competitor analysis with realistic category scores
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    const analysis = {
+    const analysis: CategoryScores = {
       ux: Math.floor(Math.random() * 30) + 70,
       code: Math.floor(Math.random() * 30) + 65,
       performance: Math.floor(Math.random() * 30) + 60,
@@ -396,10 +403,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                         {analysis && (
                           <div className="mt-3 space-y-1">
                             <div className="text-xs font-medium mb-1">Category Breakdown:</div>
-                            {Object.entries(analysis).map(([category, score]) => (
+                            {(Object.entries(analysis) as [keyof CategoryScores, number][]).map(([category, score]) => (
                               <div key={category} className="flex items-center justify-between text-xs">
                                 <span className="capitalize">{category === 'ux' ? 'User Experience' : category}:</span>
-                                <span className={`font-medium ${score > categoryScores[category as keyof typeof categoryScores] ? 'text-red-300' : 'text-green-300'}`}>
+                                <span className={`font-medium ${score > categoryScores[category] ? 'text-red-300' : 'text-green-300'}`}>
                                   {score}%
                                 </span>
                               </div>
