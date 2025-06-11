@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,8 +31,13 @@ const CompetitiveAnalysis: React.FC<CompetitiveAnalysisProps> = ({ comparison, c
   const [selectedCompetitor, setSelectedCompetitor] = useState<string>('');
 
   const handleAnalyzeCompetitor = (url: string, name: string) => {
-    // Open competitor analysis in new tab
-    window.open(url, '_blank');
+    // Open competitor URL in new tab for manual analysis
+    if (url && url !== '#') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      console.log(`Analysis requested for: ${name}`);
+      // Could trigger a new analysis of the competitor URL here
+    }
   };
 
   const getScoreColor = (score: number) => {
@@ -119,7 +123,7 @@ const CompetitiveAnalysis: React.FC<CompetitiveAnalysisProps> = ({ comparison, c
                           size="sm"
                         >
                           <ExternalLink className="h-4 w-4 mr-2" />
-                          Analyze {suggestion.name}
+                          Visit {suggestion.name}
                         </Button>
                         <span className="text-xs text-gray-500">{suggestion.url}</span>
                       </div>
@@ -168,8 +172,8 @@ const CompetitiveAnalysis: React.FC<CompetitiveAnalysisProps> = ({ comparison, c
 
             {/* Competitor Scores */}
             {comparison.competitors.map((competitor, index) => {
-              const performance = getPerformanceMessage(currentScore, competitor.score);
               const isAhead = currentScore > competitor.score;
+              const scoreDiff = currentScore - competitor.score;
               
               return (
                 <div key={index} className="bg-gray-50 p-4 rounded-lg border-2 border-dashed border-gray-200 hover:border-gray-300 transition-all duration-200">
@@ -185,15 +189,22 @@ const CompetitiveAnalysis: React.FC<CompetitiveAnalysisProps> = ({ comparison, c
                         <p className="text-xs text-gray-600 mb-2">{competitor.description}</p>
                       )}
                       <div className="flex items-center space-x-2">
-                        <span className={`text-sm font-medium ${performance.color}`}>
-                          {performance.message}
+                        <span className={`text-sm font-medium ${
+                          isAhead ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {isAhead ? '✓ You\'re ahead' : '↑ Room for improvement'}
                         </span>
                         {isAhead && <TrendingUp className="h-3 w-3 text-green-500" />}
                       </div>
                     </div>
                     
                     <div className="text-right">
-                      <div className={`text-xl font-bold ${getScoreColor(competitor.score)} px-2 py-1 rounded`}>
+                      <div className={`text-xl font-bold px-2 py-1 rounded ${
+                        competitor.score >= 90 ? 'text-green-600 bg-green-100' :
+                        competitor.score >= 80 ? 'text-blue-600 bg-blue-100' :
+                        competitor.score >= 70 ? 'text-yellow-600 bg-yellow-100' :
+                        'text-red-600 bg-red-100'
+                      }`}>
                         {competitor.score}/100
                       </div>
                       {competitor.url && (
@@ -214,7 +225,7 @@ const CompetitiveAnalysis: React.FC<CompetitiveAnalysisProps> = ({ comparison, c
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                       <span>Performance Comparison</span>
-                      <span>{isAhead ? '+' : ''}{currentScore - competitor.score} points</span>
+                      <span>{scoreDiff > 0 ? '+' : ''}{scoreDiff} points</span>
                     </div>
                     <div className="relative">
                       <Progress value={competitor.score} className="h-2 bg-gray-200" />
