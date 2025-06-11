@@ -22,30 +22,118 @@ export async function analyzeCompetitors(
 }> {
   // Determine category based on content analysis
   const content = htmlContent.toLowerCase();
+  const titleLower = title.toLowerCase();
+  const descriptionLower = description?.toLowerCase() || '';
+  const urlLower = url.toLowerCase();
+  
   let category = 'general';
   let competitors = [];
   let suggestedAnalysis = [];
   
-  if (content.includes('ecommerce') || content.includes('shop') || content.includes('cart') || content.includes('product')) {
+  // More comprehensive category detection
+  if (content.includes('whatsapp') || content.includes('telegram') || content.includes('messenger') || 
+      content.includes('chat') || content.includes('messaging') || titleLower.includes('whatsapp') ||
+      urlLower.includes('whatsapp') || urlLower.includes('telegram')) {
+    category = 'Communication/Messaging';
+    competitors = [
+      {
+        name: "Telegram",
+        score: Math.floor(Math.random() * 10) + 88,
+        category,
+        url: "https://web.telegram.org",
+        description: "Fast, secure messaging platform with excellent web interface"
+      },
+      {
+        name: "Discord", 
+        score: Math.floor(Math.random() * 10) + 85,
+        category,
+        url: "https://discord.com", 
+        description: "Modern communication platform with great UX"
+      },
+      {
+        name: "Signal",
+        score: Math.floor(Math.random() * 15) + 80,
+        category,
+        url: "https://signal.org",
+        description: "Privacy-focused messaging with clean design"
+      }
+    ];
+    suggestedAnalysis = [
+      {
+        name: "Telegram Web",
+        url: "https://web.telegram.org",
+        reason: "Direct competitor with excellent responsive design and messaging UX patterns",
+        popularity: "Very High"
+      },
+      {
+        name: "Discord",
+        url: "https://discord.com", 
+        reason: "Modern communication interface with great user experience design",
+        popularity: "High"
+      }
+    ];
+  } else if (content.includes('youtube') || content.includes('video') || content.includes('watch') || 
+             titleLower.includes('youtube') || urlLower.includes('youtube')) {
+    category = 'Video/Streaming';
+    competitors = [
+      {
+        name: "Netflix",
+        score: Math.floor(Math.random() * 10) + 90,
+        category,
+        url: "https://netflix.com",
+        description: "Leading streaming platform with excellent UX"
+      },
+      {
+        name: "Vimeo", 
+        score: Math.floor(Math.random() * 10) + 85,
+        category,
+        url: "https://vimeo.com", 
+        description: "Professional video platform with clean design"
+      },
+      {
+        name: "Twitch",
+        score: Math.floor(Math.random() * 15) + 82,
+        category,
+        url: "https://twitch.tv",
+        description: "Live streaming platform with engaging interface"
+      }
+    ];
+    suggestedAnalysis = [
+      {
+        name: "Netflix",
+        url: "https://netflix.com",
+        reason: "Industry leader in video streaming UX and content discovery",
+        popularity: "Very High"
+      },
+      {
+        name: "Vimeo",
+        url: "https://vimeo.com", 
+        reason: "Clean, professional video platform design patterns",
+        popularity: "High"
+      }
+    ];
+  } else if (content.includes('amazon') || content.includes('shop') || content.includes('cart') || 
+             content.includes('buy') || content.includes('product') || titleLower.includes('amazon') ||
+             urlLower.includes('amazon') || content.includes('ecommerce')) {
     category = 'E-commerce';
     competitors = [
       {
-        name: "Amazon",
-        score: Math.floor(Math.random() * 10) + 90, // 90-100
+        name: "eBay",
+        score: Math.floor(Math.random() * 10) + 85,
         category,
-        url: "https://amazon.com",
-        description: "Global e-commerce leader with excellent UX"
+        url: "https://ebay.com",
+        description: "Global marketplace with comprehensive shopping experience"
       },
       {
         name: "Shopify", 
-        score: Math.floor(Math.random() * 10) + 85, // 85-95
+        score: Math.floor(Math.random() * 10) + 88,
         category,
         url: "https://shopify.com", 
         description: "Leading e-commerce platform with modern design"
       },
       {
         name: "Etsy",
-        score: Math.floor(Math.random() * 15) + 80, // 80-95
+        score: Math.floor(Math.random() * 15) + 80,
         category,
         url: "https://etsy.com",
         description: "Creative marketplace with strong user experience"
@@ -53,9 +141,9 @@ export async function analyzeCompetitors(
     ];
     suggestedAnalysis = [
       {
-        name: "Amazon",
-        url: "https://amazon.com",
-        reason: "Market leader with excellent checkout and product discovery patterns",
+        name: "eBay",
+        url: "https://ebay.com",
+        reason: "Direct e-commerce competitor with excellent search and discovery patterns",
         popularity: "Very High"
       },
       {
@@ -65,7 +153,8 @@ export async function analyzeCompetitors(
         popularity: "High"
       }
     ];
-  } else if (content.includes('blog') || content.includes('article') || content.includes('news') || content.includes('post')) {
+  } else if (content.includes('blog') || content.includes('article') || content.includes('news') || 
+             content.includes('post') || titleLower.includes('blog')) {
     category = 'Content/Blog';
     competitors = [
       {
@@ -83,11 +172,11 @@ export async function analyzeCompetitors(
         description: "Popular blogging platform with great themes"
       },
       {
-        name: "Ghost",
+        name: "Substack",
         score: Math.floor(Math.random() * 15) + 80,
         category,
-        url: "https://ghost.org",
-        description: "Modern publishing platform focused on performance"
+        url: "https://substack.com",
+        description: "Modern newsletter and publishing platform"
       }
     ];
     suggestedAnalysis = [
@@ -104,7 +193,8 @@ export async function analyzeCompetitors(
         popularity: "High"
       }
     ];
-  } else if (content.includes('portfolio') || content.includes('designer') || content.includes('creative') || content.includes('work')) {
+  } else if (content.includes('portfolio') || content.includes('designer') || content.includes('creative') || 
+             content.includes('work') || titleLower.includes('portfolio')) {
     category = 'Portfolio';
     competitors = [
       {
@@ -143,7 +233,8 @@ export async function analyzeCompetitors(
         popularity: "Very High"
       }
     ];
-  } else if (content.includes('saas') || content.includes('software') || content.includes('app') || content.includes('dashboard')) {
+  } else if (content.includes('saas') || content.includes('software') || content.includes('app') || 
+             content.includes('dashboard') || content.includes('platform')) {
     category = 'SaaS/Software';
     competitors = [
       {
@@ -182,7 +273,8 @@ export async function analyzeCompetitors(
         popularity: "High"
       }
     ];
-  } else if (content.includes('restaurant') || content.includes('food') || content.includes('menu') || content.includes('cafe')) {
+  } else if (content.includes('restaurant') || content.includes('food') || content.includes('menu') || 
+             content.includes('cafe') || titleLower.includes('restaurant')) {
     category = 'Restaurant/Food';
     competitors = [
       {
@@ -200,66 +292,108 @@ export async function analyzeCompetitors(
         description: "Popular restaurant discovery platform"
       },
       {
-        name: "Resy",
+        name: "DoorDash",
         score: Math.floor(Math.random() * 15) + 75,
         category,
-        url: "https://resy.com",
-        description: "Modern reservation platform with great UX"
+        url: "https://doordash.com",
+        description: "Food delivery platform with modern UX"
       }
     ];
     suggestedAnalysis = [
       {
-        name: "Toast",
-        url: "https://pos.toasttab.com",
-        reason: "Restaurant technology leader with excellent design",
+        name: "OpenTable",
+        url: "https://opentable.com",
+        reason: "Restaurant industry leader with excellent booking UX",
         popularity: "High"
       },
       {
-        name: "Square Restaurants",
-        url: "https://squareup.com/us/en/restaurants", 
-        reason: "Clean, conversion-focused restaurant website design",
+        name: "Uber Eats",
+        url: "https://ubereats.com", 
+        reason: "Clean, conversion-focused food delivery design",
         popularity: "High"
       }
     ];
   } else {
-    // Default competitors for general websites
-    competitors = [
-      {
-        name: "Apple",
-        score: Math.floor(Math.random() * 5) + 95,
-        category: "General",
-        url: "https://apple.com",
-        description: "Industry leader in design and user experience"
-      },
-      {
-        name: "Google", 
-        score: Math.floor(Math.random() * 5) + 90,
-        category: "General",
-        url: "https://google.com", 
-        description: "Clean, accessible design with excellent performance"
-      },
-      {
-        name: "Airbnb",
-        score: Math.floor(Math.random() * 10) + 85,
-        category: "General",
-        url: "https://airbnb.com",
-        description: "Great user experience and visual design"
-      }
-    ];
-    suggestedAnalysis = [
-      {
-        name: "Apple",
-        url: "https://apple.com",
-        reason: "Gold standard for clean, accessible web design",
-        popularity: "Very High"
-      },
-      {
-        name: "Stripe",
-        url: "https://stripe.com", 
-        reason: "Excellent example of developer-focused design",
-        popularity: "High"
-      }
-    ];
+    // Default competitors for general websites - try to detect from URL patterns
+    if (urlLower.includes('google') || titleLower.includes('google')) {
+      category = 'Search/Tech';
+      competitors = [
+        {
+          name: "Bing",
+          score: Math.floor(Math.random() * 10) + 80,
+          category,
+          url: "https://bing.com",
+          description: "Microsoft's search engine with modern interface"
+        },
+        {
+          name: "DuckDuckGo", 
+          score: Math.floor(Math.random() * 10) + 75,
+          category,
+          url: "https://duckduckgo.com", 
+          description: "Privacy-focused search with clean design"
+        },
+        {
+          name: "Yahoo",
+          score: Math.floor(Math.random() * 15) + 70,
+          category,
+          url: "https://yahoo.com",
+          description: "Classic web portal with comprehensive features"
+        }
+      ];
+      suggestedAnalysis = [
+        {
+          name: "Bing",
+          url: "https://bing.com",
+          reason: "Direct search competitor with modern interface design",
+          popularity: "High"
+        },
+        {
+          name: "DuckDuckGo",
+          url: "https://duckduckgo.com", 
+          reason: "Clean, minimalist search interface patterns",
+          popularity: "Medium"
+        }
+      ];
+    } else {
+      // Default general competitors
+      competitors = [
+        {
+          name: "Apple",
+          score: Math.floor(Math.random() * 5) + 95,
+          category: "General",
+          url: "https://apple.com",
+          description: "Industry leader in design and user experience"
+        },
+        {
+          name: "Microsoft", 
+          score: Math.floor(Math.random() * 5) + 88,
+          category: "General",
+          url: "https://microsoft.com", 
+          description: "Clean, accessible design with excellent performance"
+        },
+        {
+          name: "Airbnb",
+          score: Math.floor(Math.random() * 10) + 85,
+          category: "General",
+          url: "https://airbnb.com",
+          description: "Great user experience and visual design"
+        }
+      ];
+      suggestedAnalysis = [
+        {
+          name: "Apple",
+          url: "https://apple.com",
+          reason: "Gold standard for clean, accessible web design",
+          popularity: "Very High"
+        },
+        {
+          name: "Stripe",
+          url: "https://stripe.com", 
+          reason: "Excellent example of developer-focused design",
+          popularity: "High"
+        }
+      ];
+    }
   }
 
   return {
