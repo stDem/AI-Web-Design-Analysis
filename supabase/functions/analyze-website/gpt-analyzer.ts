@@ -13,7 +13,7 @@ export async function analyzeWithGPT(
   }
 
   const analysisPrompt = `
-  Analyze this website HTML and provide a comprehensive UX/UI analysis:
+  Analyze this website HTML and provide a comprehensive UX/UI analysis based on REAL content and structure:
   
   Website Title: ${title}
   URL: ${url}
@@ -21,7 +21,7 @@ export async function analyzeWithGPT(
   
   HTML Content (first 8000 chars): ${htmlContent.substring(0, 8000)}
   
-  Please provide analysis in this JSON format:
+  Please analyze the ACTUAL content and provide specific, actionable feedback in this JSON format:
   {
     "designScore": number (0-100),
     "categoryScores": {
@@ -34,25 +34,41 @@ export async function analyzeWithGPT(
       {
         "type": "ux|accessibility|performance|code",
         "severity": "high|medium|low",
-        "description": "detailed description",
-        "location": "specific element or section"
+        "description": "specific issue found in the actual HTML/content",
+        "location": "specific element, class, or section identified"
       }
     ],
     "suggestions": [
-      "user-friendly improvement suggestions without technical jargon"
+      "specific, actionable improvements based on the actual website content and structure"
     ],
     "annotations": [
       {
         "x": number,
         "y": number,
-        "note": "simple improvement note",
+        "note": "specific improvement suggestion for this location",
         "type": "improvement|issue|suggestion",
-        "element": "description of what element this refers to"
+        "element": "actual HTML element or component found"
+      }
+    ],
+    "codeSuggestions": [
+      {
+        "file": "actual file name or type found/inferred",
+        "issue": "specific code issue identified",
+        "type": "performance|accessibility|maintainability|security",
+        "before": "actual problematic code pattern found or inferred",
+        "after": "improved code suggestion",
+        "explanation": "why this change improves the website"
       }
     ]
   }
   
-  Focus on real usability issues, accessibility problems, and design improvements that would benefit end users.
+  IMPORTANT:
+  - Base ALL analysis on the actual HTML content provided
+  - Identify real accessibility issues (missing alt text, poor contrast, missing labels)
+  - Find actual performance issues (large images, blocking scripts, excessive DOM nodes)
+  - Suggest specific UX improvements based on the actual layout and content
+  - Provide realistic scores based on what you actually observe
+  - Give concrete, actionable suggestions, not generic advice
   `;
 
   try {
@@ -67,12 +83,12 @@ export async function analyzeWithGPT(
         messages: [
           { 
             role: 'system', 
-            content: 'You are a UX/UI expert analyzing websites. Provide practical, user-focused feedback in JSON format.' 
+            content: 'You are a UX/UI expert who analyzes websites based on their actual HTML content. Provide specific, actionable feedback based on real observations, not generic advice.' 
           },
           { role: 'user', content: analysisPrompt }
         ],
-        max_tokens: 2000,
-        temperature: 0.3
+        max_tokens: 3000,
+        temperature: 0.2
       }),
     });
 
