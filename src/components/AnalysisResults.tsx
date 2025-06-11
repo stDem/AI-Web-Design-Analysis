@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles, Play } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import CompetitiveAnalysis from './CompetitiveAnalysis';
 
 interface CodeSuggestion {
   file: string;
@@ -65,7 +65,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   const [expandedCodeSuggestions, setExpandedCodeSuggestions] = useState<Set<number>>(new Set());
   const [editingCode, setEditingCode] = useState<{ issueIndex: number; code: string } | null>(null);
   const [copiedCode, setCopiedCode] = useState<number | null>(null);
-  const [selectedCompetitor, setSelectedCompetitor] = useState<string>('');
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
 
   const getSeverityColor = (severity: string) => {
@@ -127,15 +126,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     accessibility: 85
   };
 
-  const competitorData = {
-    'Amazon AWS': { ux: 68, accessibility: 72, performance: 85, code: 78 },
-    'Google Cloud': { ux: 71, accessibility: 76, performance: 88, code: 82 },
-    'Microsoft Azure': { ux: 69, accessibility: 74, performance: 86, code: 80 },
-    'Shopify': { ux: 79, accessibility: 84, performance: 86, code: 84 },
-    'Stripe': { ux: 82, accessibility: 89, performance: 93, code: 88 },
-    'Figma': { ux: 88, accessibility: 85, performance: 90, code: 86 }
-  };
-
   // Reordered category data: User Experience, Code Quality, Performance, Accessibility with lighter colors
   const categoryData = [
     {
@@ -180,11 +170,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       green: score >= 80 ? 'bg-green-100 text-green-800' : score >= 60 ? 'bg-green-50 text-green-600' : 'bg-green-25 text-green-500'
     };
     return baseColors[color as keyof typeof baseColors];
-  };
-
-  const getCompetitorScore = (categoryId: string) => {
-    if (!selectedCompetitor || !competitorData[selectedCompetitor as keyof typeof competitorData]) return null;
-    return competitorData[selectedCompetitor as keyof typeof competitorData][categoryId as keyof typeof competitorData[keyof typeof competitorData]];
   };
 
   const filteredIssues = selectedCategory 
@@ -341,30 +326,24 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                 Your website scores better than <strong>{results.comparison.betterThan}%</strong> of analyzed websites
               </p>
               
-              {/* Competitor Score Cards */}
+              {/* Compare with competitors section */}
               <div className="mb-4">
                 <div className="flex items-center space-x-2 mb-3">
                   <Target className="h-4 w-4" />
                   <span className="text-sm font-medium">Compare with competitors:</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {Object.entries(competitorData).map(([competitor, scores]) => {
-                    const overallScore = Math.round((scores.ux + scores.accessibility + scores.performance + scores.code) / 4);
-                    const isSelected = selectedCompetitor === competitor;
+                <div className="grid grid-cols-2 gap-3">
+                  {results.comparison.competitors.map((competitor, index) => {
+                    const isAhead = results.score > competitor.score;
                     
                     return (
-                      <button
-                        key={competitor}
-                        onClick={() => setSelectedCompetitor(isSelected ? '' : competitor)}
-                        className={`p-3 rounded-lg text-left transition-all duration-200 border-2 border-dashed ${
-                          isSelected 
-                            ? 'bg-white/30 border-white/50 shadow-lg' 
-                            : 'bg-white/10 border-white/20 hover:bg-white/20'
-                        }`}
+                      <div
+                        key={index}
+                        className="p-3 rounded-lg bg-white/20 border-2 border-dashed border-white/30 hover:bg-white/30 transition-all duration-200"
                       >
-                        <div className="font-medium text-sm">{competitor}</div>
-                        <div className="text-lg font-bold">{overallScore}/100</div>
-                        {results.score > overallScore ? (
+                        <div className="font-medium text-sm">{competitor.name}</div>
+                        <div className="text-lg font-bold">{competitor.score}/100</div>
+                        {isAhead ? (
                           <div className="text-xs text-green-300">
                             ✓ You're ahead
                           </div>
@@ -373,7 +352,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                             ↑ Room for improvement
                           </div>
                         )}
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -387,7 +366,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
       <div className="grid md:grid-cols-4 gap-4">
         {categoryData.map((category) => {
           const IconComponent = category.icon;
-          const competitorScore = getCompetitorScore(category.id);
           
           return (
             <Card 
@@ -410,43 +388,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                     {category.issues.length} issues found
                   </div>
                 </div>
-
-                {/* Automatic Competitor Comparison */}
-                {selectedCompetitor && competitorScore && (
-                  <div className="bg-black/10 rounded p-2 text-xs border border-dashed border-black/20">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium">vs {selectedCompetitor}</span>
-                      <span className={`font-bold ${
-                        category.score > competitorScore ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {category.score > competitorScore ? '+' : ''}
-                        {category.score - competitorScore}%
-                      </span>
-                    </div>
-                    {category.score > competitorScore ? (
-                      <p className="text-green-600 font-medium text-[10px]">
-                        🎉 You're performing better!
-                      </p>
-                    ) : (
-                      <p className="text-red-600 font-medium text-[10px]">
-                        📈 Room for improvement
-                      </p>
-                    )}
-                  </div>
-                )}
               </CardContent>
             </Card>
           );
         })}
       </div>
-
-      {/* Competitive Analysis Section - NEW */}
-      {results.comparison && (
-        <CompetitiveAnalysis 
-          comparison={results.comparison} 
-          currentScore={results.score}
-        />
-      )}
 
       {selectedCategory && (
         <div className="text-center p-2 bg-blue-50 rounded-lg border-2 border-dashed border-blue-200">
