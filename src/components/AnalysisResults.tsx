@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles, Play, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -369,7 +368,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                     return (
                       <div
                         key={index}
-                        className="p-3 rounded-lg bg-white/20 border-2 border-dashed border-white/30 hover:bg-white/30 transition-all duration-200"
+                        className="p-3 rounded-lg bg-white/20 border-2 border-dashed border-white/30 hover:bg-white/30 transition-all duration-200 cursor-pointer"
+                        onClick={() => handleAnalyzeCompetitor(competitor.name, competitor.url)}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="font-medium text-sm">{competitor.name}</div>
@@ -388,15 +388,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                           </div>
                         )}
                         
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs"
-                          onClick={() => handleAnalyzeCompetitor(competitor.name, competitor.url)}
-                          disabled={analyzingCompetitor === competitor.name}
-                        >
-                          {analyzingCompetitor === competitor.name ? 'Analyzing...' : 'Analyze'}
-                        </Button>
+                        {analyzingCompetitor === competitor.name && (
+                          <div className="text-xs text-blue-300">
+                            Analyzing...
+                          </div>
+                        )}
                       </div>
                     );
                   })}
