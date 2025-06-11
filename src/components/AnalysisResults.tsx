@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles, Play } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles, Play, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -66,6 +65,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   const [editingCode, setEditingCode] = useState<{ issueIndex: number; code: string } | null>(null);
   const [copiedCode, setCopiedCode] = useState<number | null>(null);
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
+  const [analyzingCompetitor, setAnalyzingCompetitor] = useState<string | null>(null);
+  const [competitorAnalysis, setCompetitorAnalysis] = useState<{[key: string]: any}>({});
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -175,6 +176,27 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   const filteredIssues = selectedCategory 
     ? categoryData.find(cat => cat.id === selectedCategory)?.issues || []
     : issuesWithSuggestions;
+
+  const handleAnalyzeCompetitor = async (competitorName: string, competitorUrl?: string) => {
+    setAnalyzingCompetitor(competitorName);
+    
+    // Simulate competitor analysis with realistic category scores
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const analysis = {
+      ux: Math.floor(Math.random() * 30) + 70,
+      code: Math.floor(Math.random() * 30) + 65,
+      performance: Math.floor(Math.random() * 30) + 60,
+      accessibility: Math.floor(Math.random() * 30) + 75
+    };
+    
+    setCompetitorAnalysis(prev => ({
+      ...prev,
+      [competitorName]: analysis
+    }));
+    
+    setAnalyzingCompetitor(null);
+  };
 
   const toggleIssueExpansion = (index: number) => {
     const newExpanded = new Set(expandedIssues);
@@ -335,21 +357,53 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                 <div className="grid grid-cols-2 gap-3">
                   {results.comparison.competitors.map((competitor, index) => {
                     const isAhead = results.score > competitor.score;
+                    const analysis = competitorAnalysis[competitor.name];
+                    const isAnalyzing = analyzingCompetitor === competitor.name;
                     
                     return (
                       <div
                         key={index}
                         className="p-3 rounded-lg bg-white/20 border-2 border-dashed border-white/30 hover:bg-white/30 transition-all duration-200"
                       >
-                        <div className="font-medium text-sm">{competitor.name}</div>
-                        <div className="text-lg font-bold">{competitor.score}/100</div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="font-medium text-sm">{competitor.name}</div>
+                          {competitor.url && (
+                            <ExternalLink className="h-3 w-3 opacity-60" />
+                          )}
+                        </div>
+                        <div className="text-lg font-bold mb-2">{competitor.score}/100</div>
                         {isAhead ? (
-                          <div className="text-xs text-green-300">
+                          <div className="text-xs text-green-300 mb-2">
                             ✓ You're ahead
                           </div>
                         ) : (
-                          <div className="text-xs text-red-300">
+                          <div className="text-xs text-red-300 mb-2">
                             ↑ Room for improvement
+                          </div>
+                        )}
+                        
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs"
+                          onClick={() => handleAnalyzeCompetitor(competitor.name, competitor.url)}
+                          disabled={isAnalyzing}
+                        >
+                          {isAnalyzing ? 'Analyzing...' : analysis ? 'View Analysis' : 'Analyze Categories'}
+                        </Button>
+
+                        {/* Category Analysis Results */}
+                        {analysis && (
+                          <div className="mt-3 space-y-1">
+                            <div className="text-xs font-medium mb-1">Category Breakdown:</div>
+                            {Object.entries(analysis).map(([category, score]) => (
+                              <div key={category} className="flex items-center justify-between text-xs">
+                                <span className="capitalize">{category === 'ux' ? 'User Experience' : category}:</span>
+                                <span className={`font-medium ${score > categoryScores[category as keyof typeof categoryScores] ? 'text-red-300' : 'text-green-300'}`}>
+                                  {score}%
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
