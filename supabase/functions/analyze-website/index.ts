@@ -1,4 +1,5 @@
-import { serve } from 'std/server';
+
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders } from './cors.ts';
 import { fetchWebsiteContent } from './fetcher.ts';
 import { analyzeWithGPT } from './gpt-analyzer.ts';
