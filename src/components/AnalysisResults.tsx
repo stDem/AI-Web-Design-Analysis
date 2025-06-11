@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles, Play, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -364,8 +365,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                 <div className="grid grid-cols-2 gap-3">
                   {results.comparison.competitors.map((competitor, index) => {
                     const isAhead = results.score > competitor.score;
-                    const analysis = competitorAnalysis[competitor.name];
-                    const isAnalyzing = analyzingCompetitor === competitor.name;
                     
                     return (
                       <div
@@ -394,25 +393,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                           variant="outline"
                           className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs"
                           onClick={() => handleAnalyzeCompetitor(competitor.name, competitor.url)}
-                          disabled={isAnalyzing}
+                          disabled={analyzingCompetitor === competitor.name}
                         >
-                          {isAnalyzing ? 'Analyzing...' : analysis ? 'View Analysis' : 'Analyze Categories'}
+                          {analyzingCompetitor === competitor.name ? 'Analyzing...' : 'Analyze'}
                         </Button>
-
-                        {/* Category Analysis Results */}
-                        {analysis && (
-                          <div className="mt-3 space-y-1">
-                            <div className="text-xs font-medium mb-1">Category Breakdown:</div>
-                            {(Object.entries(analysis) as [keyof CategoryScores, number][]).map(([category, score]) => (
-                              <div key={category} className="flex items-center justify-between text-xs">
-                                <span className="capitalize">{category === 'ux' ? 'User Experience' : category}:</span>
-                                <span className={`font-medium ${score > categoryScores[category] ? 'text-red-300' : 'text-green-300'}`}>
-                                  {score}%
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     );
                   })}
@@ -449,6 +433,33 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                     {category.issues.length} issues found
                   </div>
                 </div>
+
+                {/* Competitor Analysis Results in Category Cards */}
+                {Object.keys(competitorAnalysis).length > 0 && (
+                  <div className="mt-4 pt-3 border-t border-current/20">
+                    <div className="text-xs font-medium mb-2">vs Competitors:</div>
+                    <div className="space-y-1">
+                      {Object.entries(competitorAnalysis).map(([competitorName, analysis]) => {
+                        const competitorScore = analysis[category.id];
+                        const isAhead = category.score > competitorScore;
+                        
+                        return (
+                          <div key={competitorName} className="flex items-center justify-between text-xs">
+                            <span className="truncate">{competitorName}:</span>
+                            <div className="flex items-center space-x-1">
+                              <span className={`font-medium ${isAhead ? 'text-green-600' : 'text-red-600'}`}>
+                                {competitorScore}%
+                              </span>
+                              <span className={isAhead ? 'text-green-600' : 'text-red-600'}>
+                                {isAhead ? '↓' : '↑'}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
