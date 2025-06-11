@@ -70,13 +70,6 @@ const Index = () => {
     }
   };
 
-  const scrollToAnalysisMethod = () => {
-    const analysisSection = document.querySelector('.analysis-method-section');
-    if (analysisSection) {
-      analysisSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <div className="min-h-screen paper-texture" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
       
@@ -110,8 +103,8 @@ const Index = () => {
                   SHARE RESULTS
                 </button>
               )}
-              <button onClick={scrollToAnalysisMethod} className="sketch-button">
-                GET STARTED
+              <button className="sketch-button">
+                SIGN IN
               </button>
             </div>
           </div>
@@ -238,7 +231,7 @@ const Index = () => {
         </div>
 
         {/* Input Methods with hand-drawn style - Fixed container */}
-        <div className="mb-8 analysis-method-section">
+        <div className="mb-8">
           <div className="sketch-card p-6">
             <div className="mb-6">
               <h2 className="flex items-center space-x-2 text-xl font-bold">
