@@ -19,8 +19,10 @@ serve(async (req) => {
     const { content: htmlContent, title, description } = await fetchWebsiteContent(url);
     console.log('Website content fetched, length:', htmlContent.length);
 
-    // Get competitor analysis
+    // Get dynamic competitor analysis (now AI-powered)
+    console.log('Starting enhanced competitor analysis...');
     const competitorAnalysis = await analyzeCompetitors(htmlContent, title, description, url);
+    console.log('Enhanced competitor analysis completed');
 
     // Get GPT analysis with actual content
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
@@ -35,7 +37,7 @@ serve(async (req) => {
     // Generate final results with real content analysis
     const analysisResults = generateFallbackAnalysis(gptAnalysis, htmlContent, title, url);
 
-    // Add competitor data to results
+    // Add enhanced competitor data to results
     analysisResults.comparison = {
       ...analysisResults.comparison,
       competitors: competitorAnalysis.competitors,
@@ -43,7 +45,7 @@ serve(async (req) => {
       suggestedAnalysis: competitorAnalysis.suggestedAnalysis
     };
 
-    console.log('Analysis completed for:', url);
+    console.log('Analysis completed for:', url, 'with', competitorAnalysis.competitors.length, 'competitors');
     
     return new Response(JSON.stringify(analysisResults), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
