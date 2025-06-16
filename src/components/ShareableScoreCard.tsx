@@ -24,226 +24,348 @@ const ShareableScoreCard: React.FC<ShareableScoreCardProps> = ({ score, betterTh
     canvas.width = 1080;
     canvas.height = 1080;
 
-    // Paper-like background with subtle texture
-    const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
-    gradient.addColorStop(0, '#F9FAFB');
-    gradient.addColorStop(0.5, '#F3F4F6');
-    gradient.addColorStop(1, '#E5E7EB');
-    ctx.fillStyle = gradient;
+    // Paper-like background with texture
+    ctx.fillStyle = '#F8F9FA';
     ctx.fillRect(0, 0, 1080, 1080);
 
-    // Add paper texture noise
-    for (let i = 0; i < 200; i++) {
-      ctx.fillStyle = `rgba(156, 163, 175, ${Math.random() * 0.1})`;
-      ctx.fillRect(Math.random() * 1080, Math.random() * 1080, 1, 1);
+    // Add paper grain texture
+    for (let i = 0; i < 800; i++) {
+      ctx.fillStyle = `rgba(0, 0, 0, ${Math.random() * 0.03})`;
+      ctx.fillRect(Math.random() * 1080, Math.random() * 1080, Math.random() * 2, Math.random() * 2);
     }
 
-    // Sketchy outer border (multiple overlapping lines for hand-drawn effect)
-    ctx.strokeStyle = '#374151';
-    ctx.lineWidth = 3;
-    for (let i = 0; i < 3; i++) {
+    // Hand-drawn outer border (multiple wobbly lines)
+    ctx.strokeStyle = '#2D3748';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    
+    // Draw multiple overlapping border lines for sketchy effect
+    for (let i = 0; i < 4; i++) {
       ctx.beginPath();
-      ctx.moveTo(50 + Math.random() * 2, 50 + Math.random() * 2);
-      ctx.lineTo(1030 + Math.random() * 2, 50 + Math.random() * 2);
-      ctx.lineTo(1030 + Math.random() * 2, 1030 + Math.random() * 2);
-      ctx.lineTo(50 + Math.random() * 2, 1030 + Math.random() * 2);
-      ctx.lineTo(50 + Math.random() * 2, 50 + Math.random() * 2);
+      const offset = Math.random() * 3;
+      // Top line with wobbles
+      ctx.moveTo(40 + offset, 40 + Math.random() * 3);
+      for (let x = 40; x < 1040; x += 20) {
+        ctx.lineTo(x + Math.random() * 4 - 2, 40 + Math.random() * 6 - 3);
+      }
+      ctx.lineTo(1040 + offset, 40 + Math.random() * 3);
+      
+      // Right line with wobbles
+      for (let y = 40; y < 1040; y += 20) {
+        ctx.lineTo(1040 + Math.random() * 6 - 3, y + Math.random() * 4 - 2);
+      }
+      ctx.lineTo(1040 + offset, 1040 + Math.random() * 3);
+      
+      // Bottom line with wobbles
+      for (let x = 1040; x > 40; x -= 20) {
+        ctx.lineTo(x + Math.random() * 4 - 2, 1040 + Math.random() * 6 - 3);
+      }
+      ctx.lineTo(40 + offset, 1040 + Math.random() * 3);
+      
+      // Left line with wobbles
+      for (let y = 1040; y > 40; y -= 20) {
+        ctx.lineTo(40 + Math.random() * 6 - 3, y + Math.random() * 4 - 2);
+      }
+      ctx.lineTo(40 + offset, 40 + Math.random() * 3);
+      
       ctx.stroke();
     }
 
-    // Title with sketchy underline
-    ctx.fillStyle = '#1F2937';
-    ctx.font = 'bold 72px Arial';
+    // Sketchy title with hand-drawn underline
+    ctx.fillStyle = '#1A202C';
+    ctx.font = 'bold 65px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText('UX RAY ANALYSIS', 80, 150);
+    ctx.fillText('UX RAY ANALYSIS', 80, 140);
     
-    // Sketchy underline for title
-    ctx.strokeStyle = '#6B7280';
-    ctx.lineWidth = 2;
+    // Hand-drawn underline for title (wobbly)
+    ctx.strokeStyle = '#4A5568';
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(80, 170);
-    ctx.lineTo(550 + Math.random() * 10, 172 + Math.random() * 4);
+    ctx.moveTo(80, 160);
+    for (let x = 80; x < 520; x += 15) {
+      ctx.lineTo(x + Math.random() * 3 - 1.5, 160 + Math.random() * 4 - 2);
+    }
     ctx.stroke();
 
-    // Main score with sketchy box
-    ctx.strokeStyle = '#374151';
-    ctx.lineWidth = 4;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    // Draw sketchy rectangle for score
+    // Hand-drawn box for main score
+    ctx.strokeStyle = '#2D3748';
+    ctx.lineWidth = 3;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    
+    // Draw sketchy rectangle with wobbly lines
     ctx.beginPath();
-    ctx.moveTo(80, 220);
-    ctx.lineTo(480 + Math.random() * 5, 222);
-    ctx.lineTo(482, 350 + Math.random() * 3);
-    ctx.lineTo(78 + Math.random() * 3, 352);
-    ctx.lineTo(80, 220);
+    ctx.moveTo(80, 200);
+    for (let x = 80; x < 450; x += 25) {
+      ctx.lineTo(x + Math.random() * 4 - 2, 200 + Math.random() * 3 - 1.5);
+    }
+    ctx.lineTo(450, 200);
+    for (let y = 200; y < 320; y += 20) {
+      ctx.lineTo(450 + Math.random() * 3 - 1.5, y + Math.random() * 4 - 2);
+    }
+    ctx.lineTo(450, 320);
+    for (let x = 450; x > 80; x -= 25) {
+      ctx.lineTo(x + Math.random() * 4 - 2, 320 + Math.random() * 3 - 1.5);
+    }
+    ctx.lineTo(80, 320);
+    for (let y = 320; y > 200; y -= 20) {
+      ctx.lineTo(80 + Math.random() * 3 - 1.5, y + Math.random() * 4 - 2);
+    }
+    ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
     // Score text
-    ctx.fillStyle = '#1F2937';
-    ctx.font = 'bold 120px Arial';
+    ctx.fillStyle = '#1A202C';
+    ctx.font = 'bold 90px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(`${score}`, 280, 320);
-    ctx.font = '40px Arial';
-    ctx.fillText('/100', 380, 295);
+    ctx.fillText(`${score}`, 265, 280);
+    ctx.font = '35px Arial';
+    ctx.fillText('/100', 340, 250);
 
-    // Draw sketchy donut chart
-    const centerX = 700;
-    const centerY = 300;
-    const radius = 120;
+    // Hand-drawn donut chart
+    const centerX = 650;
+    const centerY = 260;
+    const radius = 100;
 
     // Background circle (sketchy with multiple overlapping circles)
-    ctx.strokeStyle = '#D1D5DB';
-    ctx.lineWidth = 20;
+    ctx.strokeStyle = '#CBD5E0';
+    ctx.lineWidth = 18;
+    ctx.lineCap = 'round';
     for (let i = 0; i < 3; i++) {
       ctx.beginPath();
-      ctx.arc(centerX + Math.random() * 2, centerY + Math.random() * 2, radius + Math.random() * 3, 0, 2 * Math.PI);
+      const segments = 24;
+      for (let j = 0; j <= segments; j++) {
+        const angle = (j / segments) * 2 * Math.PI;
+        const x = centerX + (radius + Math.random() * 4 - 2) * Math.cos(angle);
+        const y = centerY + (radius + Math.random() * 4 - 2) * Math.sin(angle);
+        if (j === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
       ctx.stroke();
     }
 
-    // Score arc (sketchy green with slight variations)
-    ctx.strokeStyle = '#10B981';
-    ctx.lineWidth = 20;
-    const endAngle = (score / 100) * 2 * Math.PI - Math.PI / 2;
+    // Score arc (sketchy green)
+    ctx.strokeStyle = '#38A169';
+    ctx.lineWidth = 18;
+    const scoreAngle = (score / 100) * 2 * Math.PI;
     for (let i = 0; i < 2; i++) {
       ctx.beginPath();
-      ctx.arc(centerX + Math.random() * 2, centerY + Math.random() * 2, radius + Math.random() * 2, -Math.PI / 2, endAngle);
+      const segments = Math.floor((score / 100) * 24);
+      for (let j = 0; j <= segments; j++) {
+        const angle = (j / 24) * 2 * Math.PI - Math.PI / 2;
+        const x = centerX + (radius + Math.random() * 3 - 1.5) * Math.cos(angle);
+        const y = centerY + (radius + Math.random() * 3 - 1.5) * Math.sin(angle);
+        if (j === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
       ctx.stroke();
     }
 
     // Center score text
-    ctx.fillStyle = '#1F2937';
-    ctx.font = 'bold 48px Arial';
+    ctx.fillStyle = '#1A202C';
+    ctx.font = 'bold 42px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(`${score}%`, centerX, centerY + 5);
+    ctx.fillText(`${score}%`, centerX, centerY + 8);
 
-    // Better than section with sketchy box
+    // Hand-drawn "Better than" section
     if (betterThan) {
-      ctx.strokeStyle = '#10B981';
+      ctx.strokeStyle = '#38A169';
       ctx.lineWidth = 3;
-      ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
+      ctx.fillStyle = 'rgba(56, 161, 105, 0.1)';
+      
       // Sketchy box for "better than"
       ctx.beginPath();
-      ctx.moveTo(80, 400);
-      ctx.lineTo(500 + Math.random() * 5, 402);
-      ctx.lineTo(502, 480 + Math.random() * 3);
-      ctx.lineTo(78 + Math.random() * 3, 482);
-      ctx.lineTo(80, 400);
+      ctx.moveTo(80, 360);
+      for (let x = 80; x < 480; x += 30) {
+        ctx.lineTo(x + Math.random() * 4 - 2, 360 + Math.random() * 3 - 1.5);
+      }
+      ctx.lineTo(480, 360);
+      for (let y = 360; y < 430; y += 15) {
+        ctx.lineTo(480 + Math.random() * 3 - 1.5, y + Math.random() * 4 - 2);
+      }
+      ctx.lineTo(480, 430);
+      for (let x = 480; x > 80; x -= 30) {
+        ctx.lineTo(x + Math.random() * 4 - 2, 430 + Math.random() * 3 - 1.5);
+      }
+      ctx.lineTo(80, 430);
+      for (let y = 430; y > 360; y -= 15) {
+        ctx.lineTo(80 + Math.random() * 3 - 1.5, y + Math.random() * 4 - 2);
+      }
+      ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = '#065F46';
-      ctx.font = 'bold 32px Arial';
+      ctx.fillStyle = '#22543D';
+      ctx.font = 'bold 28px Arial';
       ctx.textAlign = 'left';
-      ctx.fillText(`Better than ${betterThan}%`, 100, 435);
-      ctx.font = '24px Arial';
-      ctx.fillText('of analyzed websites', 100, 465);
+      ctx.fillText(`Better than ${betterThan}%`, 100, 390);
+      ctx.font = '20px Arial';
+      ctx.fillText('of analyzed websites', 100, 415);
     }
 
-    // Add sketchy features section
-    ctx.fillStyle = '#374151';
-    ctx.font = 'bold 28px Arial';
+    // Hand-drawn features section with sketchy checkboxes
+    const features = [
+      'AI-Powered Analysis',
+      'WCAG Compliance Check', 
+      'Performance Optimization',
+      'UX Pattern Recognition'
+    ];
+
+    ctx.fillStyle = '#2D3748';
+    ctx.font = 'bold 24px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText('✓ AI-Powered Analysis', 80, 550);
-    ctx.fillText('✓ WCAG Compliance Check', 80, 590);
-    ctx.fillText('✓ Performance Optimization', 80, 630);
-    ctx.fillText('✓ UX Pattern Recognition', 80, 670);
+    
+    features.forEach((feature, index) => {
+      const y = 500 + index * 35;
+      
+      // Draw sketchy checkbox
+      ctx.strokeStyle = '#38A169';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      // Wobbly square
+      ctx.moveTo(80, y - 15);
+      ctx.lineTo(95 + Math.random() * 2, y - 15 + Math.random() * 2);
+      ctx.lineTo(95 + Math.random() * 2, y + Math.random() * 2);
+      ctx.lineTo(80 + Math.random() * 2, y + Math.random() * 2);
+      ctx.closePath();
+      ctx.stroke();
+      
+      // Sketchy checkmark
+      ctx.beginPath();
+      ctx.moveTo(83, y - 5);
+      ctx.lineTo(88 + Math.random(), y - 2 + Math.random());
+      ctx.lineTo(92 + Math.random(), y - 10 + Math.random());
+      ctx.stroke();
+      
+      ctx.fillText(feature, 110, y - 2);
+    });
 
-    // Add decorative sketchy elements
-    drawSketchyArrow(ctx, 550, 450, 60);
-    drawSketchyChart(ctx, 650, 550);
-    drawSketchyStars(ctx, 750, 600);
+    // Add sketchy decorative elements
+    drawSketchyArrow(ctx, 520, 400, 50);
+    drawSketchyChart(ctx, 600, 480);
+    drawSketchyStars(ctx, 720, 520);
 
-    // Website info section with sketchy border
-    ctx.strokeStyle = '#6B7280';
-    ctx.lineWidth = 2;
-    ctx.fillStyle = 'rgba(243, 244, 246, 0.8)';
+    // Website info section with hand-drawn border
+    ctx.strokeStyle = '#4A5568';
+    ctx.lineWidth = 3;
+    ctx.fillStyle = 'rgba(247, 250, 252, 0.9)';
+    
+    // Large sketchy box for website info
     ctx.beginPath();
-    ctx.moveTo(80, 720);
-    ctx.lineTo(1000 + Math.random() * 5, 722);
-    ctx.lineTo(1002, 850 + Math.random() * 3);
-    ctx.lineTo(78 + Math.random() * 3, 852);
-    ctx.lineTo(80, 720);
+    ctx.moveTo(80, 680);
+    for (let x = 80; x < 1000; x += 40) {
+      ctx.lineTo(x + Math.random() * 5 - 2.5, 680 + Math.random() * 4 - 2);
+    }
+    ctx.lineTo(1000, 680);
+    for (let y = 680; y < 820; y += 25) {
+      ctx.lineTo(1000 + Math.random() * 4 - 2, y + Math.random() * 5 - 2.5);
+    }
+    ctx.lineTo(1000, 820);
+    for (let x = 1000; x > 80; x -= 40) {
+      ctx.lineTo(x + Math.random() * 5 - 2.5, 820 + Math.random() * 4 - 2);
+    }
+    ctx.lineTo(80, 820);
+    for (let y = 820; y > 680; y -= 25) {
+      ctx.lineTo(80 + Math.random() * 4 - 2, y + Math.random() * 5 - 2.5);
+    }
+    ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = '#1F2937';
+    ctx.fillStyle = '#1A202C';
     ctx.font = 'bold 32px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText('About UX RAY', 100, 760);
+    ctx.fillText('About UX RAY', 110, 720);
     
-    ctx.font = '20px Arial';
-    ctx.fillText('🤖 Powered by GPT-4 Vision & Claude 3.5', 100, 790);
-    ctx.fillText('📊 Comprehensive Design Analysis Tool', 100, 815);
-    ctx.fillText('🚀 Get actionable insights to improve your UX', 100, 840);
+    ctx.font = '22px Arial';
+    ctx.fillText('🤖 Powered by GPT-4 Vision & Claude 3.5', 110, 750);
+    ctx.fillText('📊 Comprehensive Design Analysis Tool', 110, 775);
+    ctx.fillText('🚀 Get actionable insights to improve your UX', 110, 800);
 
-    // Sketchy footer
-    ctx.fillStyle = '#6B7280';
-    ctx.font = '24px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('Generated by UX RAY • uxray.ai', 540, 950);
-    
-    // Add decorative dashed line above footer
-    ctx.strokeStyle = '#9CA3AF';
+    // Hand-drawn footer with wobbly line
+    ctx.strokeStyle = '#718096';
     ctx.lineWidth = 2;
-    ctx.setLineDash([10, 5]);
     ctx.beginPath();
-    ctx.moveTo(100, 900);
-    ctx.lineTo(980, 902);
+    ctx.moveTo(100, 860);
+    for (let x = 100; x < 980; x += 30) {
+      ctx.lineTo(x + Math.random() * 3 - 1.5, 860 + Math.random() * 4 - 2);
+    }
     ctx.stroke();
-    ctx.setLineDash([]);
 
-    // Add some sketchy decorative elements in corners
+    ctx.fillStyle = '#4A5568';
+    ctx.font = '26px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Generated by UX RAY • uxray.ai', 540, 920);
+
+    // Add sketchy corner decorations
     drawSketchyCornerDecoration(ctx, 900, 100);
-    drawSketchyCornerDecoration(ctx, 100, 900);
+    drawSketchyCornerDecoration(ctx, 150, 900);
   };
 
   const drawSketchyArrow = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
-    ctx.strokeStyle = '#374151';
+    ctx.strokeStyle = '#4A5568';
     ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
     ctx.beginPath();
-    // Main arrow line with slight wobble
+    // Wobbly arrow line
     ctx.moveTo(x, y);
-    ctx.lineTo(x + size + Math.random() * 2, y - size / 2 + Math.random() * 2);
-    // Arrow head
-    ctx.moveTo(x + size * 0.7, y - size / 2 - 10);
-    ctx.lineTo(x + size, y - size / 2);
-    ctx.lineTo(x + size * 0.7, y - size / 2 + 10);
+    for (let i = 0; i < 5; i++) {
+      const segmentX = x + (size / 5) * (i + 1);
+      const segmentY = y - (size / 2 / 5) * (i + 1);
+      ctx.lineTo(segmentX + Math.random() * 3 - 1.5, segmentY + Math.random() * 3 - 1.5);
+    }
+    // Wobbly arrow head
+    const endX = x + size;
+    const endY = y - size / 2;
+    ctx.moveTo(endX - 15 + Math.random() * 2, endY - 8 + Math.random() * 2);
+    ctx.lineTo(endX + Math.random() * 2, endY + Math.random() * 2);
+    ctx.lineTo(endX - 15 + Math.random() * 2, endY + 8 + Math.random() * 2);
     ctx.stroke();
   };
 
   const drawSketchyChart = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
-    ctx.strokeStyle = '#6B7280';
+    ctx.strokeStyle = '#4A5568';
     ctx.lineWidth = 2;
-    const bars = [25, 45, 35, 55, 40];
+    ctx.fillStyle = '#E2E8F0';
+    const bars = [20, 35, 28, 42, 32];
     bars.forEach((height, i) => {
-      // Draw sketchy bars with slight variations
+      // Draw wobbly bars
       ctx.beginPath();
-      ctx.moveTo(x + i * 30, y);
-      ctx.lineTo(x + i * 30 + Math.random() * 2, y - height + Math.random() * 2);
-      ctx.lineTo(x + i * 30 + 20 + Math.random() * 2, y - height + Math.random() * 2);
-      ctx.lineTo(x + i * 30 + 20, y);
-      ctx.lineTo(x + i * 30, y);
+      ctx.moveTo(x + i * 25, y);
+      for (let h = 0; h < height; h += 5) {
+        ctx.lineTo(x + i * 25 + Math.random() * 2, y - h + Math.random() * 2);
+      }
+      ctx.lineTo(x + i * 25 + 15 + Math.random() * 2, y - height + Math.random() * 2);
+      for (let h = height; h > 0; h -= 5) {
+        ctx.lineTo(x + i * 25 + 15 + Math.random() * 2, y - h + Math.random() * 2);
+      }
+      ctx.lineTo(x + i * 25 + 15, y);
+      ctx.closePath();
+      ctx.fill();
       ctx.stroke();
     });
   };
 
   const drawSketchyStars = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
-    ctx.fillStyle = '#FEF08A';
-    ctx.font = '32px Arial';
+    ctx.fillStyle = '#F6E05E';
+    ctx.font = '28px Arial';
     for (let i = 0; i < 5; i++) {
-      ctx.fillText('★', x + i * 30 + Math.random() * 2, y + Math.random() * 2);
+      const starX = x + i * 25 + Math.random() * 3 - 1.5;
+      const starY = y + Math.random() * 3 - 1.5;
+      ctx.fillText('★', starX, starY);
     }
   };
 
   const drawSketchyCornerDecoration = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
-    ctx.strokeStyle = '#D1D5DB';
+    ctx.strokeStyle = '#A0AEC0';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    // Small decorative lines
-    for (let i = 0; i < 3; i++) {
-      ctx.moveTo(x + i * 10, y);
-      ctx.lineTo(x + i * 10 + 15 + Math.random() * 3, y + 15 + Math.random() * 3);
+    // Small decorative wobbly lines
+    for (let i = 0; i < 4; i++) {
+      const startX = x + i * 8 + Math.random() * 2;
+      const startY = y + Math.random() * 2;
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(startX + 12 + Math.random() * 3, startY + 12 + Math.random() * 3);
     }
     ctx.stroke();
   };
@@ -319,7 +441,7 @@ const ShareableScoreCard: React.FC<ShareableScoreCardProps> = ({ score, betterTh
                         cx="32"
                         cy="32"
                         r="26"
-                        stroke="#D1D5DB"
+                        stroke="#CBD5E0"
                         strokeWidth="6"
                         fill="transparent"
                         strokeDasharray="4,2"
@@ -328,7 +450,7 @@ const ShareableScoreCard: React.FC<ShareableScoreCardProps> = ({ score, betterTh
                         cx="32"
                         cy="32"
                         r="26"
-                        stroke="#10B981"
+                        stroke="#38A169"
                         strokeWidth="6"
                         fill="transparent"
                         strokeDasharray={`${(score / 100) * 163.4} 163.4`}
