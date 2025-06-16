@@ -8,6 +8,7 @@ import FileUpload from '@/components/FileUpload';
 import AnalysisResults from '@/components/AnalysisResults';
 import AnnotationCanvas from '@/components/AnnotationCanvas';
 import { useWebsiteAnalysis } from '@/hooks/useWebsiteAnalysis';
+import { usePDFGeneration } from '@/hooks/usePDFGeneration';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('url');
@@ -16,6 +17,7 @@ const Index = () => {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const { analyzeWebsite, isAnalyzing, analysisResults, error } = useWebsiteAnalysis();
+  const { shareAnalysis } = usePDFGeneration();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,20 +59,26 @@ const Index = () => {
     }
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'UX Ray Analysis Results',
-        text: `My website scored ${analysisResults?.score}/100 in UX analysis!`,
-        url: window.location.href
-      });
+  const handleShare = async () => {
+    if (analysisResults && navigator.share) {
+      try {
+        await navigator.share({
+          title: 'UX Ray Analysis Results',
+          text: `My website scored ${analysisResults.score}/100 in UX analysis!`,
+          url: window.location.href
+        });
+      } catch (err) {
+        console.log('Share cancelled:', err);
+      }
+    } else if (analysisResults) {
+      await shareAnalysis(analysisResults, websiteUrl);
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(window.location.href);
       alert('Link copied to clipboard!');
     }
   };
 
-   const scrollToAnalysisMethod = () => {
+  const scrollToAnalysisMethod = () => {
     const analysisSection = document.getElementById('analysis-method-section');
     if (analysisSection) {
       analysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
