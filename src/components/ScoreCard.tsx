@@ -55,7 +55,6 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                 <div className="absolute -bottom-1 left-0 w-full h-1 bg-white/30 transform -skew-x-12"></div>
               </h3>
               <div className="relative">
-                <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-lg blur opacity-75 animate-pulse"></div>
                 <ShareableScoreCard 
                   score={score} 
                   betterThan={comparison?.betterThan}
@@ -69,12 +68,24 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
               </div>
             </div>
             
-            <div className="flex items-center space-x-4 text-yellow-300 mb-4">
-              <span className="text-xl animate-pulse">★</span>
-              <div className="flex-1 h-0.5 bg-white/20 transform skew-x-12"></div>
-              <span className="text-lg">📊</span>
-              <div className="flex-1 h-0.5 bg-white/20 transform -skew-x-12"></div>
-              <span className="text-xl animate-pulse">★</span>
+            <div className="flex items-center space-x-2 text-yellow-300 mb-4">
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+                <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-blue-400 rounded-full"></div>
+              </div>
+              <div className="flex-1 h-1 bg-gradient-to-r from-purple-400/30 via-pink-400/30 to-blue-400/30 rounded-full relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 opacity-20 animate-pulse"></div>
+              </div>
+              <div className="text-sm">🎨</div>
+              <div className="flex-1 h-1 bg-gradient-to-r from-blue-400/30 via-green-400/30 to-yellow-400/30 rounded-full relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-green-400 to-yellow-400 opacity-20 animate-pulse"></div>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full"></div>
+                <div className="w-3 h-3 bg-gradient-to-r from-orange-400 to-red-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-gradient-to-r from-red-400 to-pink-400 rounded-full"></div>
+              </div>
             </div>
           </div>
           
