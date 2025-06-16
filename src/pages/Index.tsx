@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Upload, Link as LinkIcon, Figma, FileImage, FileText, Code, BarChart3, Share2, Eye, Zap, Shield, Users, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,13 +71,13 @@ const Index = () => {
     }
   };
 
-   const scrollToAnalysisMethod = () => {
+  const scrollToAnalysisMethod = () => {
     const analysisSection = document.getElementById('analysis-method-section');
     if (analysisSection) {
       analysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
-  
+
   return (
     <div className="min-h-screen paper-texture" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
       
@@ -238,7 +239,7 @@ const Index = () => {
         </div>
 
         {/* Input Methods with hand-drawn style - Fixed container */}
-        <div className="mb-8">
+        <div className="mb-8" id="analysis-method-section">
           <div className="sketch-card p-6">
             <div className="mb-6">
               <h2 className="flex items-center space-x-2 text-xl font-bold">
