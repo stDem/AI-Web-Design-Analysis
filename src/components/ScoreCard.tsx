@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Trophy, TrendingUp, BarChart3, CheckCircle, TrendingDown, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -54,12 +53,18 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                 Design Score
                 <div className="absolute -bottom-1 left-0 w-full h-1 bg-white/30 transform -skew-x-12"></div>
               </h3>
-              <div className="relative">
-                <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-lg blur opacity-75 animate-pulse"></div>
-                <ShareableScoreCard 
-                  score={score} 
-                  betterThan={comparison?.betterThan}
-                />
+              <div className="ml-4">
+                <div className="relative p-2 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500 rounded-lg transform -rotate-2 hover:rotate-0 transition-all duration-300 hover:scale-110 border-2 border-dashed border-white/30"
+                     style={{ 
+                       boxShadow: '0 4px 15px rgba(236, 72, 153, 0.4), 0 0 20px rgba(168, 85, 247, 0.3)',
+                       background: 'linear-gradient(45deg, #E91E63, #9C27B0, #FF5722)'
+                     }}>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-lg opacity-20 animate-pulse"></div>
+                  <ShareableScoreCard 
+                    score={score} 
+                    betterThan={comparison?.betterThan}
+                  />
+                </div>
               </div>
             </div>
             <div className="text-5xl font-bold mb-4 relative">
