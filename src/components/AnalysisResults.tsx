@@ -420,7 +420,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                 </p>
               </div>
               
-              {/* Enhanced Competitors Section with Full Click Area */}
+              {/* Enhanced Competitors Section with Full Click Area - No Progress Bars */}
               <div className="mb-4">
                 <div className="flex items-center space-x-2 mb-4">
                   <Target className="h-5 w-5 text-blue-300" />
@@ -448,19 +448,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                         </div>
                         
                         <div className="text-2xl font-bold mb-3 text-center">{competitor.score}/100</div>
-                        
-                        {/* Score Comparison Visual */}
-                        <div className="relative mb-3">
-                          <div className="flex items-center space-x-2">
-                            <div className="flex-1 bg-white/20 rounded-full h-2">
-                              <div 
-                                className={`h-full rounded-full ${isAhead ? 'bg-red-400' : 'bg-green-400'}`}
-                                style={{ width: `${competitor.score}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-xs font-mono">{competitor.score}%</span>
-                          </div>
-                        </div>
                         
                         <div className="text-center">
                           {isAhead ? (
