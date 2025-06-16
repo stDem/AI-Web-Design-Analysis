@@ -238,7 +238,7 @@ const Index = () => {
         </div>
 
         {/* Input Methods with hand-drawn style - Fixed container */}
-        <div className="mb-8">
+        <div className="mb-8" id="analysis-method-section">
           <div className="sketch-card p-6">
             <div className="mb-6">
               <h2 className="flex items-center space-x-2 text-xl font-bold">
