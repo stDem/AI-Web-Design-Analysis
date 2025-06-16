@@ -95,7 +95,7 @@ const IssueCard: React.FC<IssueCardProps> = ({
                 {issue.type}
               </Badge>
             </div>
-            <p className="text-sm text-gray-700 font-medium mb-2">{issue.description}}</p>
+            <p className="text-sm text-gray-700 font-medium mb-2">{issue.description}</p>
             
             <div className="bg-green-50 border-2 border-dashed border-green-200 rounded p-3 mb-3">
               <div className="flex items-center justify-between">
