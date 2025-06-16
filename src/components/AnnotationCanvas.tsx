@@ -1,9 +1,9 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Plus, Edit3, Trash2, ExternalLink, RefreshCw, AlertTriangle, Camera } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Annotation {
   id?: string;
@@ -64,20 +64,47 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
     
     setIsCapturingScreenshot(true);
     try {
-      // Use a screenshot service API (you can replace this with your preferred service)
-      const screenshotApiUrl = `https://api.screenshotone.com/take?access_key=demo&url=${encodeURIComponent(websiteUrl)}&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=png&full_page=false&block_ads=true&block_cookie_banners=true`;
+      console.log('Capturing screenshot for:', websiteUrl);
       
-      // For demo purposes, we'll use a placeholder. In production, you'd want to use a real screenshot service
-      const demoScreenshot = `https://via.placeholder.com/1200x800/f8f9fa/6c757d?text=Screenshot+of+${encodeURIComponent(websiteUrl.replace('https://', '').replace('http://', '').split('/')[0])}`;
-      
-      setScreenshotUrl(demoScreenshot);
-      console.log('Screenshot captured successfully');
+      const { data, error } = await supabase.functions.invoke('capture-screenshot', {
+        body: { url: websiteUrl }
+      });
+
+      if (error) {
+        console.error('Screenshot function error:', error);
+        // Fallback to a demo service
+        const fallbackUrl = `https://api.screenshotone.com/take?access_key=demo&url=${encodeURIComponent(websiteUrl)}&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=png&full_page=false&block_ads=true&block_cookie_banners=true`;
+        setScreenshotUrl(fallbackUrl);
+      } else if (data?.screenshot_url) {
+        setScreenshotUrl(data.screenshot_url);
+        console.log('Screenshot captured successfully');
+      } else {
+        console.error('No screenshot URL in response');
+        // Fallback
+        const fallbackUrl = `https://via.placeholder.com/1200x800/f8f9fa/6c757d?text=Screenshot+of+${encodeURIComponent(websiteUrl.replace('https://', '').replace('http://', '').split('/')[0])}`;
+        setScreenshotUrl(fallbackUrl);
+      }
     } catch (error) {
       console.error('Failed to capture screenshot:', error);
+      // Fallback
+      const fallbackUrl = `https://via.placeholder.com/1200x800/f8f9fa/6c757d?text=Screenshot+Error`;
+      setScreenshotUrl(fallbackUrl);
     } finally {
       setIsCapturingScreenshot(false);
     }
   };
+
+  // Auto-capture screenshot when iframe fails or when component mounts with a URL
+  useEffect(() => {
+    if (websiteUrl && !screenshotUrl && !isLoading) {
+      // Try iframe first, but also prepare screenshot as backup
+      setTimeout(() => {
+        if (iframeError || !iframeRef.current) {
+          captureScreenshot();
+        }
+      }, 3000);
+    }
+  }, [websiteUrl, iframeError, isLoading]);
 
   const handleCanvasClick = (e: React.MouseEvent) => {
     if (!isAddingAnnotation) return;
@@ -124,15 +151,21 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
   };
 
   const refreshWebsite = () => {
-    if (iframeRef.current && websiteUrl) {
+    if (websiteUrl) {
       setIsLoading(true);
       setIframeError(false);
       setScreenshotUrl('');
-      const urlWithTimestamp = websiteUrl.includes('?') 
-        ? `${websiteUrl}&_t=${Date.now()}` 
-        : `${websiteUrl}?_t=${Date.now()}`;
-      iframeRef.current.src = urlWithTimestamp;
+      
+      if (iframeRef.current) {
+        const urlWithTimestamp = websiteUrl.includes('?') 
+          ? `${websiteUrl}&_t=${Date.now()}` 
+          : `${websiteUrl}?_t=${Date.now()}`;
+        iframeRef.current.src = urlWithTimestamp;
+      }
+      
+      // Also capture a fresh screenshot
       setTimeout(() => {
+        captureScreenshot();
         setIsLoading(false);
       }, 3000);
     }
@@ -151,7 +184,7 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
     // Automatically capture screenshot when iframe fails
     setTimeout(() => {
       captureScreenshot();
-    }, 1000);
+    }, 500);
   };
 
   const handleIframeLoad = () => {
@@ -187,16 +220,14 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
             </Button>
             {websiteUrl && (
               <>
-                {iframeError && (
-                  <Button 
-                    variant="outline" 
-                    onClick={captureScreenshot} 
-                    disabled={isCapturingScreenshot}
-                    className="border-2 border-dashed border-gray-400"
-                  >
-                    <Camera className={`h-4 w-4 ${isCapturingScreenshot ? 'animate-pulse' : ''}`} />
-                  </Button>
-                )}
+                <Button 
+                  variant="outline" 
+                  onClick={captureScreenshot} 
+                  disabled={isCapturingScreenshot}
+                  className="border-2 border-dashed border-gray-400"
+                >
+                  <Camera className={`h-4 w-4 ${isCapturingScreenshot ? 'animate-pulse' : ''}`} />
+                </Button>
                 <Button variant="outline" onClick={refreshWebsite} disabled={isLoading} 
                         className="border-2 border-dashed border-gray-400">
                   <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -223,7 +254,7 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
           >
             {websiteUrl ? (
               <>
-                {isLoading && (
+                {isLoading && !screenshotUrl && (
                   <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
                     <div className="text-center">
                       <RefreshCw className="h-8 w-8 mx-auto text-gray-400 mb-2 animate-spin" />
@@ -232,67 +263,63 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
                   </div>
                 )}
                 
-                {iframeError && screenshotUrl ? (
-                  // Display screenshot when iframe fails
+                {screenshotUrl ? (
+                  // Display screenshot
                   <div className="relative w-full h-full">
                     <img 
                       src={screenshotUrl} 
                       alt="Website Screenshot" 
                       className="w-full h-full object-cover object-top"
+                      onError={(e) => {
+                        console.error('Screenshot failed to load');
+                        // Try alternative screenshot approach
+                        const fallbackUrl = `https://via.placeholder.com/1200x800/f8f9fa/6c757d?text=Screenshot+of+${encodeURIComponent(websiteUrl.replace('https://', '').replace('http://', '').split('/')[0])}`;
+                        (e.target as HTMLImageElement).src = fallbackUrl;
+                      }}
                     />
-                    <div className="absolute top-4 right-4 bg-orange-100 border border-orange-300 rounded-lg px-3 py-2 text-xs text-orange-700">
+                    <div className="absolute top-4 right-4 bg-green-100 border border-green-300 rounded-lg px-3 py-2 text-xs text-green-700">
                       Screenshot Mode - Click to annotate
                     </div>
                   </div>
-                ) : iframeError && isCapturingScreenshot ? (
+                ) : isCapturingScreenshot ? (
                   // Show capturing screenshot state
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
                     <div className="text-center p-8 max-w-md">
                       <Camera className="h-16 w-16 mx-auto text-blue-500 mb-4 animate-pulse" />
                       <h3 className="text-lg font-bold text-gray-800 mb-2">Capturing Screenshot</h3>
                       <p className="text-sm text-gray-600 mb-4">
-                        Since this website can't be displayed in a frame, we're taking a screenshot for annotation.
-                      </p>
-                    </div>
-                  </div>
-                ) : iframeError ? (
-                  // Show error with screenshot option
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
-                    <div className="text-center p-8 max-w-md">
-                      <AlertTriangle className="h-16 w-16 mx-auto text-orange-500 mb-4" />
-                      <h3 className="text-lg font-bold text-gray-800 mb-2">Cannot Display Website</h3>
-                      <p className="text-sm text-gray-600 mb-4">
-                        This website cannot be displayed in a frame due to security restrictions.
-                      </p>
-                      <div className="space-y-2">
-                        <Button onClick={captureScreenshot} className="w-full border-2 border-dashed border-gray-400" disabled={isCapturingScreenshot}>
-                          <Camera className="h-4 w-4 mr-2" />
-                          {isCapturingScreenshot ? 'Capturing...' : 'Take Screenshot'}
-                        </Button>
-                        <Button onClick={openInNewTab} variant="outline" className="w-full border-2 border-dashed border-gray-400">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          Open in New Tab
-                        </Button>
-                        <Button onClick={refreshWebsite} variant="outline" className="w-full border-2 border-dashed border-gray-400">
-                          <RefreshCw className="h-4 w-4 mr-2" />
-                          Try Again
-                        </Button>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-4">
-                        You can still analyze this website - click "Take Screenshot" to annotate it.
+                        Taking a screenshot for annotation...
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <iframe
-                    ref={iframeRef}
-                    src={websiteUrl}
-                    className="w-full h-full border-0"
-                    title="Website Preview"
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
-                    onLoad={handleIframeLoad}
-                    onError={handleIframeError}
-                  />
+                  // Try to show iframe, with error handling
+                  <>
+                    <iframe
+                      ref={iframeRef}
+                      src={websiteUrl}
+                      className="w-full h-full border-0"
+                      title="Website Preview"
+                      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+                      onLoad={handleIframeLoad}
+                      onError={handleIframeError}
+                    />
+                    {iframeError && (
+                      <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
+                        <div className="text-center p-8 max-w-md">
+                          <AlertTriangle className="h-16 w-16 mx-auto text-orange-500 mb-4" />
+                          <h3 className="text-lg font-bold text-gray-800 mb-2">Taking Screenshot</h3>
+                          <p className="text-sm text-gray-600 mb-4">
+                            Website cannot be displayed in frame. Capturing screenshot for annotation...
+                          </p>
+                          <Button onClick={captureScreenshot} className="w-full border-2 border-dashed border-gray-400" disabled={isCapturingScreenshot}>
+                            <Camera className="h-4 w-4 mr-2" />
+                            {isCapturingScreenshot ? 'Capturing...' : 'Retry Screenshot'}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             ) : (
@@ -403,8 +430,7 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
             {websiteUrl && (
               <div className="text-xs text-gray-500 max-w-md truncate">
                 Currently viewing: {websiteUrl}
-                {iframeError && screenshotUrl && <span className="text-green-500 ml-2">(Screenshot mode)</span>}
-                {iframeError && !screenshotUrl && <span className="text-orange-500 ml-2">(Display blocked)</span>}
+                {screenshotUrl && <span className="text-green-500 ml-2">(Screenshot mode)</span>}
               </div>
             )}
           </div>
