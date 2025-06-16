@@ -1,14 +1,14 @@
 
 import { AnalysisResult } from './types.ts';
 
-export async function analyzeWithGPT(
+export async function analyzeWithGroq(
   htmlContent: string,
   title: string,
   url: string,
   category: string,
-  openAIApiKey: string | null
+  groqApiKey: string | null
 ): Promise<Partial<AnalysisResult> | null> {
-  if (!openAIApiKey) {
+  if (!groqApiKey) {
     return null;
   }
 
@@ -91,14 +91,14 @@ export async function analyzeWithGPT(
   `;
 
   try {
-    const gptResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${groqApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'llama-3.1-70b-versatile',
         messages: [
           { 
             role: 'system', 
@@ -111,9 +111,9 @@ export async function analyzeWithGPT(
       }),
     });
 
-    if (gptResponse.ok) {
-      const gptData = await gptResponse.json();
-      const content = gptData.choices[0].message.content;
+    if (groqResponse.ok) {
+      const groqData = await groqResponse.json();
+      const content = groqData.choices[0].message.content;
       
       // Extract JSON from response
       const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -121,15 +121,15 @@ export async function analyzeWithGPT(
         try {
           return JSON.parse(jsonMatch[0]);
         } catch (parseError) {
-          console.error('Failed to parse GPT response JSON:', parseError);
-          console.log('Raw GPT response:', content);
+          console.error('Failed to parse Groq response JSON:', parseError);
+          console.log('Raw Groq response:', content);
         }
       }
     } else {
-      console.error('GPT API error:', await gptResponse.text());
+      console.error('Groq API error:', await groqResponse.text());
     }
   } catch (error) {
-    console.error('GPT analysis failed:', error);
+    console.error('Groq analysis failed:', error);
   }
 
   return null;

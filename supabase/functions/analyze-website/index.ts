@@ -2,7 +2,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders } from './cors.ts';
 import { fetchWebsiteContent } from './fetcher.ts';
-import { analyzeWithGPT } from './gpt-analyzer.ts';
+import { analyzeWithGroq } from './gpt-analyzer.ts';
 import { generateFallbackAnalysis } from './result-generator.ts';
 import { analyzeCompetitors } from './competitor-analyzer.ts';
 
@@ -24,18 +24,18 @@ serve(async (req) => {
     const competitorAnalysis = await analyzeCompetitors(htmlContent, title, description, url);
     console.log('Enhanced competitor analysis completed');
 
-    // Get GPT analysis with actual content
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    const gptAnalysis = await analyzeWithGPT(
+    // Get Groq analysis with actual content (replacing OpenAI)
+    const groqApiKey = Deno.env.get('GROQ_API_KEY');
+    const groqAnalysis = await analyzeWithGroq(
       htmlContent,
       title,
       url,
       competitorAnalysis.category,
-      openAIApiKey
+      groqApiKey
     );
 
     // Generate final results with real content analysis
-    const analysisResults = generateFallbackAnalysis(gptAnalysis, htmlContent, title, url);
+    const analysisResults = generateFallbackAnalysis(groqAnalysis, htmlContent, title, url);
 
     // Add enhanced competitor data to results
     analysisResults.comparison = {
