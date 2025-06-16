@@ -143,7 +143,7 @@ const Index = () => {
                   className="sketch-button flex items-center space-x-2"
                 >
                   <Share2 className="h-4 w-4" />
-                  <span>SHARE RESULTS</span>
+                  <span>DOWNLOAD RESULTS</span>
                 </button>
               )}
               <button onClick={scrollToAnalysisMethod} className="sketch-button">
