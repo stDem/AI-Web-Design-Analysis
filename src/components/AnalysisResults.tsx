@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles, Play, ExternalLink } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles, Play, ExternalLink, Instagram, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -268,194 +268,264 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
     }
   };
 
+  const handleShareToInstagram = () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size for Instagram square format
+    canvas.width = 1080;
+    canvas.height = 1080;
+
+    // Background with paper texture
+    ctx.fillStyle = '#fafafa';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Add paper dots pattern
+    ctx.fillStyle = 'rgba(0,0,0,0.03)';
+    for (let x = 0; x < canvas.width; x += 20) {
+      for (let y = 0; y < canvas.height; y += 20) {
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+
+    // Main border (sketchy style)
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 8;
+    ctx.setLineDash([]);
+    ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+
+    // Title
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 64px "Comic Sans MS", cursive';
+    ctx.textAlign = 'center';
+    ctx.fillText('UX RAY ANALYSIS', canvas.width / 2, 150);
+
+    // Main score circle
+    const centerX = canvas.width / 2;
+    const centerY = 350;
+    const radius = 120;
+
+    // Score circle background
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    // Score text
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 72px "Comic Sans MS", cursive';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${results.score}`, centerX, centerY + 10);
+    ctx.font = 'bold 32px "Comic Sans MS", cursive';
+    ctx.fillText('/100', centerX, centerY + 50);
+
+    // Category scores
+    const categories = [
+      { label: 'User Experience', score: categoryScores.ux, x: 200, y: 550 },
+      { label: 'Code Quality', score: categoryScores.code, x: 880, y: 550 },
+      { label: 'Performance', score: categoryScores.performance, x: 200, y: 700 },
+      { label: 'Accessibility', score: categoryScores.accessibility, x: 880, y: 700 }
+    ];
+
+    categories.forEach(cat => {
+      // Category box
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(cat.x - 120, cat.y - 40, 240, 80);
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(cat.x - 120, cat.y - 40, 240, 80);
+
+      // Category text
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 24px "Comic Sans MS", cursive';
+      ctx.textAlign = 'center';
+      ctx.fillText(cat.label, cat.x, cat.y - 10);
+      ctx.font = 'bold 32px "Comic Sans MS", cursive';
+      ctx.fillText(`${cat.score}%`, cat.x, cat.y + 20);
+    });
+
+    // Competitive info
+    if (results.comparison) {
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 28px "Comic Sans MS", cursive';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Better than ${results.comparison.betterThan}% of websites!`, centerX, 820);
+    }
+
+    // Branding
+    ctx.font = 'bold 24px "Comic Sans MS", cursive';
+    ctx.fillText('Analyzed with UX RAY AI', centerX, 950);
+
+    // Download the image
+    const link = document.createElement('a');
+    link.download = 'ux-ray-score.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  };
+
   return (
     <div className="space-y-6">
-      {/* Enhanced Design Score with Bigger Main Donut Chart */}
-      <Card className="bg-gradient-to-r from-gray-600 to-slate-700 text-white border-2 border-dashed border-gray-400 transform -rotate-1"
+      {/* Enhanced Instagram-Ready Design Score Card */}
+      <Card className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 border-4 border-dashed border-gray-800 transform -rotate-1 hover:rotate-0 transition-transform duration-300"
             style={{ 
-              boxShadow: '6px 6px 12px rgba(0,0,0,0.15)',
+              boxShadow: '12px 12px 24px rgba(0,0,0,0.15), inset 0 0 0 3px white',
               fontFamily: '"Comic Sans MS", "Marker Felt", cursive'
             }}>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-3xl font-bold" style={{ fontFamily: '"Marker Felt", "Comic Sans MS", cursive' }}>
-                  Design Score
-                </h3>
-                <Button 
-                  variant="outline" 
-                  className="bg-white/20 border-white/30 text-white hover:bg-white/30 border-2 border-dashed"
-                  onClick={handleShare}
-                >
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </Button>
-              </div>
-              <div className="text-5xl font-bold mb-4">{results.score}/100</div>
+        
+        {/* Decorative corner elements */}
+        <div className="absolute top-4 left-4 text-2xl">✨</div>
+        <div className="absolute top-4 right-4 text-2xl">🎨</div>
+        <div className="absolute bottom-4 left-4 text-2xl">🚀</div>
+        <div className="absolute bottom-4 right-4 text-2xl">💎</div>
+
+        <CardContent className="p-8">
+          <div className="text-center mb-8">
+            {/* Main Title with enhanced styling */}
+            <div className="inline-block bg-white px-6 py-3 rounded-full border-3 border-dashed border-gray-800 mb-4 transform rotate-1">
+              <h2 className="text-3xl font-bold text-gray-800 tracking-wider">
+                🎯 UX RAY ANALYSIS 🎯
+              </h2>
             </div>
             
-            {/* Main Donut Chart - Made Bigger */}
-            <div className="w-96 h-80 bg-white/10 rounded-lg p-6 border-2 border-dashed border-white/20">
-              <h4 className="text-xl font-semibold mb-4 text-center">Overall Score</h4>
-              <ChartContainer
-                config={{
-                  score: { label: "Score", color: "#ffffff" }
-                }}
-                className="h-full w-full"
+            {/* Giant Score Display */}
+            <div className="relative inline-block mb-6">
+              <div className="w-64 h-64 rounded-full bg-white border-8 border-dashed border-gray-800 flex items-center justify-center transform -rotate-2 hover:rotate-0 transition-transform duration-300 mx-auto"
+                   style={{ boxShadow: '8px 8px 16px rgba(0,0,0,0.1)' }}>
+                <div className="text-center">
+                  <div className="text-6xl font-bold text-gray-800 mb-2">{results.score}</div>
+                  <div className="text-2xl font-bold text-gray-600">/100</div>
+                  <div className="text-lg text-gray-500 mt-1">DESIGN SCORE</div>
+                </div>
+              </div>
+              
+              {/* Floating achievement badges */}
+              <div className="absolute -top-4 -right-4 bg-yellow-300 rounded-full p-3 border-3 border-dashed border-gray-800 transform rotate-12">
+                <Trophy className="h-8 w-8 text-yellow-800" />
+              </div>
+              
+              {results.score >= 80 && (
+                <div className="absolute -bottom-4 -left-4 bg-green-300 rounded-full p-3 border-3 border-dashed border-gray-800 transform -rotate-12">
+                  <Sparkles className="h-8 w-8 text-green-800" />
+                </div>
+              )}
+            </div>
+
+            {/* Share Buttons Row */}
+            <div className="flex justify-center space-x-4 mb-8">
+              <Button 
+                onClick={handleShareToInstagram}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-3 border-dashed border-gray-800 px-6 py-3 text-lg font-bold transform hover:scale-105 transition-transform duration-200"
+                style={{ fontFamily: '"Comic Sans MS", cursive' }}
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'Score', value: results.score, fill: '#10b981' },
-                        { name: 'Remaining', value: 100 - results.score, fill: '#374151' }
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={70}
-                      outerRadius={120}
-                      startAngle={90}
-                      endAngle={450}
-                      dataKey="value"
-                    >
-                    </Pie>
-                    <ChartTooltip 
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length && payload[0].name === 'Score') {
-                          return (
-                            <div className="bg-white p-3 rounded-lg shadow-lg border">
-                              <p className="font-medium text-gray-900">Your Score</p>
-                              <p className="text-sm text-gray-600">{payload[0].value}%</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+                <Download className="h-5 w-5 mr-2" />
+                Download for Instagram
+              </Button>
               
-              {/* Score text overlay */}
-              <div className="relative -mt-40 text-center pointer-events-none">
-                <div className="text-4xl font-bold text-white">{results.score}%</div>
-                <div className="text-base text-white/70">Overall Score</div>
-              </div>
+              <Button 
+                onClick={handleShare}
+                className="bg-gradient-to-r from-blue-500 to-teal-500 text-white border-3 border-dashed border-gray-800 px-6 py-3 text-lg font-bold transform hover:scale-105 transition-transform duration-200"
+                style={{ fontFamily: '"Comic Sans MS", cursive' }}
+              >
+                <Share2 className="h-5 w-5 mr-2" />
+                Share Results
+              </Button>
             </div>
+
+            {/* Competitive Achievement Banner */}
+            {results.comparison && (
+              <div className="bg-gradient-to-r from-yellow-300 via-orange-300 to-red-300 border-4 border-dashed border-gray-800 rounded-lg p-6 mb-6 transform rotate-1">
+                <div className="flex items-center justify-center space-x-3 mb-2">
+                  <Trophy className="h-8 w-8 text-orange-800" />
+                  <span className="text-2xl font-bold text-gray-800">ACHIEVEMENT UNLOCKED!</span>
+                  <Trophy className="h-8 w-8 text-orange-800" />
+                </div>
+                <p className="text-xl font-bold text-gray-800">
+                  🏆 Better than <span className="text-3xl text-orange-800">{results.comparison.betterThan}%</span> of websites! 🏆
+                </p>
+                <p className="text-lg text-gray-700 mt-2">
+                  You're in the <strong>top {100 - results.comparison.betterThan}%</strong> - Keep it up! 🚀
+                </p>
+              </div>
+            )}
           </div>
-          
-          {results.comparison && (
-            <div className="bg-white/10 rounded-lg p-4 border-2 border-dashed border-white/20">
-              <div className="flex items-center space-x-2 mb-3">
-                <Trophy className="h-5 w-5 text-yellow-300" />
-                <span className="font-semibold">Competitive Analysis</span>
-              </div>
-              <p className="text-sm mb-4">
-                Your website scores better than <strong>{results.comparison.betterThan}%</strong> of analyzed websites
-              </p>
-              
-              {/* Compare with competitors section */}
-              <div className="mb-4">
-                <div className="flex items-center space-x-2 mb-3">
-                  <Target className="h-4 w-4" />
-                  <span className="text-sm font-medium">Compare with competitors:</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {results.comparison.competitors.map((competitor, index) => {
-                    const isAhead = results.score > competitor.score;
-                    
-                    return (
-                      <div
-                        key={index}
-                        className="p-3 rounded-lg bg-white/20 border-2 border-dashed border-white/30 hover:bg-white/30 transition-all duration-200 cursor-pointer"
-                        onClick={() => handleAnalyzeCompetitor(competitor.name, competitor.url)}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="font-medium text-sm">{competitor.name}</div>
-                          {competitor.url && (
-                            <ExternalLink className="h-3 w-3 opacity-60" />
-                          )}
-                        </div>
-                        <div className="text-lg font-bold mb-2">{competitor.score}/100</div>
-                        {isAhead ? (
-                          <div className="text-xs text-green-300 mb-2">
-                            ✓ You're ahead
-                          </div>
-                        ) : (
-                          <div className="text-xs text-red-300 mb-2">
-                            ↑ Room for improvement
-                          </div>
-                        )}
-                        
-                        {analyzingCompetitor === competitor.name && (
-                          <div className="text-xs text-blue-300">
-                            Analyzing...
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
-      {/* Interactive Category Score Boxes with Much Lighter Colors */}
+      {/* Enhanced Category Score Boxes with Instagram-style design */}
       <div className="grid md:grid-cols-4 gap-4">
-        {categoryData.map((category) => {
+        {categoryData.map((category, index) => {
           const IconComponent = category.icon;
+          const rotations = ['rotate-1', '-rotate-1', 'rotate-2', '-rotate-2'];
+          const gradients = [
+            'from-blue-100 to-blue-200',
+            'from-green-100 to-green-200', 
+            'from-yellow-100 to-yellow-200',
+            'from-purple-100 to-purple-200'
+          ];
           
           return (
             <Card 
               key={category.id}
-              className={`cursor-pointer transition-all duration-200 hover:scale-105 border-2 border-dashed ${
-                selectedCategory === category.id ? 'ring-2 ring-blue-500' : 'border-gray-300'
-              } ${getColorClasses(category.color, category.score)} transform hover:-rotate-1`}
+              className={`cursor-pointer transition-all duration-300 hover:scale-110 border-4 border-dashed border-gray-800 bg-gradient-to-br ${gradients[index]} ${rotations[index]} hover:rotate-0 ${
+                selectedCategory === category.id ? 'ring-4 ring-blue-500 scale-105' : ''
+              }`}
               onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
               style={{ 
-                boxShadow: '4px 4px 8px rgba(0,0,0,0.1)',
+                boxShadow: '6px 6px 12px rgba(0,0,0,0.15)',
                 fontFamily: '"Comic Sans MS", cursive'
               }}
             >
-              <CardContent className="p-4">
-                <div className="text-center mb-3">
-                  <IconComponent className="h-8 w-8 mx-auto mb-2" />
-                  <h4 className="font-semibold text-sm">{category.label}</h4>
-                  <p className="text-2xl font-bold mt-1">{category.score}%</p>
-                  <div className="text-xs mt-2 opacity-75">
-                    {category.issues.length} issues found
+              <CardContent className="p-6">
+                <div className="text-center">
+                  <div className="bg-white rounded-full p-4 border-3 border-dashed border-gray-800 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <IconComponent className="h-8 w-8 text-gray-800" />
                   </div>
-                </div>
+                  <h4 className="font-bold text-lg text-gray-800 mb-2">{category.label}</h4>
+                  <div className="text-3xl font-bold text-gray-800 mb-2">{category.score}%</div>
+                  
+                  {/* Score emoji indicator */}
+                  <div className="text-2xl mb-2">
+                    {category.score >= 90 ? '🔥' : 
+                     category.score >= 80 ? '✨' : 
+                     category.score >= 70 ? '👍' : 
+                     category.score >= 60 ? '📈' : '🎯'}
+                  </div>
+                  
+                  <div className="text-sm text-gray-600">
+                    {category.issues.length} improvement{category.issues.length !== 1 ? 's' : ''} found
+                  </div>
 
-                {/* Competitor Analysis Results in Category Cards */}
-                {Object.keys(competitorAnalysis).length > 0 && (
-                  <div className="mt-4 pt-3 border-t border-current/20">
-                    <div className="text-xs font-medium mb-2">vs Competitors:</div>
-                    <div className="space-y-1">
-                      {Object.entries(competitorAnalysis).map(([competitorName, analysis]) => {
-                        const competitorScore = analysis[category.id];
-                        const isAhead = category.score > competitorScore;
-                        
-                        return (
-                          <div key={competitorName} className="flex items-center justify-between text-xs">
-                            <span className="truncate">{competitorName}:</span>
-                            <div className="flex items-center space-x-1">
-                              <span className={`font-medium ${isAhead ? 'text-green-600' : 'text-red-600'}`}>
-                                {competitorScore}%
-                              </span>
-                              <span className={isAhead ? 'text-green-600' : 'text-red-600'}>
-                                {isAhead ? '↓' : '↑'}
-                              </span>
+                  {/* Competitor Analysis Results */}
+                  {Object.keys(competitorAnalysis).length > 0 && (
+                    <div className="mt-4 pt-3 border-t-2 border-dashed border-gray-400">
+                      <div className="text-xs font-bold mb-2 text-gray-700">vs Competitors:</div>
+                      <div className="space-y-1">
+                        {Object.entries(competitorAnalysis).map(([competitorName, analysis]) => {
+                          const competitorScore = analysis[category.id];
+                          const isAhead = category.score > competitorScore;
+                          
+                          return (
+                            <div key={competitorName} className="flex items-center justify-between text-xs">
+                              <span className="truncate font-medium">{competitorName}:</span>
+                              <div className="flex items-center space-x-1">
+                                <span className={`font-bold ${isAhead ? 'text-green-700' : 'text-red-700'}`}>
+                                  {competitorScore}%
+                                </span>
+                                <span className="text-lg">
+                                  {isAhead ? '🎉' : '💪'}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </CardContent>
             </Card>
           );
