@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Users, Target, Sparkles, Play, ExternalLink, BarChart3, TrendingDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -272,7 +271,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
   return (
     <div className="space-y-6">
-      {/* Enhanced Design Score - No Hover Effects, More Stable */}
+      {/* Enhanced Design Score with Clean Modern Chart */}
       <Card className="bg-gradient-to-r from-gray-600 to-slate-700 text-white border-2 border-dashed border-gray-400 transform -rotate-1"
             style={{ 
               boxShadow: '6px 6px 12px rgba(0,0,0,0.15), inset 0 0 0 2px rgba(255,255,255,0.1)',
@@ -310,90 +309,74 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
               </div>
             </div>
             
-            {/* Sketchy Donut Chart */}
-            <div className="w-96 h-80 bg-white/10 rounded-lg p-6 border-2 border-dashed border-white/20 relative">
-              <h4 className="text-xl font-semibold mb-4 text-center relative">
+            {/* Clean Modern Donut Chart */}
+            <div className="w-96 h-80 bg-slate-600/50 rounded-lg p-6 border border-slate-400/30 relative backdrop-blur-sm">
+              <h4 className="text-xl font-semibold mb-4 text-center text-white/90">
                 Overall Score
-                {/* Sketchy highlight */}
-                <div className="absolute inset-0 bg-white/5 rounded transform -rotate-1"></div>
               </h4>
               
-              {/* Custom Sketchy Donut Chart */}
+              {/* Clean Modern Donut Chart */}
               <div className="relative w-full h-full flex items-center justify-center">
-                <svg width="240" height="240" className="transform -rotate-90">
-                  {/* Background circle with sketchy dashed effect */}
+                <svg width="220" height="220" className="transform -rotate-90">
+                  {/* Background track - clean gray */}
                   <circle
-                    cx="120"
-                    cy="120"
-                    r="90"
+                    cx="110"
+                    cy="110"
+                    r="85"
                     fill="none"
-                    stroke="#374151"
-                    strokeWidth="20"
-                    strokeDasharray="8,4"
+                    stroke="#4B5563"
+                    strokeWidth="16"
                     strokeLinecap="round"
                     opacity="0.3"
                   />
                   
-                  {/* Score arc with sketchy green fill */}
+                  {/* Score arc - clean green */}
                   <circle
-                    cx="120"
-                    cy="120"
-                    r="90"
+                    cx="110"
+                    cy="110"
+                    r="85"
                     fill="none"
                     stroke="#10B981"
-                    strokeWidth="20"
-                    strokeDasharray={`${(results.score / 100) * 565.5} 565.5`}
+                    strokeWidth="16"
+                    strokeDasharray={`${(results.score / 100) * 534.1} 534.1`}
                     strokeLinecap="round"
-                    className="drop-shadow-lg"
+                    className="transition-all duration-1000 ease-out"
                     style={{
-                      filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.3))'
+                      filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.4))'
                     }}
                   />
                   
-                  {/* Additional sketchy inner dashes for texture */}
-                  <circle
-                    cx="120"
-                    cy="120"
-                    r="75"
-                    fill="none"
-                    stroke="#FFFFFF"
-                    strokeWidth="2"
-                    strokeDasharray="4,8"
-                    opacity="0.2"
-                  />
-                  
-                  {/* Outer sketchy border */}
-                  <circle
-                    cx="120"
-                    cy="120"
-                    r="105"
-                    fill="none"
-                    stroke="#FFFFFF"
-                    strokeWidth="1"
-                    strokeDasharray="6,3"
-                    opacity="0.15"
-                  />
+                  {/* Small tick marks around the circle */}
+                  {Array.from({ length: 20 }, (_, i) => {
+                    const angle = (i * 18) * Math.PI / 180;
+                    const x1 = 110 + Math.cos(angle) * 100;
+                    const y1 = 110 + Math.sin(angle) * 100;
+                    const x2 = 110 + Math.cos(angle) * 95;
+                    const y2 = 110 + Math.sin(angle) * 95;
+                    
+                    return (
+                      <line
+                        key={i}
+                        x1={x1}
+                        y1={y1}
+                        x2={x2}
+                        y2={y2}
+                        stroke="#64748B"
+                        strokeWidth="2"
+                        opacity="0.4"
+                      />
+                    );
+                  })}
                 </svg>
                 
-                {/* Score text overlay with sketchy style */}
+                {/* Score text overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-4xl font-bold text-white relative mb-2">
+                  <div className="text-4xl font-bold text-white mb-1">
                     {results.score}%
-                    {/* Multiple sketchy circles around percentage */}
-                    <div className="absolute inset-0 border-2 border-yellow-300 border-dashed rounded-full transform rotate-12 scale-150 opacity-20"></div>
-                    <div className="absolute inset-0 border border-white border-dashed rounded-full transform -rotate-6 scale-125 opacity-15"></div>
                   </div>
-                  <div className="text-base text-white/70 relative">
+                  <div className="text-sm text-white/70">
                     Overall Score
-                    {/* Sketchy underline */}
-                    <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-white/20 transform skew-x-6"></div>
                   </div>
-                  
-                  {/* Small decorative sketchy elements around the text */}
-                  <div className="absolute -top-8 -left-4 text-yellow-300 opacity-60 text-xs transform rotate-12">★</div>
-                  <div className="absolute -top-6 -right-6 text-green-300 opacity-60 text-xs transform -rotate-12">✓</div>
-                  <div className="absolute -bottom-8 -left-6 text-blue-300 opacity-60 text-xs transform rotate-45">◆</div>
-                  <div className="absolute -bottom-6 -right-4 text-purple-300 opacity-60 text-xs transform -rotate-45">●</div>
                 </div>
               </div>
             </div>
