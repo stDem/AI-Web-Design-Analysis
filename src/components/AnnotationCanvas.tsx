@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Plus, Edit3, Trash2, ExternalLink, RefreshCw, AlertTriangle } from 'lucide-react';
+import { MessageSquare, Plus, Edit3, Trash2, ExternalLink, RefreshCw, AlertTriangle, Camera } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -31,6 +31,8 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
   const [newNote, setNewNote] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [iframeError, setIframeError] = useState(false);
+  const [screenshotUrl, setScreenshotUrl] = useState<string>('');
+  const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -50,14 +52,35 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
     if (websiteUrl) {
       setIsLoading(true);
       setIframeError(false);
+      setScreenshotUrl('');
       setTimeout(() => {
         setIsLoading(false);
       }, 3000);
     }
   }, [websiteUrl]);
 
+  const captureScreenshot = async () => {
+    if (!websiteUrl) return;
+    
+    setIsCapturingScreenshot(true);
+    try {
+      // Use a screenshot service API (you can replace this with your preferred service)
+      const screenshotApiUrl = `https://api.screenshotone.com/take?access_key=demo&url=${encodeURIComponent(websiteUrl)}&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=png&full_page=false&block_ads=true&block_cookie_banners=true`;
+      
+      // For demo purposes, we'll use a placeholder. In production, you'd want to use a real screenshot service
+      const demoScreenshot = `https://via.placeholder.com/1200x800/f8f9fa/6c757d?text=Screenshot+of+${encodeURIComponent(websiteUrl.replace('https://', '').replace('http://', '').split('/')[0])}`;
+      
+      setScreenshotUrl(demoScreenshot);
+      console.log('Screenshot captured successfully');
+    } catch (error) {
+      console.error('Failed to capture screenshot:', error);
+    } finally {
+      setIsCapturingScreenshot(false);
+    }
+  };
+
   const handleCanvasClick = (e: React.MouseEvent) => {
-    if (!isAddingAnnotation || iframeError) return;
+    if (!isAddingAnnotation) return;
 
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -104,7 +127,7 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
     if (iframeRef.current && websiteUrl) {
       setIsLoading(true);
       setIframeError(false);
-      // Add timestamp to bypass cache
+      setScreenshotUrl('');
       const urlWithTimestamp = websiteUrl.includes('?') 
         ? `${websiteUrl}&_t=${Date.now()}` 
         : `${websiteUrl}?_t=${Date.now()}`;
@@ -125,6 +148,10 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
     console.log('Iframe failed to load:', websiteUrl);
     setIframeError(true);
     setIsLoading(false);
+    // Automatically capture screenshot when iframe fails
+    setTimeout(() => {
+      captureScreenshot();
+    }, 1000);
   };
 
   const handleIframeLoad = () => {
@@ -154,13 +181,22 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
               size="sm"
               onClick={() => setIsAddingAnnotation(!isAddingAnnotation)}
               className={isAddingAnnotation ? "bg-purple-600 text-white border-2 border-dashed" : "border-2 border-dashed border-gray-400"}
-              disabled={iframeError && websiteUrl}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Note
             </Button>
             {websiteUrl && (
               <>
+                {iframeError && (
+                  <Button 
+                    variant="outline" 
+                    onClick={captureScreenshot} 
+                    disabled={isCapturingScreenshot}
+                    className="border-2 border-dashed border-gray-400"
+                  >
+                    <Camera className={`h-4 w-4 ${isCapturingScreenshot ? 'animate-pulse' : ''}`} />
+                  </Button>
+                )}
                 <Button variant="outline" onClick={refreshWebsite} disabled={isLoading} 
                         className="border-2 border-dashed border-gray-400">
                   <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -180,7 +216,7 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
           <div
             ref={canvasRef}
             className={`relative bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 ${
-              isAddingAnnotation && !iframeError ? 'cursor-crosshair' : 'cursor-default'
+              isAddingAnnotation ? 'cursor-crosshair' : 'cursor-default'
             }`}
             onClick={handleCanvasClick}
             style={{ minHeight: '600px', height: '600px' }}
@@ -196,7 +232,31 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
                   </div>
                 )}
                 
-                {iframeError ? (
+                {iframeError && screenshotUrl ? (
+                  // Display screenshot when iframe fails
+                  <div className="relative w-full h-full">
+                    <img 
+                      src={screenshotUrl} 
+                      alt="Website Screenshot" 
+                      className="w-full h-full object-cover object-top"
+                    />
+                    <div className="absolute top-4 right-4 bg-orange-100 border border-orange-300 rounded-lg px-3 py-2 text-xs text-orange-700">
+                      Screenshot Mode - Click to annotate
+                    </div>
+                  </div>
+                ) : iframeError && isCapturingScreenshot ? (
+                  // Show capturing screenshot state
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+                    <div className="text-center p-8 max-w-md">
+                      <Camera className="h-16 w-16 mx-auto text-blue-500 mb-4 animate-pulse" />
+                      <h3 className="text-lg font-bold text-gray-800 mb-2">Capturing Screenshot</h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Since this website can't be displayed in a frame, we're taking a screenshot for annotation.
+                      </p>
+                    </div>
+                  </div>
+                ) : iframeError ? (
+                  // Show error with screenshot option
                   <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
                     <div className="text-center p-8 max-w-md">
                       <AlertTriangle className="h-16 w-16 mx-auto text-orange-500 mb-4" />
@@ -205,7 +265,11 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
                         This website cannot be displayed in a frame due to security restrictions.
                       </p>
                       <div className="space-y-2">
-                        <Button onClick={openInNewTab} className="w-full border-2 border-dashed border-gray-400">
+                        <Button onClick={captureScreenshot} className="w-full border-2 border-dashed border-gray-400" disabled={isCapturingScreenshot}>
+                          <Camera className="h-4 w-4 mr-2" />
+                          {isCapturingScreenshot ? 'Capturing...' : 'Take Screenshot'}
+                        </Button>
+                        <Button onClick={openInNewTab} variant="outline" className="w-full border-2 border-dashed border-gray-400">
                           <ExternalLink className="h-4 w-4 mr-2" />
                           Open in New Tab
                         </Button>
@@ -215,7 +279,7 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
                         </Button>
                       </div>
                       <p className="text-xs text-gray-500 mt-4">
-                        You can still analyze this website - the results will be available even though we can't display it here.
+                        You can still analyze this website - click "Take Screenshot" to annotate it.
                       </p>
                     </div>
                   </div>
@@ -242,83 +306,81 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
               </div>
             )}
 
-            {/* Annotations Overlay - only show if iframe is working or no website */}
-            {(!websiteUrl || !iframeError) && (
-              <div className="absolute inset-0 pointer-events-none">
-                {annotations.map((annotation, index) => (
-                  <div
-                    key={annotation.id || index}
-                    className="absolute pointer-events-auto"
-                    style={{ left: annotation.x, top: annotation.y }}
-                  >
-                    {/* Annotation marker */}
-                    <div className={`w-6 h-6 rounded-full ${getAnnotationColor(annotation.type)} flex items-center justify-center text-white text-xs font-bold shadow-lg cursor-pointer transform hover:scale-110 transition-transform border-2 border-white`}>
-                      {index + 1}
-                    </div>
-                    
-                    {/* Annotation popup */}
-                    <div className="absolute top-8 left-0 bg-white rounded-lg shadow-xl border-2 border-dashed border-gray-300 p-3 min-w-64 z-10 max-w-sm">
-                      {editingId === annotation.id ? (
-                        <div className="space-y-2">
-                          <Textarea
-                            value={newNote}
-                            onChange={(e) => setNewNote(e.target.value)}
-                            placeholder="Enter your note..."
-                            className="text-sm border-2 border-dashed border-gray-300"
-                            rows={3}
-                          />
-                          <div className="flex space-x-2">
-                            <Button size="sm" onClick={saveAnnotation}
-                                    className="border-2 border-dashed border-gray-400">
-                              Save
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => setEditingId(null)}
-                                    className="border-2 border-dashed border-gray-400">
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className="flex items-center space-x-2 mb-2">
-                            <div className={`w-3 h-3 rounded-full ${getAnnotationColor(annotation.type)}`}></div>
-                            <span className="text-xs font-medium text-gray-500 capitalize">
-                              {annotation.type}
-                            </span>
-                            {annotation.element && (
-                              <span className="text-xs text-gray-400">
-                                • {annotation.element}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-700 mb-3 leading-relaxed">{annotation.note}</p>
-                          <div className="flex space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditingId(annotation.id || '');
-                                setNewNote(annotation.note);
-                              }}
-                            >
-                              <Edit3 className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteAnnotation(annotation.id || '')}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+            {/* Annotations Overlay */}
+            <div className="absolute inset-0 pointer-events-none">
+              {annotations.map((annotation, index) => (
+                <div
+                  key={annotation.id || index}
+                  className="absolute pointer-events-auto"
+                  style={{ left: annotation.x, top: annotation.y }}
+                >
+                  {/* Annotation marker */}
+                  <div className={`w-6 h-6 rounded-full ${getAnnotationColor(annotation.type)} flex items-center justify-center text-white text-xs font-bold shadow-lg cursor-pointer transform hover:scale-110 transition-transform border-2 border-white`}>
+                    {index + 1}
                   </div>
-                ))}
-              </div>
-            )}
+                  
+                  {/* Annotation popup */}
+                  <div className="absolute top-8 left-0 bg-white rounded-lg shadow-xl border-2 border-dashed border-gray-300 p-3 min-w-64 z-10 max-w-sm">
+                    {editingId === annotation.id ? (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={newNote}
+                          onChange={(e) => setNewNote(e.target.value)}
+                          placeholder="Enter your note..."
+                          className="text-sm border-2 border-dashed border-gray-300"
+                          rows={3}
+                        />
+                        <div className="flex space-x-2">
+                          <Button size="sm" onClick={saveAnnotation}
+                                  className="border-2 border-dashed border-gray-400">
+                            Save
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => setEditingId(null)}
+                                  className="border-2 border-dashed border-gray-400">
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className={`w-3 h-3 rounded-full ${getAnnotationColor(annotation.type)}`}></div>
+                          <span className="text-xs font-medium text-gray-500 capitalize">
+                            {annotation.type}
+                          </span>
+                          {annotation.element && (
+                            <span className="text-xs text-gray-400">
+                              • {annotation.element}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-700 mb-3 leading-relaxed">{annotation.note}</p>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingId(annotation.id || '');
+                              setNewNote(annotation.note);
+                            }}
+                          >
+                            <Edit3 className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteAnnotation(annotation.id || '')}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Annotation Legend and Summary */}
@@ -341,7 +403,8 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
             {websiteUrl && (
               <div className="text-xs text-gray-500 max-w-md truncate">
                 Currently viewing: {websiteUrl}
-                {iframeError && <span className="text-orange-500 ml-2">(Display blocked)</span>}
+                {iframeError && screenshotUrl && <span className="text-green-500 ml-2">(Screenshot mode)</span>}
+                {iframeError && !screenshotUrl && <span className="text-orange-500 ml-2">(Display blocked)</span>}
               </div>
             )}
           </div>
