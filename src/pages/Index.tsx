@@ -9,6 +9,7 @@ import AnalysisResults from '@/components/AnalysisResults';
 import AnnotationCanvas from '@/components/AnnotationCanvas';
 import { useWebsiteAnalysis } from '@/hooks/useWebsiteAnalysis';
 import { usePDFGeneration } from '@/hooks/usePDFGeneration';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('url');
@@ -17,7 +18,8 @@ const Index = () => {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const { analyzeWebsite, isAnalyzing, analysisResults, error } = useWebsiteAnalysis();
-  const { shareAnalysis } = usePDFGeneration();
+  const { generatePDF } = usePDFGeneration();
+  const { toast } = useToast();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,21 +62,44 @@ const Index = () => {
   };
 
   const handleShare = async () => {
-    if (analysisResults && navigator.share) {
-      try {
-        await navigator.share({
-          title: 'UX Ray Analysis Results',
-          text: `My website scored ${analysisResults.score}/100 in UX analysis!`,
-          url: window.location.href
+    if (!analysisResults) {
+      toast({
+        title: "No Analysis Results",
+        description: "Please run an analysis first before sharing results.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    console.log('Sharing analysis results...');
+    
+    try {
+      // Generate and download the PDF report
+      const success = await generatePDF(analysisResults, websiteUrl || 'Unknown Website');
+      
+      if (success) {
+        toast({
+          title: "Report Generated!",
+          description: "Your analysis report has been downloaded successfully.",
         });
-      } catch (err) {
-        console.log('Share cancelled:', err);
+        
+        // Try to copy the current URL to clipboard as a bonus
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          console.log('URL copied to clipboard');
+        } catch (clipboardError) {
+          console.log('Could not copy URL to clipboard:', clipboardError);
+        }
+      } else {
+        throw new Error('Failed to generate report');
       }
-    } else if (analysisResults) {
-      await shareAnalysis(analysisResults, websiteUrl);
-    } else {
-      await navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
+    } catch (error) {
+      console.error('Share error:', error);
+      toast({
+        title: "Share Failed",
+        description: "Could not generate the analysis report. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -113,9 +138,12 @@ const Index = () => {
             </div>
             <div className="flex items-center space-x-3">
               {analysisResults && (
-                <button onClick={handleShare} className="sketch-button">
-                  <Share2 className="h-4 w-4 mr-2 inline" />
-                  SHARE RESULTS
+                <button 
+                  onClick={handleShare} 
+                  className="sketch-button flex items-center space-x-2"
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span>SHARE RESULTS</span>
                 </button>
               )}
               <button onClick={scrollToAnalysisMethod} className="sketch-button">
