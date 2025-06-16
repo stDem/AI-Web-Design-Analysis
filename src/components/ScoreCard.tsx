@@ -54,10 +54,13 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                 Design Score
                 <div className="absolute -bottom-1 left-0 w-full h-1 bg-white/30 transform -skew-x-12"></div>
               </h3>
-              <ShareableScoreCard 
-                score={score} 
-                betterThan={comparison?.betterThan}
-              />
+              <div className="relative">
+                <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-lg blur opacity-75 animate-pulse"></div>
+                <ShareableScoreCard 
+                  score={score} 
+                  betterThan={comparison?.betterThan}
+                />
+              </div>
             </div>
             <div className="text-5xl font-bold mb-4 relative">
               {score}/100
