@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import ShareableScoreCard from './ShareableScoreCard';
 
 interface CodeSuggestion {
   file: string;
@@ -75,7 +74,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
   const [analyzingCompetitor, setAnalyzingCompetitor] = useState<string | null>(null);
   const [competitorAnalysis, setCompetitorAnalysis] = useState<{[key: string]: CategoryScores}>({});
-  const [showShareCard, setShowShareCard] = useState(false);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -258,15 +256,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   };
 
   const handleShare = () => {
-    setShowShareCard(true);
-  };
-
-  const handleCloseShareCard = () => {
-    setShowShareCard(false);
-  };
-
-  const handleDownloadComplete = () => {
-    console.log('Score card downloaded successfully');
+    if (navigator.share) {
+      navigator.share({
+        title: 'UX Ray Analysis Results',
+        text: `My website scored ${results.score}/100 in UX analysis! Better than ${results.comparison?.betterThan}% of websites.`,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
   };
 
   return (
@@ -628,15 +627,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         </CardContent>
       </Card>
     </div>
-
-    {/* Shareable Score Card Modal */}
-    {showShareCard && (
-      <ShareableScoreCard
-        score={results.score}
-        onClose={handleCloseShareCard}
-        onDownload={handleDownloadComplete}
-      />
-    )}
   );
 };
 
