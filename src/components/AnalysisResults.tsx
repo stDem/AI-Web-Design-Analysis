@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Users, Target, Sparkles, Play, ExternalLink } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Share2, Users, Target, Sparkles, Play, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import ShareableScoreCard from './ShareableScoreCard';
 
 interface CodeSuggestion {
   file: string;
@@ -271,12 +270,138 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
   return (
     <div className="space-y-6">
-      {/* Enhanced Shareable Design Score Card */}
-      <ShareableScoreCard 
-        score={results.score}
-        betterThan={results.comparison?.betterThan}
-        onShare={handleShare}
-      />
+      {/* Enhanced Design Score with Bigger Main Donut Chart */}
+      <Card className="bg-gradient-to-r from-gray-600 to-slate-700 text-white border-2 border-dashed border-gray-400 transform -rotate-1"
+            style={{ 
+              boxShadow: '6px 6px 12px rgba(0,0,0,0.15)',
+              fontFamily: '"Comic Sans MS", "Marker Felt", cursive'
+            }}>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-3xl font-bold" style={{ fontFamily: '"Marker Felt", "Comic Sans MS", cursive' }}>
+                  Design Score
+                </h3>
+                <Button 
+                  variant="outline" 
+                  className="bg-white/20 border-white/30 text-white hover:bg-white/30 border-2 border-dashed"
+                  onClick={handleShare}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+              <div className="text-5xl font-bold mb-4">{results.score}/100</div>
+            </div>
+            
+            {/* Main Donut Chart - Made Bigger */}
+            <div className="w-96 h-80 bg-white/10 rounded-lg p-6 border-2 border-dashed border-white/20">
+              <h4 className="text-xl font-semibold mb-4 text-center">Overall Score</h4>
+              <ChartContainer
+                config={{
+                  score: { label: "Score", color: "#ffffff" }
+                }}
+                className="h-full w-full"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Score', value: results.score, fill: '#10b981' },
+                        { name: 'Remaining', value: 100 - results.score, fill: '#374151' }
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={70}
+                      outerRadius={120}
+                      startAngle={90}
+                      endAngle={450}
+                      dataKey="value"
+                    >
+                    </Pie>
+                    <ChartTooltip 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length && payload[0].name === 'Score') {
+                          return (
+                            <div className="bg-white p-3 rounded-lg shadow-lg border">
+                              <p className="font-medium text-gray-900">Your Score</p>
+                              <p className="text-sm text-gray-600">{payload[0].value}%</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+              
+              {/* Score text overlay */}
+              <div className="relative -mt-40 text-center pointer-events-none">
+                <div className="text-4xl font-bold text-white">{results.score}%</div>
+                <div className="text-base text-white/70">Overall Score</div>
+              </div>
+            </div>
+          </div>
+          
+          {results.comparison && (
+            <div className="bg-white/10 rounded-lg p-4 border-2 border-dashed border-white/20">
+              <div className="flex items-center space-x-2 mb-3">
+                <Trophy className="h-5 w-5 text-yellow-300" />
+                <span className="font-semibold">Competitive Analysis</span>
+              </div>
+              <p className="text-sm mb-4">
+                Your website scores better than <strong>{results.comparison.betterThan}%</strong> of analyzed websites
+              </p>
+              
+              {/* Compare with competitors section */}
+              <div className="mb-4">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Target className="h-4 w-4" />
+                  <span className="text-sm font-medium">Compare with competitors:</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {results.comparison.competitors.map((competitor, index) => {
+                    const isAhead = results.score > competitor.score;
+                    
+                    return (
+                      <div
+                        key={index}
+                        className="p-3 rounded-lg bg-white/20 border-2 border-dashed border-white/30 hover:bg-white/30 transition-all duration-200 cursor-pointer"
+                        onClick={() => handleAnalyzeCompetitor(competitor.name, competitor.url)}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="font-medium text-sm">{competitor.name}</div>
+                          {competitor.url && (
+                            <ExternalLink className="h-3 w-3 opacity-60" />
+                          )}
+                        </div>
+                        <div className="text-lg font-bold mb-2">{competitor.score}/100</div>
+                        {isAhead ? (
+                          <div className="text-xs text-green-300 mb-2">
+                            ✓ You're ahead
+                          </div>
+                        ) : (
+                          <div className="text-xs text-red-300 mb-2">
+                            ↑ Room for improvement
+                          </div>
+                        )}
+                        
+                        {analyzingCompetitor === competitor.name && (
+                          <div className="text-xs text-blue-300">
+                            Analyzing...
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Interactive Category Score Boxes with Much Lighter Colors */}
       <div className="grid md:grid-cols-4 gap-4">
