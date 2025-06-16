@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Users, Target, Sparkles, Play, ExternalLink } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Users, Target, Sparkles, Play, ExternalLink, BarChart3, TrendingDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import ShareableScoreCard from './ShareableScoreCard';
 
@@ -271,8 +271,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
   return (
     <div className="space-y-6">
-      {/* Enhanced Design Score with Bigger Main Donut Chart and Sketchy Style */}
-      <Card className="bg-gradient-to-r from-gray-600 to-slate-700 text-white border-2 border-dashed border-gray-400 transform -rotate-1 hover:rotate-0 transition-transform duration-300"
+      {/* Enhanced Design Score - No Hover Effects, More Stable */}
+      <Card className="bg-gradient-to-r from-gray-600 to-slate-700 text-white border-2 border-dashed border-gray-400 transform -rotate-1"
             style={{ 
               boxShadow: '6px 6px 12px rgba(0,0,0,0.15), inset 0 0 0 2px rgba(255,255,255,0.1)',
               fontFamily: '"Comic Sans MS", "Marker Felt", cursive'
@@ -309,8 +309,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
               </div>
             </div>
             
-            {/* Main Donut Chart - Made Bigger with Sketchy Style */}
-            <div className="w-96 h-80 bg-white/10 rounded-lg p-6 border-2 border-dashed border-white/20 transform hover:scale-105 transition-transform duration-300">
+            {/* Main Donut Chart - Stable, No Hover Effects */}
+            <div className="w-96 h-80 bg-white/10 rounded-lg p-6 border-2 border-dashed border-white/20">
               <h4 className="text-xl font-semibold mb-4 text-center relative">
                 Overall Score
                 {/* Sketchy highlight */}
@@ -371,7 +371,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
           </div>
           
           {results.comparison && (
-            <div className="bg-white/10 rounded-lg p-4 border-2 border-dashed border-white/20 relative overflow-hidden">
+            <div className="bg-white/10 rounded-lg p-6 border-2 border-dashed border-white/20 relative overflow-hidden">
               {/* Background sketchy pattern */}
               <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-2 left-4 text-white text-xs">★</div>
@@ -380,51 +380,108 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
                 <div className="absolute bottom-2 right-4 text-white text-xs">★</div>
               </div>
               
-              <div className="flex items-center space-x-2 mb-3 relative z-10">
-                <Trophy className="h-5 w-5 text-yellow-300 animate-bounce" />
-                <span className="font-semibold">Competitive Analysis</span>
+              <div className="flex items-center space-x-2 mb-4 relative z-10">
+                <Trophy className="h-6 w-6 text-yellow-300 animate-bounce" />
+                <span className="font-semibold text-lg">Competitive Analysis</span>
                 <div className="flex-1 h-0.5 bg-white/20 transform skew-x-6"></div>
               </div>
-              <p className="text-sm mb-4 relative z-10">
-                Your website scores better than <strong className="text-yellow-300">{results.comparison.betterThan}%</strong> of analyzed websites
-              </p>
               
-              {/* Compare with competitors section */}
-              <div className="mb-4">
-                <div className="flex items-center space-x-2 mb-3">
-                  <Target className="h-4 w-4" />
-                  <span className="text-sm font-medium">Compare with competitors:</span>
+              {/* Enhanced Competitive Performance Display */}
+              <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg p-4 mb-4 border-2 border-dashed border-green-300/30">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="h-6 w-6 text-green-300" />
+                    <span className="text-xl font-bold text-green-300">
+                      Better than {results.comparison.betterThan}%
+                    </span>
+                  </div>
+                  <BarChart3 className="h-6 w-6 text-green-300" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                
+                {/* Visual Progress Bar */}
+                <div className="relative mb-3">
+                  <div className="w-full bg-white/20 rounded-full h-4 border-2 border-dashed border-white/40">
+                    <div 
+                      className="bg-gradient-to-r from-green-400 to-green-500 h-full rounded-full border-2 border-dashed border-green-200 relative"
+                      style={{ width: `${results.comparison.betterThan}%` }}
+                    >
+                      <div className="absolute -right-2 -top-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs text-white/70 mt-1">
+                    <span>0%</span>
+                    <span className="font-bold text-green-300">{results.comparison.betterThan}%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+                
+                <p className="text-sm text-white/90">
+                  Your website outperforms <strong className="text-yellow-300">{results.comparison.betterThan}%</strong> of analyzed websites in the <strong className="text-blue-300">{results.comparison.category}</strong> category
+                </p>
+              </div>
+              
+              {/* Enhanced Competitors Section with Full Click Area */}
+              <div className="mb-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Target className="h-5 w-5 text-blue-300" />
+                  <span className="text-base font-medium">Compare with competitors:</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
                   {results.comparison.competitors.map((competitor, index) => {
                     const isAhead = results.score > competitor.score;
+                    const scoreDiff = results.score - competitor.score;
                     
                     return (
                       <div
                         key={index}
-                        className="p-3 rounded-lg bg-white/20 border-2 border-dashed border-white/30 hover:bg-white/30 transition-all duration-200 cursor-pointer"
+                        className="group p-4 rounded-lg bg-white/20 border-2 border-dashed border-white/30 hover:bg-white/30 hover:border-white/50 transition-all duration-300 cursor-pointer transform hover:scale-105 hover:-rotate-1"
                         onClick={() => handleAnalyzeCompetitor(competitor.name, competitor.url)}
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="font-medium text-sm">{competitor.name}</div>
-                          {competitor.url && (
-                            <ExternalLink className="h-3 w-3 opacity-60" />
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="font-bold text-base text-white">{competitor.name}</div>
+                          <div className="flex items-center space-x-2">
+                            {competitor.url && (
+                              <ExternalLink className="h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity" />
+                            )}
+                            <div className="w-2 h-2 bg-yellow-300 rounded-full animate-pulse"></div>
+                          </div>
+                        </div>
+                        
+                        <div className="text-2xl font-bold mb-3 text-center">{competitor.score}/100</div>
+                        
+                        {/* Score Comparison Visual */}
+                        <div className="relative mb-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="flex-1 bg-white/20 rounded-full h-2">
+                              <div 
+                                className={`h-full rounded-full ${isAhead ? 'bg-red-400' : 'bg-green-400'}`}
+                                style={{ width: `${competitor.score}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs font-mono">{competitor.score}%</span>
+                          </div>
+                        </div>
+                        
+                        <div className="text-center">
+                          {isAhead ? (
+                            <div className="flex items-center justify-center space-x-1 text-green-300 text-sm">
+                              <CheckCircle className="h-4 w-4" />
+                              <span>You're ahead (+{scoreDiff})</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center space-x-1 text-red-300 text-sm">
+                              <TrendingDown className="h-4 w-4" />
+                              <span>Room for improvement ({scoreDiff})</span>
+                            </div>
                           )}
                         </div>
-                        <div className="text-lg font-bold mb-2">{competitor.score}/100</div>
-                        {isAhead ? (
-                          <div className="text-xs text-green-300 mb-2">
-                            ✓ You're ahead
-                          </div>
-                        ) : (
-                          <div className="text-xs text-red-300 mb-2">
-                            ↑ Room for improvement
-                          </div>
-                        )}
                         
                         {analyzingCompetitor === competitor.name && (
-                          <div className="text-xs text-blue-300">
-                            Analyzing...
+                          <div className="mt-2 text-center">
+                            <div className="inline-flex items-center space-x-2 text-blue-300 text-sm">
+                              <div className="animate-spin rounded-full h-3 w-3 border border-blue-300 border-t-transparent"></div>
+                              <span>Analyzing...</span>
+                            </div>
                           </div>
                         )}
                       </div>
