@@ -25,58 +25,35 @@ serve(async (req) => {
       );
     }
 
-    // Use Screenshot API service (free tier available)
-    const screenshotApiUrl = `https://shot.screenshotapi.net/screenshot`;
+    // Use a free screenshot service that doesn't require API keys
+    const screenshotUrl = `https://mini.s-shot.ru/1024x768/PNG/?${encodeURIComponent(url)}`;
     
-    const screenshotResponse = await fetch(screenshotApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url: url,
-        width: 1200,
-        height: 800,
-        output: 'image',
-        file_type: 'png',
-        wait_for_event: 'load',
-        delay: 2000,
-        fresh: true,
-        full_page: false,
-        mobile: false,
-        retina: false
-      })
-    });
+    console.log('Using screenshot URL:', screenshotUrl);
 
-    if (!screenshotResponse.ok) {
-      console.error('Screenshot API error:', await screenshotResponse.text());
-      
-      // Fallback to a different service or placeholder
-      const fallbackUrl = `https://api.urlbox.io/v1/ca482d7e-9417-4569-90fe-80f7c5e1c781/png?url=${encodeURIComponent(url)}&width=1200&height=800&delay=2000`;
-      
-      return new Response(
-        JSON.stringify({ 
-          screenshot_url: fallbackUrl,
-          success: true 
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+    // Test if the screenshot service is working by making a request
+    try {
+      const testResponse = await fetch(screenshotUrl, { method: 'HEAD' });
+      if (testResponse.ok) {
+        return new Response(
+          JSON.stringify({ 
+            screenshot_url: screenshotUrl,
+            success: true 
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+    } catch (error) {
+      console.log('Primary screenshot service failed, trying backup');
     }
 
-    // Get the image data
-    const imageBuffer = await screenshotResponse.arrayBuffer();
-    
-    // Convert to base64 for easier handling
-    const base64Image = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
-    const dataUrl = `data:image/png;base64,${base64Image}`;
-
-    console.log('Screenshot captured successfully');
+    // Fallback to another free service
+    const fallbackUrl = `https://image.thum.io/get/width/1200/crop/800/${encodeURIComponent(url)}`;
     
     return new Response(
       JSON.stringify({ 
-        screenshot_url: dataUrl,
+        screenshot_url: fallbackUrl,
         success: true 
       }),
       {
@@ -86,20 +63,20 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error capturing screenshot:', error);
     
-    // Return a fallback screenshot service URL
+    // Return a placeholder screenshot as last resort
     const { url } = await req.json().catch(() => ({ url: '' }));
-    const fallbackUrl = url ? 
-      `https://api.screenshotone.com/take?access_key=demo&url=${encodeURIComponent(url)}&viewport_width=1200&viewport_height=800&device_scale_factor=1&format=png&full_page=false&block_ads=true&block_cookie_banners=true` :
-      '';
+    const placeholderUrl = url ? 
+      `https://via.placeholder.com/1200x800/f8f9fa/6c757d?text=Screenshot+of+${encodeURIComponent(url.replace('https://', '').replace('http://', '').split('/')[0])}` :
+      'https://via.placeholder.com/1200x800/f8f9fa/6c757d?text=Screenshot+Error';
     
     return new Response(
       JSON.stringify({ 
-        screenshot_url: fallbackUrl,
+        screenshot_url: placeholderUrl,
         success: false,
         error: error.message 
       }),
       {
-        status: 500,
+        status: 200, // Return 200 so the app can still function
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
