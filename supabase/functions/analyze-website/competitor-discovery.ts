@@ -212,11 +212,12 @@ async function findCompetitorsWithAI(
   openAIApiKey: string | null
 ): Promise<DiscoveredCompetitor[]> {
   if (!openAIApiKey) {
-    return getFallbackCompetitors(websiteInfo, currentDomain);
+    console.log('No OpenAI API key available, using content-based competitor discovery');
+    return getContentBasedCompetitors(websiteInfo, websiteContent, title, currentDomain);
   }
 
   const competitorPrompt = `
-  Based on this website analysis, identify 5-6 real competitors:
+  Based on this website analysis, identify 5-6 real competitors that actually exist and compete directly:
   
   Website: ${url}
   Title: ${title}
@@ -225,9 +226,10 @@ async function findCompetitorsWithAI(
   Business Type: ${websiteInfo.businessType}
   Target Audience: ${websiteInfo.targetAudience}
   Main Features: ${websiteInfo.mainFeatures.join(', ')}
-  Content Sample: ${websiteContent.substring(0, 1000)}
+  Keywords: ${websiteInfo.keywords.join(', ')}
+  Content Sample: ${websiteContent.substring(0, 1500)}
   
-  Find REAL competitors that actually exist and compete in the same space. Include their actual URLs.
+  Find REAL competitors that actually exist and compete in the same space. Research actual companies, not generic examples.
   
   Provide response in this JSON format:
   {
@@ -236,19 +238,20 @@ async function findCompetitorsWithAI(
         "name": "Actual Competitor Name",
         "url": "https://real-competitor-url.com",
         "description": "What this competitor does and why it's relevant",
-        "relevanceReason": "Specific reason why this is a direct competitor",
-        "estimatedTraffic": "High/Medium/Low",
+        "relevanceReason": "Specific reason why this is a direct competitor based on the analyzed website",
+        "estimatedTraffic": "Very High/High/Medium/Low",
         "score": 75-95
       }
     ]
   }
   
-  Make sure to:
+  Important requirements:
   1. Only suggest REAL websites that actually exist
-  2. Avoid suggesting the input website itself
+  2. Avoid suggesting the input website itself (${currentDomain})
   3. Focus on direct competitors, not just similar industries
-  4. Include actual website URLs (not example.com)
-  5. Provide specific relevance reasons
+  4. Include actual working website URLs
+  5. Provide specific relevance reasons based on the website content
+  6. Return exactly 5-6 competitors, not less
   `;
 
   try {
@@ -261,11 +264,11 @@ async function findCompetitorsWithAI(
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are a competitive analysis expert who identifies real, existing competitors for businesses. You have knowledge of actual websites and companies across industries.' },
+          { role: 'system', content: 'You are a competitive analysis expert who identifies real, existing competitors for businesses. You have extensive knowledge of actual websites and companies across all industries. Always return 5-6 competitors.' },
           { role: 'user', content: competitorPrompt }
         ],
-        max_tokens: 2000,
-        temperature: 0.2
+        max_tokens: 2500,
+        temperature: 0.3
       }),
     });
 
@@ -276,7 +279,7 @@ async function findCompetitorsWithAI(
       
       if (jsonMatch) {
         const aiResponse = JSON.parse(jsonMatch[0]);
-        return aiResponse.competitors.map((comp: any) => ({
+        const competitors = aiResponse.competitors.map((comp: any) => ({
           name: comp.name,
           score: comp.score || Math.floor(Math.random() * 20) + 75,
           category: websiteInfo.category,
@@ -293,137 +296,84 @@ async function findCompetitorsWithAI(
             return false; // Invalid URL
           }
         });
+        
+        // If we got fewer than 4 competitors, supplement with content-based ones
+        if (competitors.length < 4) {
+          const additionalCompetitors = getContentBasedCompetitors(websiteInfo, websiteContent, title, currentDomain);
+          const combined = [...competitors, ...additionalCompetitors];
+          return combined.slice(0, 6); // Limit to 6 total
+        }
+        
+        return competitors;
       }
+    } else {
+      const errorText = await response.text();
+      console.error('AI competitor discovery API error:', errorText);
     }
   } catch (error) {
     console.error('AI competitor discovery failed:', error);
   }
 
-  // Fallback to category-based competitors
-  return getFallbackCompetitors(websiteInfo, currentDomain);
+  // Fallback to content-based discovery
+  console.log('Using content-based competitor discovery as fallback');
+  return getContentBasedCompetitors(websiteInfo, websiteContent, title, currentDomain);
 }
 
-function getFallbackCompetitors(websiteInfo: any, currentDomain: string): DiscoveredCompetitor[] {
+function getContentBasedCompetitors(
+  websiteInfo: any, 
+  content: string, 
+  title: string, 
+  currentDomain: string
+): DiscoveredCompetitor[] {
   const category = websiteInfo.category;
-  let competitors: DiscoveredCompetitor[] = [];
-
-  // Category-specific real competitors
-  if (category.includes('Communication') || category.includes('Messaging')) {
-    competitors = [
-      {
-        name: "Telegram",
-        score: Math.floor(Math.random() * 10) + 85,
-        category,
-        url: "https://telegram.org",
-        description: "Secure messaging platform with advanced features",
-        relevanceReason: "Direct competitor in instant messaging space",
-        estimatedTraffic: "Very High"
-      },
-      {
-        name: "Discord",
-        score: Math.floor(Math.random() * 10) + 80,
-        category,
-        url: "https://discord.com",
-        description: "Communication platform for communities and gaming",
-        relevanceReason: "Popular messaging platform with community features",
-        estimatedTraffic: "High"
-      },
-      {
-        name: "Slack",
-        score: Math.floor(Math.random() * 10) + 82,
-        category,
-        url: "https://slack.com",
-        description: "Business communication and collaboration platform",
-        relevanceReason: "Leading business messaging solution",
-        estimatedTraffic: "High"
-      }
-    ];
-  } else if (category.includes('Video') || category.includes('Media')) {
-    competitors = [
-      {
-        name: "Vimeo",
-        score: Math.floor(Math.random() * 10) + 78,
-        category,
-        url: "https://vimeo.com",
-        description: "Video hosting platform for creators",
-        relevanceReason: "Direct competitor in video streaming and hosting",
-        estimatedTraffic: "High"
-      },
-      {
-        name: "TikTok",
-        score: Math.floor(Math.random() * 10) + 88,
-        category,
-        url: "https://tiktok.com",
-        description: "Short-form video sharing platform",
-        relevanceReason: "Major competitor in video content and social media",
-        estimatedTraffic: "Very High"
-      },
-      {
-        name: "Twitch",
-        score: Math.floor(Math.random() * 10) + 85,
-        category,
-        url: "https://twitch.tv",
-        description: "Live streaming platform for gaming and entertainment",
-        relevanceReason: "Leading platform for live video streaming",
-        estimatedTraffic: "Very High"
-      }
-    ];
-  } else if (category.includes('E-commerce')) {
-    competitors = [
-      {
-        name: "Shopify",
-        score: Math.floor(Math.random() * 10) + 88,
-        category,
-        url: "https://shopify.com",
-        description: "Leading e-commerce platform",
-        relevanceReason: "Industry leader in e-commerce solutions",
-        estimatedTraffic: "Very High"
-      },
-      {
-        name: "WooCommerce",
-        score: Math.floor(Math.random() * 10) + 85,
-        category,
-        url: "https://woocommerce.com",
-        description: "WordPress e-commerce plugin",
-        relevanceReason: "Popular e-commerce platform for WordPress sites",
-        estimatedTraffic: "High"
-      }
-    ];
-  } else {
-    // Default high-quality competitors for general business
-    competitors = [
-      {
-        name: "Notion",
-        score: Math.floor(Math.random() * 10) + 88,
-        category: "Productivity/SaaS",
-        url: "https://notion.so",
-        description: "All-in-one workspace for notes, docs, and collaboration",
-        relevanceReason: "Popular productivity and collaboration platform",
-        estimatedTraffic: "Very High"
-      },
-      {
-        name: "Airtable",
-        score: Math.floor(Math.random() * 10) + 85,
-        category: "Productivity/SaaS",
-        url: "https://airtable.com",
-        description: "Database and spreadsheet hybrid platform",
-        relevanceReason: "Leading no-code database solution",
-        estimatedTraffic: "High"
-      },
-      {
-        name: "Linear",
-        score: Math.floor(Math.random() * 10) + 82,
-        category: "Project Management",
-        url: "https://linear.app",
-        description: "Modern project management and issue tracking",
-        relevanceReason: "Popular among tech teams for project management",
-        estimatedTraffic: "Medium"
-      }
-    ];
+  const contentLower = content.toLowerCase();
+  const titleLower = title.toLowerCase();
+  
+  // Create a knowledge base of real competitors for different industries
+  const competitorKnowledge: Record<string, DiscoveredCompetitor[]> = {
+    'messaging': [
+      { name: "Telegram", url: "https://telegram.org", description: "Secure messaging platform with advanced features", relevanceReason: "Direct competitor in instant messaging space", estimatedTraffic: "Very High", score: 88, category },
+      { name: "Discord", url: "https://discord.com", description: "Communication platform for communities and gaming", relevanceReason: "Popular messaging platform with community features", estimatedTraffic: "Very High", score: 85, category },
+      { name: "Slack", url: "https://slack.com", description: "Business communication and collaboration platform", relevanceReason: "Leading business messaging solution", estimatedTraffic: "High", score: 87, category },
+      { name: "Microsoft Teams", url: "https://teams.microsoft.com", description: "Enterprise communication and collaboration", relevanceReason: "Major competitor in business messaging", estimatedTraffic: "Very High", score: 86, category },
+      { name: "Zoom", url: "https://zoom.us", description: "Video conferencing and communication platform", relevanceReason: "Leading video communication solution", estimatedTraffic: "Very High", score: 84, category }
+    ],
+    'video': [
+      { name: "Vimeo", url: "https://vimeo.com", description: "Video hosting platform for creators", relevanceReason: "Direct competitor in video streaming and hosting", estimatedTraffic: "High", score: 82, category },
+      { name: "TikTok", url: "https://tiktok.com", description: "Short-form video sharing platform", relevanceReason: "Major competitor in video content and social media", estimatedTraffic: "Very High", score: 90, category },
+      { name: "Twitch", url: "https://twitch.tv", description: "Live streaming platform for gaming and entertainment", relevanceReason: "Leading platform for live video streaming", estimatedTraffic: "Very High", score: 88, category },
+      { name: "Dailymotion", url: "https://dailymotion.com", description: "Video sharing and streaming platform", relevanceReason: "Alternative video hosting platform", estimatedTraffic: "Medium", score: 75, category },
+      { name: "Wistia", url: "https://wistia.com", description: "Professional video hosting for businesses", relevanceReason: "Business-focused video platform", estimatedTraffic: "Medium", score: 78, category }
+    ],
+    'ecommerce': [
+      { name: "Shopify", url: "https://shopify.com", description: "Leading e-commerce platform", relevanceReason: "Industry leader in e-commerce solutions", estimatedTraffic: "Very High", score: 92, category },
+      { name: "WooCommerce", url: "https://woocommerce.com", description: "WordPress e-commerce plugin", relevanceReason: "Popular e-commerce platform for WordPress sites", estimatedTraffic: "High", score: 87, category },
+      { name: "BigCommerce", url: "https://bigcommerce.com", description: "Enterprise e-commerce platform", relevanceReason: "Scalable e-commerce solution", estimatedTraffic: "High", score: 85, category },
+      { name: "Magento", url: "https://magento.com", description: "Open-source e-commerce platform", relevanceReason: "Flexible e-commerce framework", estimatedTraffic: "Medium", score: 82, category },
+      { name: "Square Online", url: "https://squareup.com/us/en/online-store", description: "Integrated e-commerce and POS solution", relevanceReason: "All-in-one commerce platform", estimatedTraffic: "High", score: 83, category }
+    ],
+    'default': [
+      { name: "Notion", url: "https://notion.so", description: "All-in-one workspace for notes, docs, and collaboration", relevanceReason: "Popular productivity and collaboration platform", estimatedTraffic: "Very High", score: 89, category: "Productivity/SaaS" },
+      { name: "Airtable", url: "https://airtable.com", description: "Database and spreadsheet hybrid platform", relevanceReason: "Leading no-code database solution", estimatedTraffic: "High", score: 86, category: "Productivity/SaaS" },
+      { name: "Linear", url: "https://linear.app", description: "Modern project management and issue tracking", relevanceReason: "Popular among tech teams for project management", estimatedTraffic: "Medium", score: 84, category: "Project Management" },
+      { name: "Figma", url: "https://figma.com", description: "Collaborative design and prototyping platform", relevanceReason: "Leading design collaboration tool", estimatedTraffic: "Very High", score: 91, category: "Design Tools" },
+      { name: "Canva", url: "https://canva.com", description: "Online graphic design platform", relevanceReason: "Popular design tool for non-designers", estimatedTraffic: "Very High", score: 88, category: "Design Tools" }
+    ]
+  };
+  
+  // Determine which competitor set to use based on content analysis
+  let selectedCompetitors: DiscoveredCompetitor[] = competitorKnowledge['default'];
+  
+  if (contentLower.includes('whatsapp') || contentLower.includes('telegram') || contentLower.includes('chat') || contentLower.includes('messaging') || category.includes('Communication')) {
+    selectedCompetitors = competitorKnowledge['messaging'];
+  } else if (contentLower.includes('youtube') || contentLower.includes('video') || contentLower.includes('stream') || category.includes('Video')) {
+    selectedCompetitors = competitorKnowledge['video'];
+  } else if (contentLower.includes('shop') || contentLower.includes('store') || contentLower.includes('ecommerce') || category.includes('E-commerce')) {
+    selectedCompetitors = competitorKnowledge['ecommerce'];
   }
-
-  // Filter out current domain
-  return competitors.filter(comp => {
+  
+  // Filter out current domain and return 5-6 competitors
+  const filteredCompetitors = selectedCompetitors.filter(comp => {
     try {
       const competitorDomain = new URL(comp.url).hostname.toLowerCase().replace('www.', '');
       return competitorDomain !== currentDomain;
@@ -431,4 +381,6 @@ function getFallbackCompetitors(websiteInfo: any, currentDomain: string): Discov
       return false;
     }
   });
+  
+  return filteredCompetitors.slice(0, 6);
 }
