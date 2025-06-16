@@ -21,6 +21,8 @@ const Index = () => {
   const { generatePDF } = usePDFGeneration();
   const { toast } = useToast();
 
+  const getCurrentYear = () => new Date().getFullYear();
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -505,6 +507,23 @@ const Index = () => {
           </div>
         )}
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-100 py-6 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-sm text-gray-600">
+            © {getCurrentYear()} Anastasiia Demidova | 
+            <a 
+              href="https://github.com/stDem" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="ml-1 text-blue-600 hover:text-blue-800 underline"
+            >
+              GitHub
+            </a>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
