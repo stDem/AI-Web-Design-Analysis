@@ -23,19 +23,13 @@ export async function analyzeWithGroq(
   ACTUAL HTML CONTENT TO ANALYZE:
   ${htmlContent.substring(0, 12000)}
 
-  CRITICAL INSTRUCTIONS FOR ANNOTATIONS:
+  CRITICAL INSTRUCTIONS:
   1. You MUST base your analysis ONLY on the actual HTML content provided above
-  2. For annotations, analyze the HTML structure to determine realistic screen positions
-  3. Look for actual elements like navigation bars, headers, buttons, forms, images
-  4. Calculate approximate pixel positions based on typical website layouts:
-     - Header/navigation: y: 0-100
-     - Main content area: y: 100-500
-     - Footer area: y: 500+
-     - Left content: x: 50-400
-     - Center content: x: 400-800
-     - Right content: x: 800+
-  5. Each annotation must reference a SPECIFIC element found in the HTML
-  6. Provide 3-5 annotations maximum, focusing on the most important issues
+  2. Count and reference specific HTML elements you find (e.g., "Found 3 images without alt text", "Navigation has 7 links")
+  3. Identify actual CSS classes, IDs, and element structures present in the HTML
+  4. Look for real accessibility issues in the markup (missing alt attributes, improper heading hierarchy, missing form labels)
+  5. Analyze the actual content structure, not generic assumptions
+  6. Your suggestions must reference specific elements or patterns found in the HTML
 
   SPECIFIC ANALYSIS REQUIREMENTS:
   - Count actual images and check for missing alt attributes
@@ -69,11 +63,11 @@ export async function analyzeWithGroq(
     ],
     "annotations": [
       {
-        "x": number (realistic screen position based on typical layout - consider element position in HTML structure),
-        "y": number (realistic screen position based on content structure - header elements around y:50-100, main content y:150-400, footer y:500+),
+        "x": number (realistic screen position based on typical layout),
+        "y": number (realistic screen position based on content structure),
         "note": "Specific improvement for actual element found in HTML",
         "type": "improvement|issue|suggestion",
-        "element": "ACTUAL HTML element or class name found in the code (e.g., 'nav.main-menu', 'button.cta-primary', 'img.hero-image')"
+        "element": "ACTUAL HTML element or class name found in the code"
       }
     ],
     "codeSuggestions": [
@@ -88,14 +82,12 @@ export async function analyzeWithGroq(
     ]
   }
 
-  ANNOTATION POSITIONING EXAMPLES:
-  - If you find a navigation bar in the HTML header, place annotation around x:200-600, y:50-80
-  - If you find a main heading or hero section, place around x:300-500, y:120-200
-  - If you find buttons or CTAs in the main content, place around x:200-600, y:200-400
-  - If you find footer content, place around x:300-500, y:500-600
-  - Consider the flow of HTML elements from top to bottom when assigning y coordinates
+  EXAMPLES of what I expect:
+  - Instead of "Improve navigation", say "Replace the div.menu with semantic <nav> element and add ARIA labels to the 5 navigation links found"
+  - Instead of "Add alt text", say "Add alt text to the 3 <img> elements in the hero section (lines 23, 34, 41)"
+  - Instead of "Improve performance", say "Move the 250 lines of inline CSS to external stylesheet and add async loading to the 4 JavaScript files"
 
-  REMEMBER: Every annotation must reference a REAL element you can identify in the provided HTML code!
+  REMEMBER: Your analysis must be based on the ACTUAL HTML content provided, not generic web development advice!
   `;
 
   try {
@@ -106,11 +98,11 @@ export async function analyzeWithGroq(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant', // Updated to a currently supported model
+        model: 'llama-3.1-70b-versatile',
         messages: [
           { 
             role: 'system', 
-            content: 'You are a senior UX/UI analyst who provides detailed, specific analysis based on actual HTML content. You never give generic advice - every suggestion must reference real elements found in the provided HTML code. Be forensic in your analysis and precise with annotation positioning based on typical website layouts.' 
+            content: 'You are a senior UX/UI analyst who provides detailed, specific analysis based on actual HTML content. You never give generic advice - every suggestion must reference real elements found in the provided HTML code. Be forensic in your analysis.' 
           },
           { role: 'user', content: analysisPrompt }
         ],
