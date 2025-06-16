@@ -40,17 +40,16 @@ export async function discoverCompetitors(
   const currentDomain = new URL(url).hostname.toLowerCase().replace('www.', '');
   
   // Step 1: Extract key information from the website
-  const websiteInfo = await extractWebsiteInfo(websiteContent, title, description, openAIApiKey);
+  const websiteInfo = await extractWebsiteInfo(websiteContent, title, description);
   
-  // Step 2: Find competitors using AI-powered analysis
-  const competitors = await findCompetitorsWithAI(
+  // Step 2: Find competitors using free AI models
+  const competitors = await findCompetitorsWithFreeAI(
     websiteContent,
     title,
     description,
     url,
     websiteInfo,
-    currentDomain,
-    openAIApiKey
+    currentDomain
   );
   
   // Step 3: Create suggested analysis list
@@ -73,8 +72,7 @@ export async function discoverCompetitors(
 async function extractWebsiteInfo(
   content: string,
   title: string,
-  description: string,
-  openAIApiKey: string | null
+  description: string
 ): Promise<{
   category: string;
   keywords: string[];
@@ -82,10 +80,32 @@ async function extractWebsiteInfo(
   targetAudience: string;
   mainFeatures: string[];
 }> {
-  if (!openAIApiKey) {
-    return analyzeWebsiteContentFallback(content, title, description);
+  // Try Groq API first
+  const groqApiKey = Deno.env.get('GROQ_API_KEY');
+  if (groqApiKey) {
+    try {
+      return await analyzeWithGroq(content, title, description, groqApiKey);
+    } catch (error) {
+      console.error('Groq analysis failed:', error);
+    }
   }
   
+  // Fallback to content analysis
+  return analyzeWebsiteContentFallback(content, title, description);
+}
+
+async function analyzeWithGroq(
+  content: string,
+  title: string,
+  description: string,
+  groqApiKey: string
+): Promise<{
+  category: string;
+  keywords: string[];
+  businessType: string;
+  targetAudience: string;
+  mainFeatures: string[];
+}> {
   const analysisPrompt = `
   Analyze this website and extract key business information:
   
@@ -105,38 +125,34 @@ async function extractWebsiteInfo(
   Be specific and accurate based on the actual content provided.
   `;
   
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are a business analyst expert at categorizing websites and identifying competitive landscapes.' },
-          { role: 'user', content: analysisPrompt }
-        ],
-        max_tokens: 1000,
-        temperature: 0.1
-      }),
-    });
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${groqApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        { role: 'system', content: 'You are a business analyst expert at categorizing websites and identifying competitive landscapes. Always respond with valid JSON.' },
+        { role: 'user', content: analysisPrompt }
+      ],
+      max_tokens: 1000,
+      temperature: 0.1
+    }),
+  });
+  
+  if (response.ok) {
+    const data = await response.json();
+    const content = data.choices[0].message.content;
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
     
-    if (response.ok) {
-      const data = await response.json();
-      const content = data.choices[0].message.content;
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      
-      if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
-      }
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
     }
-  } catch (error) {
-    console.error('Website analysis failed:', error);
   }
   
-  return analyzeWebsiteContentFallback(content, title, description);
+  throw new Error('Failed to analyze with Groq');
 }
 
 function analyzeWebsiteContentFallback(
@@ -202,20 +218,45 @@ function analyzeWebsiteContentFallback(
   return { category, keywords, businessType, targetAudience, mainFeatures };
 }
 
-async function findCompetitorsWithAI(
+async function findCompetitorsWithFreeAI(
+  websiteContent: string,
+  title: string,
+  description: string,
+  url: string,
+  websiteInfo: any,
+  currentDomain: string
+): Promise<DiscoveredCompetitor[]> {
+  // Try Groq API first
+  const groqApiKey = Deno.env.get('GROQ_API_KEY');
+  if (groqApiKey) {
+    try {
+      return await findCompetitorsWithGroq(
+        websiteContent,
+        title,
+        description,
+        url,
+        websiteInfo,
+        currentDomain,
+        groqApiKey
+      );
+    } catch (error) {
+      console.error('Groq competitor discovery failed:', error);
+    }
+  }
+  
+  console.log('No free AI API available, returning minimal placeholder results');
+  return generateMinimalPlaceholderResults(websiteInfo.category);
+}
+
+async function findCompetitorsWithGroq(
   websiteContent: string,
   title: string,
   description: string,
   url: string,
   websiteInfo: any,
   currentDomain: string,
-  openAIApiKey: string | null
+  groqApiKey: string
 ): Promise<DiscoveredCompetitor[]> {
-  if (!openAIApiKey) {
-    console.log('No OpenAI API key available, returning minimal placeholder results');
-    return generateMinimalPlaceholderResults(websiteInfo.category);
-  }
-
   const competitorPrompt = `
   You are a competitive intelligence expert. Based on this website analysis, identify 5-6 REAL competitors that actually exist and compete directly in the same market space.
 
@@ -261,82 +302,76 @@ async function findCompetitorsWithAI(
   }
   `;
 
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { 
-            role: 'system', 
-            content: 'You are a competitive intelligence expert with extensive knowledge of businesses across all industries. You excel at identifying real, existing competitors based on detailed business analysis. Always provide exactly 5-6 competitors with real, working URLs.' 
-          },
-          { role: 'user', content: competitorPrompt }
-        ],
-        max_tokens: 3000,
-        temperature: 0.2
-      }),
-    });
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${groqApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'llama-3.1-70b-versatile',
+      messages: [
+        { 
+          role: 'system', 
+          content: 'You are a competitive intelligence expert with extensive knowledge of businesses across all industries. You excel at identifying real, existing competitors based on detailed business analysis. Always provide exactly 5-6 competitors with real, working URLs. Always respond with valid JSON.' 
+        },
+        { role: 'user', content: competitorPrompt }
+      ],
+      max_tokens: 3000,
+      temperature: 0.2
+    }),
+  });
 
-    if (response.ok) {
-      const data = await response.json();
-      const content = data.choices[0].message.content;
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      
-      if (jsonMatch) {
-        const aiResponse = JSON.parse(jsonMatch[0]);
-        const competitors = aiResponse.competitors.map((comp: any) => ({
-          name: comp.name,
-          score: comp.score || Math.floor(Math.random() * 20) + 75,
-          category: websiteInfo.category,
-          url: comp.url,
-          description: comp.description,
-          relevanceReason: comp.relevanceReason,
-          estimatedTraffic: comp.estimatedTraffic
-        })).filter((comp: any) => {
-          // Filter out the current domain and validate URLs
-          try {
-            const competitorDomain = new URL(comp.url).hostname.toLowerCase().replace('www.', '');
-            return competitorDomain !== currentDomain && comp.url.startsWith('https://');
-          } catch {
-            return false; // Invalid URL
-          }
-        });
-        
-        console.log(`AI discovered ${competitors.length} valid competitors`);
-        
-        // If we got valid competitors, return them
-        if (competitors.length >= 3) {
-          return competitors.slice(0, 6);
+  if (response.ok) {
+    const data = await response.json();
+    const content = data.choices[0].message.content;
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    
+    if (jsonMatch) {
+      const aiResponse = JSON.parse(jsonMatch[0]);
+      const competitors = aiResponse.competitors.map((comp: any) => ({
+        name: comp.name,
+        score: comp.score || Math.floor(Math.random() * 20) + 75,
+        category: websiteInfo.category,
+        url: comp.url,
+        description: comp.description,
+        relevanceReason: comp.relevanceReason,
+        estimatedTraffic: comp.estimatedTraffic
+      })).filter((comp: any) => {
+        // Filter out the current domain and validate URLs
+        try {
+          const competitorDomain = new URL(comp.url).hostname.toLowerCase().replace('www.', '');
+          return competitorDomain !== currentDomain && comp.url.startsWith('https://');
+        } catch {
+          return false; // Invalid URL
         }
+      });
+      
+      console.log(`Groq discovered ${competitors.length} valid competitors`);
+      
+      // If we got valid competitors, return them
+      if (competitors.length >= 3) {
+        return competitors.slice(0, 6);
       }
-    } else {
-      const errorText = await response.text();
-      console.error('AI competitor discovery API error:', errorText);
     }
-  } catch (error) {
-    console.error('AI competitor discovery failed:', error);
+  } else {
+    const errorText = await response.text();
+    console.error('Groq competitor discovery API error:', errorText);
   }
 
-  // If AI fails or returns insufficient results, return minimal placeholder
-  console.log('AI competitor discovery failed, returning minimal placeholder results');
-  return generateMinimalPlaceholderResults(websiteInfo.category);
+  throw new Error('Failed to discover competitors with Groq');
 }
 
 function generateMinimalPlaceholderResults(category: string): DiscoveredCompetitor[] {
   // Return minimal placeholder results when AI is unavailable
   return [
     {
-      name: "Competitor analysis temporarily unavailable",
+      name: "Competitor analysis requires free API setup",
       score: 0,
       category: category,
       url: "#",
-      description: "Unable to analyze competitors at this time. Please try again later or ensure your OpenAI API key is configured.",
-      relevanceReason: "Analysis service temporarily unavailable",
+      description: "To enable dynamic competitor discovery, please add a GROQ_API_KEY to your Supabase secrets. Groq provides fast, free AI inference for competitor analysis.",
+      relevanceReason: "Free AI API setup required for competitor discovery",
       estimatedTraffic: "Unknown"
     }
   ];
