@@ -1,68 +1,60 @@
 
 import { useCallback } from 'react';
 
-interface AnalysisResults {
+interface AnalysisResult {
   score: number;
   comparison?: {
+    competitors: Array<{ 
+      name: string; 
+      score: number; 
+      category: string;
+      url?: string;
+      description?: string;
+    }>;
     betterThan: number;
     position: string;
     category: string;
-  };
-  accessibility: {
-    score: number;
-    issues: Array<{
-      type: string;
-      severity: 'low' | 'medium' | 'high';
-      description: string;
-    }>;
-  };
-  performance: {
-    score: number;
-    issues: Array<{
-      type: string;
-      severity: 'low' | 'medium' | 'high';
-      description: string;
-    }>;
-  };
-  ux: {
-    score: number;
-    issues: Array<{
-      type: string;
-      severity: 'low' | 'medium' | 'high';
-      description: string;
-    }>;
-  };
-  codeQuality: {
-    score: number;
-    issues: Array<{
-      type: string;
-      severity: 'low' | 'medium' | 'high';
-      description: string;
-    }>;
-  };
-  suggestions: string[];
-  competitiveAnalysis?: {
-    competitors: Array<{
+    suggestedAnalysis?: Array<{
       name: string;
-      score: number;
-      strengths: string[];
-      weaknesses: string[];
+      url: string;
+      reason: string;
+      popularity: string;
     }>;
   };
+  categoryScores: {
+    ux: number;
+    accessibility: number;
+    performance: number;
+    code: number;
+  };
+  issues: Array<{
+    type: string;
+    severity: 'high' | 'medium' | 'low';
+    description: string;
+    location?: string;
+  }>;
+  suggestions: string[];
+  annotations: Array<{
+    x: number;
+    y: number;
+    note: string;
+    type: 'improvement' | 'issue' | 'suggestion';
+    element: string;
+  }>;
+  codeSuggestions?: Array<{
+    file: string;
+    issue: string;
+    type: 'performance' | 'accessibility' | 'maintainability' | 'security';
+    before: string;
+    after: string;
+    explanation: string;
+  }>;
 }
 
 export const usePDFGeneration = () => {
-  const generatePDF = useCallback(async (analysisResults: AnalysisResults, websiteUrl: string) => {
+  const generatePDF = useCallback(async (analysisResults: AnalysisResult, websiteUrl: string) => {
     try {
       console.log('Starting PDF generation for:', websiteUrl);
-      
-      // Collect all issues from different categories
-      const allIssues = [
-        ...analysisResults.accessibility.issues,
-        ...analysisResults.performance.issues,
-        ...analysisResults.ux.issues,
-        ...analysisResults.codeQuality.issues
-      ];
 
       // Create a comprehensive HTML report
       const htmlContent = `
@@ -190,31 +182,31 @@ export const usePDFGeneration = () => {
 
           <div class="categories">
             <div class="category">
+              <h3>🎨 User Experience</h3>
+              <div class="category-score">${analysisResults.categoryScores.ux}/100</div>
+              <p>${analysisResults.issues.filter(i => i.type === 'ux').length} issues found</p>
+            </div>
+            <div class="category">
               <h3>♿ Accessibility</h3>
-              <div class="category-score">${analysisResults.accessibility.score}/100</div>
-              <p>${analysisResults.accessibility.issues.length} issues found</p>
+              <div class="category-score">${analysisResults.categoryScores.accessibility}/100</div>
+              <p>${analysisResults.issues.filter(i => i.type === 'accessibility').length} issues found</p>
             </div>
             <div class="category">
               <h3>⚡ Performance</h3>
-              <div class="category-score">${analysisResults.performance.score}/100</div>
-              <p>${analysisResults.performance.issues.length} issues found</p>
-            </div>
-            <div class="category">
-              <h3>🎨 User Experience</h3>
-              <div class="category-score">${analysisResults.ux.score}/100</div>
-              <p>${analysisResults.ux.issues.length} issues found</p>
+              <div class="category-score">${analysisResults.categoryScores.performance}/100</div>
+              <p>${analysisResults.issues.filter(i => i.type === 'performance').length} issues found</p>
             </div>
             <div class="category">
               <h3>💻 Code Quality</h3>
-              <div class="category-score">${analysisResults.codeQuality.score}/100</div>
-              <p>${analysisResults.codeQuality.issues.length} issues found</p>
+              <div class="category-score">${analysisResults.categoryScores.code}/100</div>
+              <p>${analysisResults.issues.filter(i => i.type === 'code').length} issues found</p>
             </div>
           </div>
           
-          ${allIssues.length > 0 ? `
+          ${analysisResults.issues.length > 0 ? `
             <div class="issues">
-              <h2>🔍 Issues Found (${allIssues.length})</h2>
-              ${allIssues.map(issue => `
+              <h2>🔍 Issues Found (${analysisResults.issues.length})</h2>
+              ${analysisResults.issues.map(issue => `
                 <div class="issue ${issue.severity}">
                   <strong>${issue.type.toUpperCase()} - <span class="severity-${issue.severity}">${issue.severity.toUpperCase()}</span></strong>
                   <p>${issue.description}</p>
@@ -223,14 +215,14 @@ export const usePDFGeneration = () => {
             </div>
           ` : ''}
 
-          ${analysisResults.competitiveAnalysis ? `
+          ${analysisResults.comparison && analysisResults.comparison.competitors ? `
             <div class="competitive-analysis">
               <h2>🏁 Competitive Analysis</h2>
-              ${analysisResults.competitiveAnalysis.competitors.map(competitor => `
+              ${analysisResults.comparison.competitors.map(competitor => `
                 <div class="competitor">
                   <h4>${competitor.name} - Score: ${competitor.score}/100</h4>
-                  <p><strong>Strengths:</strong> ${competitor.strengths.join(', ')}</p>
-                  <p><strong>Areas for improvement:</strong> ${competitor.weaknesses.join(', ')}</p>
+                  <p><strong>Category:</strong> ${competitor.category}</p>
+                  ${competitor.description ? `<p><strong>Description:</strong> ${competitor.description}</p>` : ''}
                 </div>
               `).join('')}
             </div>
