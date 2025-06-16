@@ -70,6 +70,13 @@ const Index = () => {
     }
   };
 
+   const scrollToAnalysisMethod = () => {
+    const analysisSection = document.getElementById('analysis-method-section');
+    if (analysisSection) {
+      analysisSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+  
   return (
     <div className="min-h-screen paper-texture" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
       
@@ -103,7 +110,7 @@ const Index = () => {
                   SHARE RESULTS
                 </button>
               )}
-              <button className="sketch-button">
+              <button onClick={scrollToAnalysisMethod} className="sketch-button">
                 GET STARTED
               </button>
             </div>
