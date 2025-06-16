@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AlertTriangle, CheckCircle, XCircle, TrendingUp, Code, Accessibility, Zap, ChevronDown, ChevronUp, Copy, Check, Edit, Trophy, Users, Target, Sparkles, Play, ExternalLink, BarChart3, TrendingDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -309,63 +310,91 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
               </div>
             </div>
             
-            {/* Main Donut Chart - Stable, No Hover Effects */}
-            <div className="w-96 h-80 bg-white/10 rounded-lg p-6 border-2 border-dashed border-white/20">
+            {/* Sketchy Donut Chart */}
+            <div className="w-96 h-80 bg-white/10 rounded-lg p-6 border-2 border-dashed border-white/20 relative">
               <h4 className="text-xl font-semibold mb-4 text-center relative">
                 Overall Score
                 {/* Sketchy highlight */}
                 <div className="absolute inset-0 bg-white/5 rounded transform -rotate-1"></div>
               </h4>
-              <ChartContainer
-                config={{
-                  score: { label: "Score", color: "#ffffff" }
-                }}
-                className="h-full w-full"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'Score', value: results.score, fill: '#10b981' },
-                        { name: 'Remaining', value: 100 - results.score, fill: '#374151' }
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={70}
-                      outerRadius={120}
-                      startAngle={90}
-                      endAngle={450}
-                      dataKey="value"
-                      strokeWidth={3}
-                      stroke="#ffffff"
-                      strokeDasharray="5,2"
-                    >
-                    </Pie>
-                    <ChartTooltip 
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length && payload[0].name === 'Score') {
-                          return (
-                            <div className="bg-white p-3 rounded-lg shadow-lg border-2 border-dashed border-gray-300">
-                              <p className="font-medium text-gray-900">Your Score</p>
-                              <p className="text-sm text-gray-600">{payload[0].value}%</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartContainer>
               
-              {/* Score text overlay with sketchy style */}
-              <div className="relative -mt-40 text-center pointer-events-none">
-                <div className="text-4xl font-bold text-white relative">
-                  {results.score}%
-                  {/* Sketchy circle around percentage */}
-                  <div className="absolute inset-0 border-2 border-yellow-300 border-dashed rounded-full transform rotate-12 scale-150 opacity-30"></div>
+              {/* Custom Sketchy Donut Chart */}
+              <div className="relative w-full h-full flex items-center justify-center">
+                <svg width="240" height="240" className="transform -rotate-90">
+                  {/* Background circle with sketchy dashed effect */}
+                  <circle
+                    cx="120"
+                    cy="120"
+                    r="90"
+                    fill="none"
+                    stroke="#374151"
+                    strokeWidth="20"
+                    strokeDasharray="8,4"
+                    strokeLinecap="round"
+                    opacity="0.3"
+                  />
+                  
+                  {/* Score arc with sketchy green fill */}
+                  <circle
+                    cx="120"
+                    cy="120"
+                    r="90"
+                    fill="none"
+                    stroke="#10B981"
+                    strokeWidth="20"
+                    strokeDasharray={`${(results.score / 100) * 565.5} 565.5`}
+                    strokeLinecap="round"
+                    className="drop-shadow-lg"
+                    style={{
+                      filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.3))'
+                    }}
+                  />
+                  
+                  {/* Additional sketchy inner dashes for texture */}
+                  <circle
+                    cx="120"
+                    cy="120"
+                    r="75"
+                    fill="none"
+                    stroke="#FFFFFF"
+                    strokeWidth="2"
+                    strokeDasharray="4,8"
+                    opacity="0.2"
+                  />
+                  
+                  {/* Outer sketchy border */}
+                  <circle
+                    cx="120"
+                    cy="120"
+                    r="105"
+                    fill="none"
+                    stroke="#FFFFFF"
+                    strokeWidth="1"
+                    strokeDasharray="6,3"
+                    opacity="0.15"
+                  />
+                </svg>
+                
+                {/* Score text overlay with sketchy style */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <div className="text-4xl font-bold text-white relative mb-2">
+                    {results.score}%
+                    {/* Multiple sketchy circles around percentage */}
+                    <div className="absolute inset-0 border-2 border-yellow-300 border-dashed rounded-full transform rotate-12 scale-150 opacity-20"></div>
+                    <div className="absolute inset-0 border border-white border-dashed rounded-full transform -rotate-6 scale-125 opacity-15"></div>
+                  </div>
+                  <div className="text-base text-white/70 relative">
+                    Overall Score
+                    {/* Sketchy underline */}
+                    <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-white/20 transform skew-x-6"></div>
+                  </div>
+                  
+                  {/* Small decorative sketchy elements around the text */}
+                  <div className="absolute -top-8 -left-4 text-yellow-300 opacity-60 text-xs transform rotate-12">★</div>
+                  <div className="absolute -top-6 -right-6 text-green-300 opacity-60 text-xs transform -rotate-12">✓</div>
+                  <div className="absolute -bottom-8 -left-6 text-blue-300 opacity-60 text-xs transform rotate-45">◆</div>
+                  <div className="absolute -bottom-6 -right-4 text-purple-300 opacity-60 text-xs transform -rotate-45">●</div>
                 </div>
-                <div className="text-base text-white/70">Overall Score</div>
               </div>
             </div>
           </div>
