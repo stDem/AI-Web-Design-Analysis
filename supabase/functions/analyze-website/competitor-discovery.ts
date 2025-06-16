@@ -309,7 +309,7 @@ async function findCompetitorsWithGroq(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'llama-3.1-70b-versatile',
+      model: 'llama-3.1-8b-instant', // Updated to a supported model
       messages: [
         { 
           role: 'system', 
