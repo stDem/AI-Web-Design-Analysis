@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import ShareableScoreCard from './ShareableScoreCard';
 
 interface CodeSuggestion {
   file: string;
@@ -270,6 +271,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
 
   return (
     <div className="space-y-6">
+      {/* Add Instagram Shareable Card */}
+      <ShareableScoreCard 
+        score={results.score} 
+        betterThan={results.comparison?.betterThan}
+      />
+
       {/* Enhanced Design Score with Bigger Main Donut Chart */}
       <Card className="bg-gradient-to-r from-gray-600 to-slate-700 text-white border-2 border-dashed border-gray-400 transform -rotate-1"
             style={{ 
