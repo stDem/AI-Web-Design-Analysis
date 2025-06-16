@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Trophy, TrendingUp, BarChart3, CheckCircle, TrendingDown, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -53,17 +54,21 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                 Design Score
                 <div className="absolute -bottom-1 left-0 w-full h-1 bg-white/30 transform -skew-x-12"></div>
               </h3>
-              <div className="ml-4">
-                <div className="relative p-2 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500 rounded-lg transform -rotate-2 hover:rotate-0 transition-all duration-300 hover:scale-110 border-2 border-dashed border-white/30"
+              <div className="ml-6">
+                <div className="relative p-3 bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500 rounded-xl transform -rotate-2 hover:rotate-0 transition-all duration-300 hover:scale-110 border-2 border-dashed border-white/30 cursor-pointer"
                      style={{ 
-                       boxShadow: '0 4px 15px rgba(236, 72, 153, 0.4), 0 0 20px rgba(168, 85, 247, 0.3)',
-                       background: 'linear-gradient(45deg, #E91E63, #9C27B0, #FF5722)'
+                       boxShadow: '0 6px 20px rgba(236, 72, 153, 0.5), 0 0 25px rgba(168, 85, 247, 0.4)',
+                       background: 'linear-gradient(45deg, #E91E63, #9C27B0, #FF5722)',
+                       minWidth: '120px',
+                       minHeight: '60px'
                      }}>
-                  <div className="absolute -inset-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-lg opacity-20 animate-pulse"></div>
-                  <ShareableScoreCard 
-                    score={score} 
-                    betterThan={comparison?.betterThan}
-                  />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-pink-400 to-purple-400 rounded-xl opacity-25 animate-pulse"></div>
+                  <div className="relative z-10">
+                    <ShareableScoreCard 
+                      score={score} 
+                      betterThan={comparison?.betterThan}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -75,11 +80,19 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
             </div>
             
             <div className="flex items-center space-x-4 text-yellow-300 mb-4">
-              <span className="text-xl animate-pulse">★</span>
-              <div className="flex-1 h-0.5 bg-white/20 transform skew-x-12"></div>
-              <span className="text-lg">📊</span>
-              <div className="flex-1 h-0.5 bg-white/20 transform -skew-x-12"></div>
-              <span className="text-xl animate-pulse">★</span>
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl animate-bounce">🎨</span>
+                <span className="text-xl font-bold">ANALYZED</span>
+              </div>
+              <div className="flex-1 relative">
+                <div className="h-1 bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 rounded-full transform skew-x-12"></div>
+                <div className="absolute -top-1 left-1/4 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+                <div className="absolute -top-1 right-1/3 w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xl font-bold">SCORED</span>
+                <span className="text-2xl animate-bounce">🚀</span>
+              </div>
             </div>
           </div>
           
