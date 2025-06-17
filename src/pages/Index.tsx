@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Link as LinkIcon, Figma, FileImage, FileText, Code, BarChart3, Share2, Eye, Zap, Shield, Users, CheckCircle, Menu, X } from 'lucide-react';
+import { Upload, Link as LinkIcon, Figma, FileImage, FileText, Code, BarChart3, Download, Eye, Zap, Shield, Users, CheckCircle, Menu, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -157,7 +157,7 @@ const Index = () => {
                     onClick={handleShare} 
                     className="sketch-button flex items-center space-x-2 text-xs md:text-sm px-2 md:px-4 py-1 md:py-2"
                   >
-                    <Share2 className="h-3 w-3 md:h-4 md:w-4" />
+                    <Download className="h-3 w-3 md:h-4 md:w-4" />
                     <span className="hidden sm:inline">DOWNLOAD RESULTS</span>
                     <span className="sm:hidden">DOWNLOAD</span>
                   </button>
@@ -181,7 +181,7 @@ const Index = () => {
                     }}
                     className="sketch-button flex items-center justify-center space-x-2 w-full"
                   >
-                    <Share2 className="h-4 w-4" />
+                    <Download className="h-4 w-4" />
                     <span>DOWNLOAD RESULTS</span>
                   </button>
                 )}
