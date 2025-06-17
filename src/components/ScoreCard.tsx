@@ -94,41 +94,39 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
             </h4>
             
             <div className="relative w-full h-full flex items-center justify-center">
-              <svg width="180" height="180" className="md:w-[220px] md:h-[220px] transform -rotate-90">
+              <svg viewBox="0 0 220 220" className="w-48 h-48 md:w-56 md:h-56 transform -rotate-90">
                 <circle
-                  cx="90"
-                  cy="90"
-                  r="70"
+                  cx="110"
+                  cy="110"
+                  r="85"
                   fill="none"
                   stroke="#4B5563"
-                  strokeWidth="12"
+                  strokeWidth="16"
                   strokeLinecap="round"
                   opacity="0.3"
-                  className="md:cx-[110] md:cy-[110] md:r-[85] md:stroke-[16]"
                 />
                 
                 <circle
-                  cx="90"
-                  cy="90"
-                  r="70"
+                  cx="110"
+                  cy="110"
+                  r="85"
                   fill="none"
                   stroke="#10B981"
-                  strokeWidth="12"
-                  strokeDasharray={`${(score / 100) * 439.8} 439.8`}
+                  strokeWidth="16"
+                  strokeDasharray={`${(score / 100) * 534.1} 534.1`}
                   strokeLinecap="round"
-                  className="md:cx-[110] md:cy-[110] md:r-[85] md:stroke-[16] transition-all duration-1000 ease-out"
+                  className="transition-all duration-1000 ease-out"
                   style={{
-                    filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.4))',
-                    strokeDasharray: window.innerWidth >= 768 ? `${(score / 100) * 534.1} 534.1` : `${(score / 100) * 439.8} 439.8`
+                    filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.4))'
                   }}
                 />
                 
                 {Array.from({ length: 20 }, (_, i) => {
                   const angle = (i * 18) * Math.PI / 180;
-                  const centerX = window.innerWidth >= 768 ? 110 : 90;
-                  const centerY = window.innerWidth >= 768 ? 110 : 90;
-                  const outerRadius = window.innerWidth >= 768 ? 100 : 80;
-                  const innerRadius = window.innerWidth >= 768 ? 95 : 75;
+                  const centerX = 110;
+                  const centerY = 110;
+                  const outerRadius = 100;
+                  const innerRadius = 95;
                   const x1 = centerX + Math.cos(angle) * outerRadius;
                   const y1 = centerY + Math.sin(angle) * outerRadius;
                   const x2 = centerX + Math.cos(angle) * innerRadius;
