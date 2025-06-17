@@ -117,7 +117,13 @@
     position: relative;
     transform: rotate(0deg);
     box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
-    /* Removed hover transform for main content sections */
+  }
+
+  /* Mobile: Straighten all rotated elements */
+  @media (max-width: 768px) {
+    .sketch-card {
+      transform: rotate(0deg) !important;
+    }
   }
 
   .sketch-card::after {
@@ -154,6 +160,13 @@
     box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
   }
 
+  /* Mobile: Straighten button hover effects */
+  @media (max-width: 768px) {
+    .sketch-button:hover {
+      transform: rotate(0deg) scale(1.02) !important;
+    }
+  }
+
   .sketch-button::before {
     content: '';
     position: absolute;
@@ -171,6 +184,13 @@
 
   .sketch-button:hover::before {
     transform: rotate(0.5deg);
+  }
+
+  /* Mobile: Straighten button before pseudo-element */
+  @media (max-width: 768px) {
+    .sketch-button:hover::before {
+      transform: rotate(0deg) !important;
+    }
   }
 
   .sketch-input {
@@ -262,6 +282,13 @@
     transform: rotate(-1deg);
   }
 
+  /* Mobile: Straighten tab hover effects */
+  @media (max-width: 768px) {
+    .sketch-tab:hover {
+      transform: rotate(0deg) !important;
+    }
+  }
+
   .sketch-tab.active {
     background: #f0f0f0;
     transform: rotate(0deg);
@@ -299,6 +326,13 @@
     transform: rotate(15deg);
   }
 
+  /* Mobile: Straighten decoration hover effects */
+  @media (max-width: 768px) {
+    .doodle-decoration:hover::before {
+      transform: rotate(0deg) !important;
+    }
+  }
+
   .doodle-decoration::after {
     content: '★';
     position: absolute;
@@ -322,6 +356,13 @@
     transform: rotate(-20deg);
   }
 
+  /* Mobile: Straighten decoration after hover effects */
+  @media (max-width: 768px) {
+    .doodle-decoration:hover::after {
+      transform: rotate(0deg) !important;
+    }
+  }
+
   .paper-texture {
     background-image: 
       radial-gradient(circle at 1px 1px, rgba(0,0,0,.1) 1px, transparent 0);
@@ -343,7 +384,13 @@
     transform: rotate(0deg);
     box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
     font-family: 'Comic Sans MS', cursive;
-    /* Removed hover transform to prevent movement */
+  }
+
+  /* Mobile: Ensure results cards are straight */
+  @media (max-width: 768px) {
+    .sketch-results-card {
+      transform: rotate(0deg) !important;
+    }
   }
 
   .sketch-results-card::before {
@@ -367,7 +414,6 @@
     position: relative;
     transform: rotate(0deg);
     box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
-    /* Removed hover transform to prevent movement */
   }
 
   .sketch-score-circle::after {
@@ -391,7 +437,6 @@
     position: relative;
     transform: rotate(0deg);
     overflow: hidden;
-    /* Removed hover transform to prevent movement */
   }
 
   .sketch-progress-bar::after {
@@ -423,6 +468,13 @@
     transform: rotate(-1deg);
   }
 
+  /* Mobile: Straighten annotation hover effects */
+  @media (max-width: 768px) {
+    .sketch-annotation:hover {
+      transform: rotate(0deg) !important;
+    }
+  }
+
   .sketch-annotation::before {
     content: '';
     position: absolute;
@@ -440,6 +492,13 @@
 
   .sketch-annotation:hover::before {
     transform: rotate(1deg);
+  }
+
+  /* Mobile: Straighten annotation before hover effects */
+  @media (max-width: 768px) {
+    .sketch-annotation:hover::before {
+      transform: rotate(0deg) !important;
+    }
   }
 
   /* Mobile-specific improvements */
@@ -466,6 +525,37 @@
     
     .sketch-results-card {
       box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Mobile: Force all transform rotations to be 0 */
+    * {
+      transform: none !important;
+    }
+
+    /* Except for intentional scaling and other transforms that aren't rotations */
+    .hover\:scale-105:hover,
+    .scale-105,
+    .hover\:scale-110:hover,
+    .scale-110 {
+      transform: scale(1.05) !important;
+    }
+
+    .hover\:scale-102:hover,
+    .scale-102 {
+      transform: scale(1.02) !important;
+    }
+
+    /* Keep essential animations */
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+
+    .animate-pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .animate-bounce {
+      animation: bounce 1s infinite;
     }
   }
 }

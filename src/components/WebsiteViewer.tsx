@@ -55,11 +55,11 @@ const WebsiteViewer: React.FC<WebsiteViewerProps> = ({
   if (!websiteUrl) {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
-        <div className="text-center">
-          <MessageSquare className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 mb-2">No website to display</p>
-          <p className="text-sm text-gray-500">Analyze a website URL to view it here</p>
-          <p className="text-sm text-gray-500 mt-2">Click "Add Note" then click on areas to annotate</p>
+        <div className="text-center p-4">
+          <MessageSquare className="h-12 w-12 md:h-16 md:w-16 mx-auto text-gray-400 mb-2 md:mb-4" />
+          <p className="text-sm md:text-base text-gray-600 mb-1 md:mb-2">No website to display</p>
+          <p className="text-xs md:text-sm text-gray-500">Analyze a website URL to view it here</p>
+          <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">Click "Add Note" then click on areas to annotate</p>
         </div>
       </div>
     );
@@ -69,9 +69,9 @@ const WebsiteViewer: React.FC<WebsiteViewerProps> = ({
     <>
       {isLoading && !screenshotUrl && (
         <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-          <div className="text-center">
-            <RefreshCw className="h-8 w-8 mx-auto text-gray-400 mb-2 animate-spin" />
-            <p className="text-gray-600">Loading website...</p>
+          <div className="text-center p-4">
+            <RefreshCw className="h-6 w-6 md:h-8 md:w-8 mx-auto text-gray-400 mb-1 md:mb-2 animate-spin" />
+            <p className="text-sm md:text-base text-gray-600">Loading website...</p>
           </div>
         </div>
       )}
@@ -90,17 +90,17 @@ const WebsiteViewer: React.FC<WebsiteViewerProps> = ({
               (e.target as HTMLImageElement).src = fallbackUrl;
             }}
           />
-          <div className="absolute top-4 right-4 bg-green-100 border border-green-300 rounded-lg px-3 py-2 text-xs text-green-700">
+          <div className="absolute top-2 md:top-4 right-2 md:right-4 bg-green-100 border border-green-300 rounded-lg px-2 md:px-3 py-1 md:py-2 text-xs text-green-700">
             Screenshot Mode - Click to annotate
           </div>
         </div>
       ) : isCapturingScreenshot ? (
         // Show capturing screenshot state
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-          <div className="text-center p-8 max-w-md">
-            <Camera className="h-16 w-16 mx-auto text-blue-500 mb-4 animate-pulse" />
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Capturing Screenshot</h3>
-            <p className="text-sm text-gray-600 mb-4">
+          <div className="text-center p-4 md:p-8 max-w-xs md:max-w-md">
+            <Camera className="h-12 w-12 md:h-16 md:w-16 mx-auto text-blue-500 mb-2 md:mb-4 animate-pulse" />
+            <h3 className="text-base md:text-lg font-bold text-gray-800 mb-1 md:mb-2">Capturing Screenshot</h3>
+            <p className="text-xs md:text-sm text-gray-600 mb-2 md:mb-4">
               Taking a screenshot for annotation...
             </p>
           </div>
@@ -119,14 +119,19 @@ const WebsiteViewer: React.FC<WebsiteViewerProps> = ({
           />
           {iframeError && (
             <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
-              <div className="text-center p-8 max-w-md">
-                <AlertTriangle className="h-16 w-16 mx-auto text-orange-500 mb-4" />
-                <h3 className="text-lg font-bold text-gray-800 mb-2">Taking Screenshot</h3>
-                <p className="text-sm text-gray-600 mb-4">
+              <div className="text-center p-4 md:p-8 max-w-xs md:max-w-md">
+                <AlertTriangle className="h-12 w-12 md:h-16 md:w-16 mx-auto text-orange-500 mb-2 md:mb-4" />
+                <h3 className="text-base md:text-lg font-bold text-gray-800 mb-1 md:mb-2">Taking Screenshot</h3>
+                <p className="text-xs md:text-sm text-gray-600 mb-2 md:mb-4">
                   Website cannot be displayed in frame. Capturing screenshot for annotation...
                 </p>
-                <Button onClick={onCaptureScreenshot} className="w-full border-2 border-dashed border-gray-400" disabled={isCapturingScreenshot}>
-                  <Camera className="h-4 w-4 mr-2" />
+                <Button 
+                  onClick={onCaptureScreenshot} 
+                  className="w-full border-2 border-dashed border-gray-400 text-xs md:text-sm" 
+                  disabled={isCapturingScreenshot}
+                  size="sm"
+                >
+                  <Camera className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                   {isCapturingScreenshot ? 'Capturing...' : 'Retry Screenshot'}
                 </Button>
               </div>

@@ -139,55 +139,65 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
   };
 
   return (
-    <Card className="bg-white/70 backdrop-blur-sm border-2 border-dashed border-gray-300 transform -rotate-1"
+    <Card className="bg-white/70 backdrop-blur-sm border-2 border-dashed border-gray-300 transform md:-rotate-1"
           style={{ 
             boxShadow: '4px 4px 8px rgba(0,0,0,0.1)',
             fontFamily: '"Comic Sans MS", cursive'
           }}>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+      <CardHeader className="p-3 md:p-6">
+        <CardTitle className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center space-x-2">
-            <MessageSquare className="h-5 w-5" />
-            <span>Design Annotations</span>
+            <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
+            <span className="text-sm md:text-base">Design Annotations</span>
             {annotations.length > 0 && (
-              <span className="text-sm text-gray-500">({annotations.length} notes)</span>
+              <span className="text-xs md:text-sm text-gray-500">({annotations.length} notes)</span>
             )}
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant={isAddingAnnotation ? "default" : "outline"}
               size="sm"
               onClick={() => setIsAddingAnnotation(!isAddingAnnotation)}
-              className={isAddingAnnotation ? "bg-purple-600 text-white border-2 border-dashed" : "border-2 border-dashed border-gray-400"}
+              className={`${isAddingAnnotation ? "bg-purple-600 text-white border-2 border-dashed" : "border-2 border-dashed border-gray-400"} text-xs md:text-sm px-2 md:px-3 py-1 md:py-2`}
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
               Add Note
             </Button>
             {websiteUrl && (
               <>
                 <Button 
                   variant="outline" 
+                  size="sm"
                   onClick={handleCaptureScreenshot} 
                   disabled={isCapturingScreenshot}
-                  className="border-2 border-dashed border-gray-400"
+                  className="border-2 border-dashed border-gray-400 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2"
                 >
-                  <Camera className={`h-4 w-4 ${isCapturingScreenshot ? 'animate-pulse' : ''}`} />
+                  <Camera className={`h-3 w-3 md:h-4 md:w-4 ${isCapturingScreenshot ? 'animate-pulse' : ''}`} />
                 </Button>
-                <Button variant="outline" onClick={handleRefreshWebsite} disabled={isLoading} 
-                        className="border-2 border-dashed border-gray-400">
-                  <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleRefreshWebsite} 
+                  disabled={isLoading} 
+                  className="border-2 border-dashed border-gray-400 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2"
+                >
+                  <RefreshCw className={`h-3 w-3 md:h-4 md:w-4 ${isLoading ? 'animate-spin' : ''}`} />
                 </Button>
-                <Button variant="outline" onClick={handleOpenInNewTab}
-                        className="border-2 border-dashed border-gray-400">
-                  <ExternalLink className="h-4 w-4" />
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleOpenInNewTab}
+                  className="border-2 border-dashed border-gray-400 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2"
+                >
+                  <ExternalLink className="h-3 w-3 md:h-4 md:w-4" />
                 </Button>
               </>
             )}
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="p-3 md:p-6">
+        <div className="space-y-3 md:space-y-4">
           {/* Website View with Annotations */}
           <div
             ref={canvasRef}
@@ -195,7 +205,7 @@ const AnnotationCanvas: React.FC<AnnotationCanvasProps> = ({
               isAddingAnnotation ? 'cursor-crosshair' : 'cursor-default'
             }`}
             onClick={handleCanvasClick}
-            style={{ minHeight: '600px', height: '600px' }}
+            style={{ minHeight: '400px', height: '400px' }}
           >
             <WebsiteViewer
               websiteUrl={websiteUrl}
