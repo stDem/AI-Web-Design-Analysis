@@ -38,6 +38,7 @@ const CategoryScoreGrid: React.FC<CategoryScoreGridProps> = ({
     {
       id: 'ux' as keyof CategoryScores,
       label: 'User Experience',
+      shortLabel: 'UX',
       score: categoryScores.ux,
       icon: Users,
       color: 'blue',
@@ -46,6 +47,7 @@ const CategoryScoreGrid: React.FC<CategoryScoreGridProps> = ({
     {
       id: 'code' as keyof CategoryScores,
       label: 'Code Quality',
+      shortLabel: 'Code',
       score: categoryScores.code,
       icon: Code,
       color: 'green',
@@ -54,6 +56,7 @@ const CategoryScoreGrid: React.FC<CategoryScoreGridProps> = ({
     {
       id: 'performance' as keyof CategoryScores,
       label: 'Performance',
+      shortLabel: 'Perf',
       score: categoryScores.performance,
       icon: Zap,
       color: 'yellow',
@@ -62,6 +65,7 @@ const CategoryScoreGrid: React.FC<CategoryScoreGridProps> = ({
     {
       id: 'accessibility' as keyof CategoryScores,
       label: 'Accessibility',
+      shortLabel: 'A11y',
       score: categoryScores.accessibility,
       icon: Accessibility,
       color: 'purple',
@@ -81,7 +85,7 @@ const CategoryScoreGrid: React.FC<CategoryScoreGridProps> = ({
 
   return (
     <>
-      <div className="grid md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {categoryData.map((category) => {
           const IconComponent = category.icon;
           
@@ -93,33 +97,38 @@ const CategoryScoreGrid: React.FC<CategoryScoreGridProps> = ({
               } ${getColorClasses(category.color, category.score)} transform hover:-rotate-1`}
               onClick={() => onCategorySelect(selectedCategory === category.id ? null : category.id)}
               style={{ 
-                boxShadow: '4px 4px 8px rgba(0,0,0,0.1)',
+                boxShadow: '2px 2px 4px rgba(0,0,0,0.1)',
                 fontFamily: '"Comic Sans MS", cursive'
               }}
             >
-              <CardContent className="p-4">
-                <div className="text-center mb-3">
-                  <IconComponent className="h-8 w-8 mx-auto mb-2" />
-                  <h4 className="font-semibold text-sm">{category.label}</h4>
-                  <p className="text-2xl font-bold mt-1">{category.score}%</p>
-                  <div className="text-xs mt-2 opacity-75">
-                    {category.issues.length} issues found
+              <CardContent className="p-3 md:p-4">
+                <div className="text-center mb-2 md:mb-3">
+                  <IconComponent className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-1 md:mb-2" />
+                  <h4 className="font-semibold text-xs md:text-sm">
+                    <span className="md:hidden">{category.shortLabel}</span>
+                    <span className="hidden md:inline">{category.label}</span>
+                  </h4>
+                  <p className="text-xl md:text-2xl font-bold mt-1">{category.score}%</p>
+                  <div className="text-xs mt-1 md:mt-2 opacity-75">
+                    {category.issues.length} issues
                   </div>
                 </div>
 
                 {Object.keys(competitorAnalysis).length > 0 && (
-                  <div className="mt-4 pt-3 border-t border-current/20">
-                    <div className="text-xs font-medium mb-2">vs Competitors:</div>
+                  <div className="mt-3 md:mt-4 pt-2 md:pt-3 border-t border-current/20">
+                    <div className="text-xs font-medium mb-1 md:mb-2">vs Competitors:</div>
                     <div className="space-y-1">
-                      {Object.entries(competitorAnalysis).map(([competitorName, analysis]) => {
+                      {Object.entries(competitorAnalysis).slice(0, 2).map(([competitorName, analysis]) => {
                         const competitorScore = analysis[category.id];
                         const isAhead = category.score > competitorScore;
                         
                         return (
                           <div key={competitorName} className="flex items-center justify-between text-xs">
-                            <span className="truncate">{competitorName}:</span>
+                            <span className="truncate max-w-[60px] md:max-w-none">
+                              {competitorName.length > 8 ? `${competitorName.slice(0, 8)}...` : competitorName}
+                            </span>
                             <div className="flex items-center space-x-1">
-                              <span className={`font-medium ${isAhead ? 'text-green-600' : 'text-red-600'}`}>
+                              <span className={`font-medium text-xs ${isAhead ? 'text-green-600' : 'text-red-600'}`}>
                                 {competitorScore}%
                               </span>
                               <span className={isAhead ? 'text-green-600' : 'text-red-600'}>
@@ -139,10 +148,11 @@ const CategoryScoreGrid: React.FC<CategoryScoreGridProps> = ({
       </div>
 
       {selectedCategory && (
-        <div className="text-center p-2 bg-blue-50 rounded-lg border-2 border-dashed border-blue-200">
+        <div className="text-center p-3 md:p-4 bg-blue-50 rounded-lg border-2 border-dashed border-blue-200">
           <p className="text-sm text-blue-700" style={{ fontFamily: '"Comic Sans MS", cursive' }}>
-            Showing results for: <strong>{categoryData.find(cat => cat.id === selectedCategory)?.label}</strong>
-            <Button variant="ghost" size="sm" onClick={() => onCategorySelect(null)} className="ml-2">
+            <span className="block md:inline">Showing results for: </span>
+            <strong className="block md:inline">{categoryData.find(cat => cat.id === selectedCategory)?.label}</strong>
+            <Button variant="ghost" size="sm" onClick={() => onCategorySelect(null)} className="ml-0 md:ml-2 mt-2 md:mt-0 text-xs">
               Show All
             </Button>
           </p>

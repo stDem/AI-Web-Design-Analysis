@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -176,7 +175,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <ScoreCard 
         score={results.score}
         comparison={results.comparison}
@@ -193,22 +192,24 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ results }) => {
         competitorAnalysis={competitorAnalysis}
       />
 
-      {/* Enhanced Issues with Collapsible Code Suggestions */}
+      {/* Enhanced Issues with Collapsible Code Suggestions - Mobile responsive */}
       <Card className="bg-white/80 backdrop-blur-sm border-2 border-dashed border-gray-300 transform rotate-1"
             style={{ 
               boxShadow: '4px 4px 8px rgba(0,0,0,0.1)',
               fontFamily: '"Comic Sans MS", cursive'
             }}>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <AlertTriangle className="h-5 w-5 text-orange-500" />
-            <span>Issues & Improvement Suggestions</span>
-            <Badge variant="outline" className="ml-auto border-2 border-dashed border-gray-400">
+        <CardHeader className="pb-3 md:pb-4">
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-4 w-4 md:h-5 md:w-5 text-orange-500 flex-shrink-0" />
+              <span className="text-sm md:text-base">Issues & Improvement Suggestions</span>
+            </div>
+            <Badge variant="outline" className="border-2 border-dashed border-gray-400 w-fit sm:ml-auto text-xs">
               {filteredIssues.length}
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
+        <CardContent className="space-y-3 md:space-y-4 max-h-[400px] md:max-h-[600px] overflow-y-auto">
           {filteredIssues.map((issue, index) => (
             <IssueCard
               key={index}
