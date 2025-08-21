@@ -1,4 +1,5 @@
 ## Link to website: https://uxray.anst-dem.com/
+<img src="./uxray.gif">
 
 This project aim to analyse web design based on website's URL using AI API (groqApi).
 Analysis includes: overall score (with shareing in Instagram), competitive analysis, comparison with competitors, analysis by categories (with filtering), improvement suggestions (including code improvement), visual design annotations, download final report.
