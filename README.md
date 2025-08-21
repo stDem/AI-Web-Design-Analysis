@@ -1,4 +1,5 @@
 ## Link to website: https://uxray.anst-dem.com/
+### or https://web-design-oracle.lovable.app/ if the link above is currently not working
 <img src="./uxray.gif">
 
 This project aim to analyse web design based on website's URL using AI API (groqApi).
